@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Freelancer Rate Calculator — ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════
+   ZEROKIT — FREELANCER RATE CALCULATOR
+   Tool 01 / 50
+═══════════════════════════════════════════ */
+:root {
+  --bg:         #0f0f0f;
+  --bg2:        #161616;
+  --bg3:        #1c1c1c;
+  --border:     #2a2a2a;
+  --border2:    #333333;
+  --text:       #f0ede8;
+  --text2:      #a8a49e;
+  --text3:      #5a5650;
+  --gold:       #d4a853;
+  --gold2:      #e8c07a;
+  --gold-dim:   rgba(212,168,83,0.12);
+  --gold-glow:  rgba(212,168,83,0.06);
+  --green:      #4a9e6e;
+  --red:        #c25050;
+  --radius:     14px;
+  --radius-sm:  8px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* NOISE TEXTURE OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+/* AMBIENT GLOW */
+body::after {
+  content: '';
+  position: fixed;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(212,168,83,0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* NAV */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(15,15,15,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.nav-logo {
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.nav-sep { color: var(--text3); font-size: 12px; }
+
+.nav-tool {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 1px;
+}
+
+.nav-badge {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  border: 1px solid var(--border2);
+  padding: 3px 8px;
+  border-radius: 99px;
+  letter-spacing: 1px;
+}
+
+/* HERO */
+.hero {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 56px 24px 40px;
+}
+
+.hero-eyebrow {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.5;
+}
+
+.hero-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(36px, 6vw, 60px);
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-desc {
+  font-size: 15px;
+  color: var(--text2);
+  max-width: 520px;
+  line-height: 1.7;
+}
+
+/* MAIN GRID */
+.main {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 780px) {
+  .main { grid-template-columns: 1fr; }
+  .result-panel { order: -1; }
+}
+
+/* CARD */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.card-num {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--border2);
+}
+
+.card-body { padding: 24px; }
+
+/* SECTION LABEL */
+.section-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-label:first-child { margin-top: 0; }
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* FIELD */
+.field { margin-bottom: 14px; }
+
+.field-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--text2);
+  text-transform: uppercase;
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.field-hint {
+  font-family: 'Geist', sans-serif;
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-prefix, .input-suffix {
+  position: absolute;
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  color: var(--text3);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input-prefix { left: 12px; }
+.input-suffix { right: 12px; }
+
+input[type="number"], input[type="text"], select {
+  width: 100%;
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  color: var(--text);
+  font-family: 'Geist Mono', monospace;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.has-prefix input { padding-left: 28px; }
+.has-suffix input { padding-right: 36px; }
+
+input:focus, select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-dim);
+  background: #1a1a18;
+}
+
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5650' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+select option { background: var(--bg3); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* SLIDER */
+.slider-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: var(--border2);
+  border-radius: 99px;
+  outline: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(212,168,83,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 14px rgba(212,168,83,0.6);
+}
+
+.slider-val {
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  color: var(--gold);
+  min-width: 36px;
+  text-align: right;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 1px;
+}
+
+/* TOGGLE PILLS */
+.toggle-group {
+  display: flex;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 3px;
+}
+
+.toggle-opt {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text3);
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.toggle-opt.active {
+  background: var(--gold-dim);
+  color: var(--gold);
+  border: 1px solid rgba(212,168,83,0.2);
+}
+
+/* ═══════════════════════
+   RESULT PANEL
+═══════════════════════ */
+.result-panel { position: sticky; top: 76px; }
+
+.rate-display {
+  background: linear-gradient(160deg, #1a1a14 0%, #161610 100%);
+  border: 1px solid rgba(212,168,83,0.2);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.rate-display::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.rate-display::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212,168,83,0.06) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.rate-eyebrow {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.rate-value {
+  font-family: 'Instrument Serif', serif;
+  font-size: 72px;
+  line-height: 1;
+  color: var(--gold);
+  filter: drop-shadow(0 0 24px rgba(212,168,83,0.3));
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.rate-unit {
+  font-family: 'Geist Mono', monospace;
+  font-size: 14px;
+  color: var(--text3);
+  margin-top: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.rate-range {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.rate-range span { color: var(--text2); }
+
+/* BREAKDOWN CARD */
+.breakdown {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.breakdown-row:last-child { border-bottom: none; }
+.breakdown-row:hover { background: var(--bg3); }
+
+.breakdown-label {
+  font-size: 12px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.breakdown-label-icon { font-size: 14px; }
+
+.breakdown-value {
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.breakdown-value.negative { color: var(--red); }
+.breakdown-value.positive { color: var(--green); }
+.breakdown-value.highlight { color: var(--gold); font-size: 15px; }
+
+.breakdown-row.total {
+  background: var(--gold-glow);
+  border-top: 1px solid rgba(212,168,83,0.15);
+}
+
+/* WARNING */
+.warning-box {
+  background: rgba(194,80,80,0.08);
+  border: 1px solid rgba(194,80,80,0.2);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.warning-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+.warning-text {
+  font-size: 12px;
+  color: #e09090;
+  line-height: 1.5;
+}
+
+/* INSIGHT BOX */
+.insight-box {
+  background: var(--gold-glow);
+  border: 1px solid rgba(212,168,83,0.15);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.insight-title {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.insight-text {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.insight-text strong { color: var(--text); font-weight: 500; }
+
+/* COPY BUTTON */
+.copy-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(212,168,83,0.25);
+  border-radius: var(--radius-sm);
+  color: var(--gold);
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover {
+  background: rgba(212,168,83,0.18);
+  border-color: rgba(212,168,83,0.4);
+  transform: translateY(-1px);
+}
+
+/* FOOTER */
+.footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 32px 24px;
+  border-top: 1px solid var(--border);
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 2px;
+}
+
+.footer a { color: var(--gold); text-decoration: none; opacity: 0.7; }
+.footer a:hover { opacity: 1; }
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card { animation: fadeUp 0.5s ease forwards; }
+.card:nth-child(2) { animation-delay: 0.05s; }
+.result-panel { animation: fadeUp 0.5s ease 0.1s both; }
+
+/* NUMBER FLIP ANIMATION */
+.rate-value.updating {
+  transform: scale(0.96);
+  opacity: 0.7;
+}
+
+/* TOOLTIP */
+.tooltip-wrap { position: relative; display: inline-block; }
+.tooltip-icon {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  border: 1px solid var(--border2);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+}
+
+/* PROGRESS BAR */
+.progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* MARKET COMPARISON */
+.market-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.market-row:last-child { border-bottom: none; }
+
+.market-label {
+  font-size: 12px;
+  color: var(--text2);
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.market-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.market-bar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.market-val {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--text2);
+  width: 60px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.market-val.you { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-brand" href="https://zerokitapp.github.io">
+    <span class="nav-logo">ZeroKit</span>
+    <span class="nav-sep">/</span>
+    <span class="nav-tool">Rate Calculator</span>
+  </a>
+  <div class="nav-badge">Tool 01 / 50</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Freelancer Tools</div>
+  <h1 class="hero-title">Know your worth.<br><em>Charge accordingly.</em></h1>
+  <p class="hero-desc">Calculate the exact hourly rate you need to charge to cover your expenses, taxes, and reach your income goals — without guessing.</p>
+</section>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT: INPUTS -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Income Goals</span>
+        <span class="card-num">01</span>
+      </div>
+      <div class="card-body">
+
+        <div class="section-label">Target Income</div>
+
+        <div class="field">
+          <div class="field-label">
+            Desired Annual Income
+            <span class="field-hint">Before tax</span>
+          </div>
+          <div class="input-wrap has-prefix">
+            <span class="input-prefix">$</span>
+            <input type="number" id="targetIncome" value="80000" min="0" oninput="calculate()"/>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <div class="field-label">Currency</div>
+            <select id="currency" onchange="calculate()">
+              <option value="$">USD ($)</option>
+              <option value="€">EUR (€)</option>
+              <option value="£">GBP (£)</option>
+              <option value="CHF">CHF</option>
+              <option value="A$">AUD</option>
+              <option value="C$">CAD</option>
+              <option value="KM">BAM</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Country / Tax</div>
+            <select id="taxPreset" onchange="applyTaxPreset()">
+              <option value="custom">Custom</option>
+              <option value="25">USA (~25%)</option>
+              <option value="20">UK (~20%)</option>
+              <option value="30">Germany (~30%)</option>
+              <option value="22">France (~22%)</option>
+              <option value="27">Australia (~27%)</option>
+              <option value="26">Canada (~26%)</option>
+              <option value="10">Bosnia (~10%)</option>
+              <option value="19">Serbia (~19%)</option>
+              <option value="0">Tax Free</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">
+            Self-Employment Tax Rate
+            <span class="field-hint" id="taxRateHint">25%</span>
+          </div>
+          <div class="slider-wrap">
+            <div class="slider-row">
+              <input type="range" id="taxRate" min="0" max="60" value="25" oninput="updateSlider('taxRate','taxRateVal','%');calculate()"/>
+              <span class="slider-val" id="taxRateVal">25%</span>
+            </div>
+            <div class="slider-labels">
+              <span>0%</span>
+              <span>Tax Rate</span>
+              <span>60%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">Work Schedule</div>
+
+        <div class="grid-2">
+          <div class="field">
+            <div class="field-label">Weeks per Year</div>
+            <div class="input-wrap has-suffix">
+              <input type="number" id="weeksPerYear" value="48" min="1" max="52" oninput="calculate()"/>
+              <span class="input-suffix">wk</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Days per Week</div>
+            <div class="input-wrap has-suffix">
+              <input type="number" id="daysPerWeek" value="5" min="1" max="7" oninput="calculate()"/>
+              <span class="input-suffix">d</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">
+            Billable Hours per Day
+            <span class="field-hint" id="billableHint">6h</span>
+          </div>
+          <div class="slider-wrap">
+            <div class="slider-row">
+              <input type="range" id="billableHours" min="1" max="12" value="6" oninput="updateSlider('billableHours','billableVal','h');calculate()"/>
+              <span class="slider-val" id="billableVal">6h</span>
+            </div>
+            <div class="slider-labels">
+              <span>1h</span>
+              <span>Billable only (not admin)</span>
+              <span>12h</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">
+            Expected Utilization Rate
+            <span class="field-hint">% of time with paying clients</span>
+          </div>
+          <div class="slider-wrap">
+            <div class="slider-row">
+              <input type="range" id="utilization" min="10" max="100" value="70" oninput="updateSlider('utilization','utilizationVal','%');calculate()"/>
+              <span class="slider-val" id="utilizationVal">70%</span>
+            </div>
+            <div class="slider-labels">
+              <span>10%</span>
+              <span>Utilization</span>
+              <span>100%</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- EXPENSES CARD -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-header">
+        <span class="card-title">Monthly Expenses</span>
+        <span class="card-num">02</span>
+      </div>
+      <div class="card-body">
+
+        <div class="section-label">Business Costs</div>
+
+        <div class="grid-2">
+          <div class="field">
+            <div class="field-label">Software & Tools</div>
+            <div class="input-wrap has-prefix">
+              <span class="input-prefix">$</span>
+              <input type="number" id="expSoftware" value="100" min="0" oninput="calculate()"/>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Internet & Phone</div>
+            <div class="input-wrap has-prefix">
+              <span class="input-prefix">$</span>
+              <input type="number" id="expInternet" value="80" min="0" oninput="calculate()"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <div class="field-label">Equipment / Hardware</div>
+            <div class="input-wrap has-prefix">
+              <span class="input-prefix">$</span>
+              <input type="number" id="expEquipment" value="50" min="0" oninput="calculate()"/>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Marketing / Ads</div>
+            <div class="input-wrap has-prefix">
+              <span class="input-prefix">$</span>
+              <input type="number" id="expMarketing" value="50" min="0" oninput="calculate()"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <div class="field-label">Office / Coworking</div>
+            <div class="input-wrap has-prefix">
+              <span class="input-prefix">$</span>
+              <input type="number" id="expOffice" value="0" min="0" oninput="calculate()"/>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Other Business</div>
+            <div class="input-wrap has-prefix">
+              <span class="input-prefix">$</span>
+              <input type="number" id="expOther" value="50" min="0" oninput="calculate()"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">Personal Costs</div>
+
+        <div class="grid-2">
+          <div class="field">
+            <div class="field-label">Health Insurance</div>
+            <div class="input-wrap has-prefix">
+              <span class="input-prefix">$</span>
+              <input type="number" id="expHealth" value="200" min="0" oninput="calculate()"/>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Retirement / Savings</div>
+            <div class="input-wrap has-prefix">
+              <span class="input-prefix">$</span>
+              <input type="number" id="expRetirement" value="300" min="0" oninput="calculate()"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">Profit Buffer %</div>
+          <div class="slider-wrap">
+            <div class="slider-row">
+              <input type="range" id="profitBuffer" min="0" max="50" value="15" oninput="updateSlider('profitBuffer','profitBufferVal','%');calculate()"/>
+              <span class="slider-val" id="profitBufferVal">15%</span>
+            </div>
+            <div class="slider-labels">
+              <span>0%</span>
+              <span>Safety margin on top</span>
+              <span>50%</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: RESULTS -->
+  <div class="result-panel">
+
+    <!-- MAIN RATE -->
+    <div class="rate-display">
+      <div class="rate-eyebrow">Your Minimum Rate</div>
+      <div class="rate-value" id="rateValue">$0</div>
+      <div class="rate-unit" id="rateUnit">per hour</div>
+      <div class="rate-range" id="rateRange">Suggested range: <span id="rateRangeLow">—</span> – <span id="rateRangeHigh">—</span></div>
+    </div>
+
+    <!-- RATE TOGGLES -->
+    <div class="toggle-group" style="margin-bottom:14px">
+      <button class="toggle-opt active" onclick="setRateView('hour',this)">Hourly</button>
+      <button class="toggle-opt" onclick="setRateView('day',this)">Daily</button>
+      <button class="toggle-opt" onclick="setRateView('week',this)">Weekly</button>
+      <button class="toggle-opt" onclick="setRateView('month',this)">Monthly</button>
+    </div>
+
+    <!-- BREAKDOWN -->
+    <div class="breakdown" id="breakdown">
+      <div class="breakdown-row">
+        <span class="breakdown-label"><span class="breakdown-label-icon">🎯</span>Target Income</span>
+        <span class="breakdown-value" id="bTargetIncome">—</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="breakdown-label"><span class="breakdown-label-icon">📦</span>Annual Expenses</span>
+        <span class="breakdown-value negative" id="bExpenses">—</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="breakdown-label"><span class="breakdown-label-icon">🏛</span>Tax Reserve</span>
+        <span class="breakdown-value negative" id="bTax">—</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="breakdown-label"><span class="breakdown-label-icon">🛡</span>Profit Buffer</span>
+        <span class="breakdown-value negative" id="bBuffer">—</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="breakdown-label"><span class="breakdown-label-icon">⏱</span>Billable Hours/Year</span>
+        <span class="breakdown-value" id="bHours">—</span>
+      </div>
+      <div class="breakdown-row total">
+        <span class="breakdown-label"><span class="breakdown-label-icon">💰</span><strong>Min. Hourly Rate</strong></span>
+        <span class="breakdown-value highlight" id="bRate">—</span>
+      </div>
+    </div>
+
+    <!-- WARNING if too low -->
+    <div class="warning-box" id="warningBox" style="display:none">
+      <span class="warning-icon">⚠️</span>
+      <div class="warning-text" id="warningText"></div>
+    </div>
+
+    <!-- INSIGHT -->
+    <div class="insight-box" id="insightBox">
+      <div class="insight-title">💡 Rate Insight</div>
+      <div class="insight-text" id="insightText">Fill in your details to get a personalized insight.</div>
+    </div>
+
+    <!-- MARKET COMPARISON -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-header">
+        <span class="card-title">Market Context</span>
+      </div>
+      <div class="card-body" style="padding:16px 18px">
+        <div id="marketRows"></div>
+      </div>
+    </div>
+
+    <!-- COPY -->
+    <button class="copy-btn" onclick="copyRate()">Copy Rate to Clipboard</button>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <a href="https://zerokitapp.github.io">ZeroKit</a>
+  &nbsp;·&nbsp; Free Business Tools &nbsp;·&nbsp; No signup &nbsp;·&nbsp; No limits
+</footer>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────
+let currentRateView = 'hour';
+let lastCalc = {};
+
+// ── INIT ──────────────────────────────────────────────────────
+window.onload = () => { calculate(); };
+
+// ── HELPERS ───────────────────────────────────────────────────
+function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function sym() { return document.getElementById('currency').value; }
+function fmt(n) { return sym() + Math.round(n).toLocaleString(); }
+function fmtDec(n) { return sym() + n.toFixed(2); }
+
+function updateSlider(sliderId, valId, suffix) {
+  document.getElementById(valId).textContent = document.getElementById(sliderId).value + suffix;
+}
+
+function applyTaxPreset() {
+  const val = document.getElementById('taxPreset').value;
+  if (val === 'custom') return;
+  document.getElementById('taxRate').value = val;
+  document.getElementById('taxRateVal').textContent = val + '%';
+  calculate();
+}
+
+function setRateView(view, btn) {
+  currentRateView = view;
+  document.querySelectorAll('.toggle-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateRateDisplay();
+}
+
+// ── MAIN CALCULATE ────────────────────────────────────────────
+function calculate() {
+  // Income & tax
+  const targetIncome   = v('targetIncome');
+  const taxRate        = v('taxRate') / 100;
+
+  // Schedule
+  const weeksPerYear   = Math.min(v('weeksPerYear'), 52);
+  const daysPerWeek    = Math.min(v('daysPerWeek'), 7);
+  const billableHours  = v('billableHours');
+  const utilization    = v('utilization') / 100;
+
+  // Monthly expenses → annual
+  const monthlyExp = v('expSoftware') + v('expInternet') + v('expEquipment') +
+                     v('expMarketing') + v('expOffice') + v('expOther') +
+                     v('expHealth') + v('expRetirement');
+  const annualExpenses = monthlyExp * 12;
+
+  // Profit buffer
+  const profitBuffer = v('profitBuffer') / 100;
+
+  // Total needed (gross: covers tax + expenses + income + buffer)
+  const baseNeeded    = targetIncome + annualExpenses;
+  const withBuffer    = baseNeeded * (1 + profitBuffer);
+  const grossNeeded   = withBuffer / (1 - taxRate);  // gross up for tax
+  const taxReserve    = grossNeeded - withBuffer;
+
+  // Billable hours per year
+  const totalBillableHours = weeksPerYear * daysPerWeek * billableHours * utilization;
+
+  // Minimum hourly rate
+  const hourlyRate = totalBillableHours > 0 ? grossNeeded / totalBillableHours : 0;
+  const dailyRate  = hourlyRate * billableHours;
+  const weeklyRate = dailyRate * daysPerWeek;
+  const monthlyRate = weeklyRate * (weeksPerYear / 12);
+
+  // Range (±20%)
+  const rangeLow  = hourlyRate * 0.9;
+  const rangeHigh = hourlyRate * 1.35;
+
+  lastCalc = {
+    hourlyRate, dailyRate, weeklyRate, monthlyRate,
+    rangeLow, rangeHigh,
+    grossNeeded, targetIncome, annualExpenses, taxReserve,
+    bufferAmount: withBuffer - baseNeeded,
+    totalBillableHours,
+    monthlyExp,
+    profitBuffer
+  };
+
+  updateDisplay();
+}
+
+function updateDisplay() {
+  const c = lastCalc;
+  if (!c.hourlyRate) return;
+
+  // Breakdown
+  document.getElementById('bTargetIncome').textContent = fmt(c.targetIncome);
+  document.getElementById('bExpenses').textContent     = '-' + fmt(c.annualExpenses);
+  document.getElementById('bTax').textContent          = '-' + fmt(c.taxReserve);
+  document.getElementById('bBuffer').textContent       = '-' + fmt(c.bufferAmount);
+  document.getElementById('bHours').textContent        = Math.round(c.totalBillableHours).toLocaleString() + 'h';
+  document.getElementById('bRate').textContent         = fmtDec(c.hourlyRate);
+
+  // Range
+  document.getElementById('rateRangeLow').textContent  = fmtDec(c.rangeLow);
+  document.getElementById('rateRangeHigh').textContent = fmtDec(c.rangeHigh);
+
+  // Warning
+  const warningBox = document.getElementById('warningBox');
+  const warningText = document.getElementById('warningText');
+  if (c.hourlyRate < 15) {
+    warningBox.style.display = 'flex';
+    warningText.textContent = `At ${fmtDec(c.hourlyRate)}/hr you may struggle to cover costs. Consider reducing expenses, working more hours, or increasing your income target.`;
+  } else {
+    warningBox.style.display = 'none';
+  }
+
+  // Insight
+  generateInsight(c);
+
+  // Market comparison
+  renderMarket(c.hourlyRate);
+
+  updateRateDisplay();
+}
+
+function updateRateDisplay() {
+  const c = lastCalc;
+  if (!c.hourlyRate) return;
+
+  const rateEl = document.getElementById('rateValue');
+  const unitEl = document.getElementById('rateUnit');
+
+  rateEl.classList.add('updating');
+  setTimeout(() => {
+    let val, unit;
+    switch(currentRateView) {
+      case 'hour':  val = c.hourlyRate;  unit = 'per hour';  break;
+      case 'day':   val = c.dailyRate;   unit = 'per day';   break;
+      case 'week':  val = c.weeklyRate;  unit = 'per week';  break;
+      case 'month': val = c.monthlyRate; unit = 'per month'; break;
+    }
+    rateEl.textContent = sym() + Math.round(val).toLocaleString();
+    unitEl.textContent = unit;
+    rateEl.classList.remove('updating');
+  }, 150);
+}
+
+function generateInsight(c) {
+  const el = document.getElementById('insightText');
+  const rate = c.hourlyRate;
+  const util = v('utilization');
+
+  let insight = '';
+
+  if (util < 50) {
+    insight = `Your utilization is only <strong>${util}%</strong> — meaning half your working time is unpaid admin. Raising it to 70% would drop your required rate to <strong>${sym()}${Math.round(c.grossNeeded / (v('weeksPerYear') * v('daysPerWeek') * v('billableHours') * 0.7))}/hr</strong>.`;
+  } else if (c.annualExpenses > c.targetIncome * 0.3) {
+    insight = `Your expenses (<strong>${sym()}${Math.round(c.monthlyExp * 12).toLocaleString()}/yr</strong>) are high relative to your income goal. Even cutting <strong>${sym()}200/month</strong> in costs saves you <strong>${sym()}${Math.round(200 * 12 / c.totalBillableHours)}/hr</strong> on your required rate.`;
+  } else if (rate > 150) {
+    insight = `At <strong>${sym()}${Math.round(rate)}/hr</strong> you're in senior/expert territory. Make sure your portfolio and positioning justify this rate — clients at this level expect proven results.`;
+  } else if (rate < 30) {
+    insight = `Your required rate is relatively low. Consider <strong>raising your income target</strong> or adding a larger profit buffer — undercharging is one of the biggest mistakes freelancers make.`;
+  } else {
+    insight = `<strong>${sym()}${Math.round(rate)}/hr</strong> is your floor — the minimum to survive. To build savings and grow, aim to charge <strong>${sym()}${Math.round(rate * 1.25)}–${sym()}${Math.round(rate * 1.5)}/hr</strong> and position yourself accordingly.`;
+  }
+
+  el.innerHTML = insight;
+}
+
+function renderMarket(yourRate) {
+  const container = document.getElementById('marketRows');
+  const s = sym();
+
+  // General freelance market benchmarks (USD-equivalent ranges)
+  const markets = [
+    { label: 'Junior',   rate: 25,  color: '#5a8a6a' },
+    { label: 'Mid',      rate: 65,  color: '#8a7a3a' },
+    { label: 'Senior',   rate: 120, color: '#9a6a2a' },
+    { label: 'Expert',   rate: 200, color: '#a04040' },
+    { label: 'You',      rate: yourRate, color: '#d4a853', isYou: true },
+  ];
+
+  const max = Math.max(...markets.map(m => m.rate), yourRate) * 1.1;
+
+  container.innerHTML = markets.map(m => `
+    <div class="market-row">
+      <span class="market-label">${m.label}</span>
+      <div class="market-bar-wrap">
+        <div class="market-bar" style="width:${(m.rate/max*100).toFixed(1)}%;background:${m.color};${m.isYou ? 'box-shadow:0 0 8px rgba(212,168,83,0.4)' : ''}"></div>
+      </div>
+      <span class="market-val ${m.isYou ? 'you' : ''}">${s}${Math.round(m.rate)}</span>
+    </div>
+  `).join('');
+}
+
+function copyRate() {
+  const c = lastCalc;
+  if (!c.hourlyRate) return;
+  const s = sym();
+  const text =
+`My Freelance Rate (calculated with ZeroKit)
+━━━━━━━━━━━━━━━━━━━━━━
+Hourly:  ${s}${Math.round(c.hourlyRate)}/hr
+Daily:   ${s}${Math.round(c.dailyRate)}/day
+Weekly:  ${s}${Math.round(c.weeklyRate)}/week
+Monthly: ${s}${Math.round(c.monthlyRate)}/month
+━━━━━━━━━━━━━━━━━━━━━━
+Based on ${Math.round(c.totalBillableHours).toLocaleString()} billable hours/year
+zerokitapp.github.io`;
+
+  navigator.clipboard.writeText(text).catch(() => {});
+  const btn = document.querySelector('.copy-btn');
+  btn.textContent = '✓ Copied!';
+  setTimeout(() => btn.textContent = 'Copy Rate to Clipboard', 2000);
+}
+</script>
+</body>
+</html>
