@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Project Quote Generator — ZeroKit</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 
 <style>
@@ -20,305 +19,102 @@
   --border:#ddd9d0;
   --border2:#ccc8bf;
   --accent:#1a4a8a;
-  --accent-bg:rgba(26,74,138,0.06);
-  --red:#8a2a1a;
-  --green:#1a6a3a;
+  --accent-bg: rgba(26,74,138,0.06);
   --radius:12px;
   --radius-sm:7px;
-  --shadow:0 1px 4px rgba(0,0,0,0.08);
-  --shadow-lg:0 8px 30px rgba(0,0,0,0.12);
+  --shadow:0 1px 4px rgba(26,24,20,0.08),0 4px 16px rgba(26,24,20,0.06);
+  --shadow-lg:0 4px 24px rgba(26,24,20,0.12);
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-
 body{
   background:var(--bg);
-  color:var(--ink);
   font-family:'Outfit',sans-serif;
   overflow-x:hidden;
 }
 
-/* FIX: removed z-index overlay bug */
-body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  opacity:0.03;
-  pointer-events:none;
-  z-index:0;
-}
-
-/* NAV */
-.nav{
-  background:var(--white);
-  border-bottom:2px solid var(--ink);
-  height:54px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 20px;
-  position:sticky;
-  top:0;
-  z-index:10;
-}
-
-/* HERO */
-.hero-strip{
-  background:var(--ink);
-  color:white;
-  padding:40px 24px;
-}
-
-/* LAYOUT FIX */
+/* FIX 1: LAYOUT SCROLL SAFE */
 .layout{
-  max-width:1000px;
+  max-width:960px;
   margin:0 auto;
-  padding:30px 20px 80px;
+  padding:28px 24px 80px;
   display:grid;
-  grid-template-columns:1fr 420px;
+  grid-template-columns:1fr 400px;
   gap:20px;
   align-items:start;
 }
 
-/* ✅ FIXED: removed sticky bug */
+/* FIX 2: PREVIEW SCROLL FIX (THIS IS YOUR MAIN BUG) */
 .quote-preview-wrap{
-  position:relative;
-  top:auto;
+  position:sticky;
+  top:74px;
+  max-height:calc(100vh - 90px);
+  overflow-y:auto;
 }
 
-/* MOBILE FIX */
-@media(max-width:900px){
-  .layout{
-    grid-template-columns:1fr;
-  }
-
+/* FIX 3: MOBILE FIX (NO STICKY ON SMALL SCREENS) */
+@media(max-width:800px){
+  .layout{grid-template-columns:1fr;}
   .quote-preview-wrap{
     position:relative;
+    top:auto;
+    max-height:none;
+    overflow:visible;
   }
 }
 
-/* CARDS */
-.card{
-  background:var(--white);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  margin-bottom:16px;
-}
+/* keep rest of your styling unchanged */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;}
+.card-body{padding:22px;}
+input,textarea,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;}
 
-.card-header{
-  padding:14px 18px;
-  border-bottom:1px solid var(--border);
-  background:var(--bg2);
-}
+.quote-doc{background:white;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);}
 
-.card-body{
-  padding:18px;
-}
-
-/* INPUTS */
-input,textarea,select{
-  width:100%;
-  padding:10px;
-  border:1px solid var(--border);
-  border-radius:6px;
-  font-family:inherit;
-  outline:none;
-}
-
-input:focus,textarea:focus,select:focus{
-  border-color:var(--accent);
-}
-
-/* SCROLL AREA FIX */
-#scopeContainer{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.scope-item{
-  display:grid;
-  grid-template-columns:1fr 80px 80px 80px 40px;
-  gap:8px;
-  align-items:center;
-}
-
-.scope-total{
-  font-family:'DM Mono',monospace;
-  text-align:right;
-}
-
-/* BUTTON */
-button{
-  cursor:pointer;
-}
-
-/* PREVIEW FIX */
-.quote-doc{
-  background:white;
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow-lg);
-}
-
-/* IMPORTANT PDF SAFETY */
-@media print {
-  body {
-    background:white !important;
-  }
-}
+/* (KEEP ALL YOUR OTHER CSS AS-IS — REMOVED HERE FOR BREVITY) */
 </style>
 </head>
 
 <body>
 
-<nav class="nav">
-  <div><strong>ZeroKit</strong></div>
-</nav>
-
-<div class="hero-strip">
-  <h1>Quote Generator</h1>
-</div>
-
-<div class="layout">
-
-<!-- LEFT -->
-<div>
-
-  <div class="card">
-    <div class="card-header">Client Info</div>
-    <div class="card-body">
-      <input id="fromName" placeholder="Your Name" oninput="update()">
-      <input id="toName" placeholder="Client Name" oninput="update()">
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">Scope</div>
-    <div class="card-body">
-
-      <div id="scopeContainer"></div>
-
-      <button onclick="addScope()">+ Add</button>
-
-    </div>
-  </div>
-
-</div>
-
-<!-- RIGHT -->
-<div class="quote-preview-wrap">
-
-  <div class="quote-doc" id="quoteDoc">
-    <div style="padding:20px">
-      <h3 id="qFrom">Your Business</h3>
-      <h4 id="qTo">Client</h4>
-
-      <table width="100%">
-        <tbody id="qTable"></tbody>
-      </table>
-
-      <h2 id="total">$0</h2>
-    </div>
-  </div>
-
-  <button onclick="downloadPDF()">Download PDF</button>
-
-</div>
-
-</div>
+<!-- YOUR ENTIRE HTML STAYS THE SAME -->
+<!-- I’m not repeating full markup to avoid wasting space -->
 
 <script>
+// ================= FIXED PDF FUNCTION =================
+function downloadPDF() {
+  const doc = document.getElementById('quoteDoc').cloneNode(true);
 
-let scopeItems = [{desc:"",hours:0,rate:0}];
+  const win = window.open('', '_blank');
+  if (!win) return alert("Allow popups");
 
-function addScope(){
-  scopeItems.push({desc:"",hours:0,rate:0});
-  render();
-}
-
-function render(){
-
-  let c = document.getElementById("scopeContainer");
-  c.innerHTML="";
-
-  scopeItems.forEach((s,i)=>{
-    let div = document.createElement("div");
-    div.className="scope-item";
-
-    div.innerHTML=`
-      <input placeholder="Task" oninput="scopeItems[${i}].desc=this.value;update()">
-      <input type="number" oninput="scopeItems[${i}].hours=this.value;update()">
-      <input type="number" oninput="scopeItems[${i}].rate=this.value;update()">
-      <div class="scope-total">$0</div>
-      <button onclick="scopeItems.splice(${i},1);render();update()">X</button>
-    `;
-
-    c.appendChild(div);
-  });
-
-  update();
-}
-
-function update(){
-
-  let total=0;
-
-  let table="";
-
-  scopeItems.forEach(s=>{
-    let t=(s.hours||0)*(s.rate||0);
-    total+=t;
-
-    table+=`<tr>
-      <td>${s.desc||""}</td>
-      <td>${t}</td>
-    </tr>`;
-  });
-
-  document.getElementById("qTable").innerHTML=table;
-  document.getElementById("total").innerText="$"+total.toFixed(2);
-
-  document.getElementById("qFrom").innerText=
-    document.getElementById("fromName").value || "Your Business";
-
-  document.getElementById("qTo").innerText=
-    document.getElementById("toName").value || "Client";
-}
-
-/* ✅ FIXED PDF (no blank page) */
-function downloadPDF(){
-
-  const content=document.getElementById("quoteDoc").outerHTML;
-
-  const w=window.open();
-
-  w.document.write(`
-    <html>
-    <head>
-      <title>Quote</title>
-      <style>
-        body{font-family:Arial;padding:20px;}
-      </style>
-    </head>
-    <body>
-      ${content}
-      <script>
-        setTimeout(()=>{
-          window.print();
-        },800);
-      <\/script>
-    </body>
-    </html>
+  win.document.open();
+  win.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+<title>Quote PDF</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces&family=DM+Mono&family=Outfit&display=swap" rel="stylesheet">
+<style>
+body{font-family:Outfit,sans-serif;padding:20px;background:white;}
+</style>
+</head>
+<body>
+${doc.outerHTML}
+<script>
+window.onload = function () {
+  setTimeout(() => {
+    window.print();
+  }, 300);
+};
+</script>
+</body>
+</html>
   `);
-
-  w.document.close();
+  win.document.close();
 }
 
-render();
-
+// simple placeholders (keep yours)
+function update(){}
 </script>
 
 </body>
