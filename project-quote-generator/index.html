@@ -8,113 +8,291 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 
 <style>
-:root {
+:root{
   --bg:#f5f2eb;
-  --bg2:#eeeadf;
   --white:#fdfcf9;
   --ink:#1a1814;
   --ink2:#3d3a34;
   --ink3:#7a7570;
-  --ink4:#b5b0a8;
   --border:#ddd9d0;
-  --border2:#ccc8bf;
   --accent:#1a4a8a;
-  --accent-bg: rgba(26,74,138,0.06);
   --radius:12px;
-  --radius-sm:7px;
-  --shadow:0 1px 4px rgba(26,24,20,0.08),0 4px 16px rgba(26,24,20,0.06);
-  --shadow-lg:0 4px 24px rgba(26,24,20,0.12);
+  --shadow:0 1px 4px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.06);
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
+
 body{
+  font-family:Outfit,sans-serif;
   background:var(--bg);
-  font-family:'Outfit',sans-serif;
-  overflow-x:hidden;
 }
 
-/* FIX 1: LAYOUT SCROLL SAFE */
 .layout{
-  max-width:960px;
+  max-width:1100px;
   margin:0 auto;
-  padding:28px 24px 80px;
+  padding:24px;
   display:grid;
-  grid-template-columns:1fr 400px;
+  grid-template-columns:1fr 420px;
   gap:20px;
-  align-items:start;
 }
 
-/* FIX 2: PREVIEW SCROLL FIX (THIS IS YOUR MAIN BUG) */
-.quote-preview-wrap{
+/* LEFT FORM */
+.card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px;
+  margin-bottom:14px;
+}
+
+input,textarea,select{
+  width:100%;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  margin-top:6px;
+}
+
+label{
+  font-size:12px;
+  color:var(--ink3);
+}
+
+/* RIGHT PREVIEW */
+.preview{
   position:sticky;
-  top:74px;
-  max-height:calc(100vh - 90px);
-  overflow-y:auto;
+  top:20px;
 }
 
-/* FIX 3: MOBILE FIX (NO STICKY ON SMALL SCREENS) */
-@media(max-width:800px){
-  .layout{grid-template-columns:1fr;}
-  .quote-preview-wrap{
-    position:relative;
-    top:auto;
-    max-height:none;
-    overflow:visible;
-  }
+.quote{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
 }
 
-/* keep rest of your styling unchanged */
-.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;}
-.card-body{padding:22px;}
-input,textarea,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;}
+.header{
+  background:var(--ink);
+  color:white;
+  padding:18px;
+}
 
-.quote-doc{background:white;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);}
+.body{
+  padding:18px;
+}
 
-/* (KEEP ALL YOUR OTHER CSS AS-IS — REMOVED HERE FOR BREVITY) */
+.row{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px solid #eee;
+}
+
+.total{
+  font-weight:bold;
+  font-size:18px;
+  color:var(--accent);
+  text-align:right;
+  padding-top:10px;
+}
+
+/* BUTTONS */
+button{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.btn{
+  background:var(--ink);
+  color:white;
+}
+
+.btn2{
+  background:transparent;
+  border:1px solid var(--border);
+}
+
+/* PRINT FIX */
+@media print{
+  body{background:white;}
+  .layout{display:block;}
+  .preview{position:static;}
+}
 </style>
 </head>
 
 <body>
 
-<!-- YOUR ENTIRE HTML STAYS THE SAME -->
-<!-- I’m not repeating full markup to avoid wasting space -->
+<div class="layout">
+
+  <!-- LEFT SIDE -->
+  <div>
+
+    <div class="card">
+      <label>Your Name</label>
+      <input id="fromName" oninput="update()" placeholder="Your business"/>
+
+      <label>Your Email</label>
+      <input id="fromEmail" oninput="update()" placeholder="email"/>
+
+      <label>Client Name</label>
+      <input id="toName" oninput="update()" placeholder="client"/>
+
+      <label>Project Title</label>
+      <input id="project" oninput="update()" placeholder="Website Design"/>
+
+      <label>Hours</label>
+      <input id="hours" type="number" value="10" oninput="update()"/>
+
+      <label>Rate</label>
+      <input id="rate" type="number" value="50" oninput="update()"/>
+
+      <label>Discount %</label>
+      <input id="discount" type="number" value="0" oninput="update()"/>
+
+      <label>Tax %</label>
+      <input id="tax" type="number" value="0" oninput="update()"/>
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="preview">
+
+    <div class="quote" id="quoteDoc">
+
+      <div class="header">
+        <h2 id="qTitle">Quote</h2>
+        <small id="qMeta"></small>
+      </div>
+
+      <div class="body">
+
+        <div class="row">
+          <span>Client</span>
+          <span id="qClient">-</span>
+        </div>
+
+        <div class="row">
+          <span>Project</span>
+          <span id="qProject">-</span>
+        </div>
+
+        <div class="row">
+          <span>Hours</span>
+          <span id="qHours">0</span>
+        </div>
+
+        <div class="row">
+          <span>Rate</span>
+          <span id="qRate">$0</span>
+        </div>
+
+        <div class="row">
+          <span>Subtotal</span>
+          <span id="qSubtotal">$0</span>
+        </div>
+
+        <div class="row">
+          <span>Discount</span>
+          <span id="qDiscount">$0</span>
+        </div>
+
+        <div class="row">
+          <span>Tax</span>
+          <span id="qTax">$0</span>
+        </div>
+
+        <div class="total">
+          Total: <span id="qTotal">$0</span>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="btn" onclick="downloadPDF()">Download PDF</button>
+    <button class="btn2" onclick="window.print()">Print</button>
+
+  </div>
+</div>
 
 <script>
-// ================= FIXED PDF FUNCTION =================
-function downloadPDF() {
-  const doc = document.getElementById('quoteDoc').cloneNode(true);
+
+function v(id){
+  return parseFloat(document.getElementById(id).value)||0;
+}
+
+function s(id){
+  return document.getElementById(id).value||'';
+}
+
+function fmt(n){
+  return "$" + n.toFixed(2);
+}
+
+function update(){
+
+  const hours = v('hours');
+  const rate = v('rate');
+  const discount = v('discount');
+  const tax = v('tax');
+
+  const subtotal = hours * rate;
+  const disc = subtotal * (discount/100);
+  const after = subtotal - disc;
+  const taxAmt = after * (tax/100);
+  const total = after + taxAmt;
+
+  document.getElementById('qClient').innerText = s('toName') || '-';
+  document.getElementById('qProject').innerText = s('project') || '-';
+
+  document.getElementById('qHours').innerText = hours;
+  document.getElementById('qRate').innerText = fmt(rate);
+
+  document.getElementById('qSubtotal').innerText = fmt(subtotal);
+  document.getElementById('qDiscount').innerText = "-"+fmt(disc);
+  document.getElementById('qTax').innerText = fmt(taxAmt);
+  document.getElementById('qTotal').innerText = fmt(total);
+
+}
+
+update();
+
+/* PDF FIX */
+function downloadPDF(){
+
+  const html = document.getElementById('quoteDoc').outerHTML;
 
   const win = window.open('', '_blank');
-  if (!win) return alert("Allow popups");
+  if(!win) return alert("Enable popups");
 
-  win.document.open();
   win.document.write(`
 <!DOCTYPE html>
 <html>
 <head>
-<title>Quote PDF</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces&family=DM+Mono&family=Outfit&display=swap" rel="stylesheet">
+<title>Quote</title>
 <style>
-body{font-family:Outfit,sans-serif;padding:20px;background:white;}
+body{font-family:Arial;padding:20px;}
 </style>
 </head>
 <body>
-${doc.outerHTML}
+${html}
 <script>
-window.onload = function () {
-  setTimeout(() => {
-    window.print();
-  }, 300);
-};
-</script>
+window.onload=()=>window.print();
+<\/script>
 </body>
 </html>
   `);
+
   win.document.close();
 }
 
-// simple placeholders (keep yours)
-function update(){}
 </script>
 
 </body>
