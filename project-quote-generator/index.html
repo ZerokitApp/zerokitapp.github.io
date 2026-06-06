@@ -1430,7 +1430,11 @@ body{background:white;font-family:'Outfit',sans-serif;}
     window.focus();
     window.print();
   }, 800);
-};</body>
+};
+
+window.onafterprint = () => {
+  window.close();
+};\/script></body>
 </html>`;
 
   const blob = new Blob([html], {type:'text/html'});
