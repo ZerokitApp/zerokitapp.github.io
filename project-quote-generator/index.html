@@ -4,236 +4,760 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Project Quote Generator — ZeroKit</title>
-
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-
 <style>
+/* ═══════════════════════════════════════════
+   ZEROKIT — PROJECT QUOTE GENERATOR
+   Tool 02 / 50  |  Fixed & Production Ready
+═══════════════════════════════════════════ */
 :root {
-  --bg:#f5f2eb;
-  --bg2:#eeeadf;
-  --white:#fdfcf9;
-  --ink:#1a1814;
-  --ink2:#3d3a34;
-  --ink3:#7a7570;
-  --ink4:#b5b0a8;
-  --border:#ddd9d0;
-  --border2:#ccc8bf;
-  --accent:#1a4a8a;
-  --red:#8a2a1a;
-  --green:#1a6a3a;
-  --radius:12px;
-  --radius-sm:7px;
-  --shadow:0 1px 4px rgba(0,0,0,0.08);
+  --bg:#f5f2eb; --bg2:#eeeadf; --white:#fdfcf9;
+  --ink:#1a1814; --ink2:#3d3a34; --ink3:#7a7570; --ink4:#b5b0a8;
+  --border:#ddd9d0; --border2:#ccc8bf;
+  --accent:#1a4a8a; --accent-bg:rgba(26,74,138,0.06); --accent-border:rgba(26,74,138,0.2);
+  --red:#8a2a1a; --green:#1a6a3a;
+  --radius:12px; --radius-sm:7px;
+  --shadow:0 1px 4px rgba(26,24,20,0.08),0 4px 16px rgba(26,24,20,0.06);
+  --shadow-lg:0 4px 24px rgba(26,24,20,0.12),0 12px 48px rgba(26,24,20,0.08);
 }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
 
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Outfit,sans-serif;background:var(--bg);color:var(--ink)}
+/* NAV */
+.nav{background:var(--white);border-bottom:2px solid var(--ink);padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--ink);}
+.nav-logo span{color:var(--accent);}
+.nav-divider{color:var(--ink4);}
+.nav-tool{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:1px;}
+.nav-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);border:1px solid var(--border2);padding:3px 8px;border-radius:99px;}
 
-/* layout simplified (same design preserved) */
-.layout{max-width:1100px;margin:auto;padding:20px;display:grid;grid-template-columns:1fr 420px;gap:20px}
-@media(max-width:900px){.layout{grid-template-columns:1fr}}
+/* HERO */
+.hero-strip{background:var(--ink);padding:40px 24px 36px;position:relative;overflow:hidden;}
+.hero-strip::after{content:'02';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-family:'Fraunces',serif;font-size:120px;font-weight:700;color:rgba(255,255,255,0.04);line-height:1;pointer-events:none;}
+.hero-inner{max-width:960px;margin:0 auto;}
+.hero-cat{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:4px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:12px;}
+.hero-title{font-family:'Fraunces',serif;font-size:clamp(32px,5vw,52px);font-weight:600;line-height:1.1;color:#fff;letter-spacing:-0.5px;margin-bottom:12px;}
+.hero-title em{font-style:italic;font-weight:300;color:rgba(255,255,255,0.6);}
+.hero-desc{font-size:14px;color:rgba(255,255,255,0.55);max-width:480px;line-height:1.7;}
 
-/* cards */
-.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px}
-.card-header{padding:14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between}
-.card-body{padding:16px}
+/* LAYOUT */
+.layout{max-width:960px;margin:0 auto;padding:28px 24px 80px;display:grid;grid-template-columns:1fr 400px;gap:20px;align-items:start;}
+@media(max-width:800px){.layout{grid-template-columns:1fr;}.preview-col{order:-1;}}
 
-input,textarea,select{
-  width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;}
+.card:last-child{margin-bottom:0;}
+.card-header{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);}
+.card-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--ink3);text-transform:uppercase;}
+.card-step{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--ink4);}
+.card-body{padding:22px;}
+
+/* FIELDS */
+.field{margin-bottom:14px;}
+.field:last-child{margin-bottom:0;}
+.field-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--ink3);text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+input[type="text"],input[type="number"],textarea,select{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+input[type="number"]{-moz-appearance:textfield;}
+input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);background:var(--white);}
+textarea{resize:vertical;min-height:72px;line-height:1.6;}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7570' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;}
+.has-suffix{position:relative;}
+.has-suffix input{padding-right:36px;}
+.input-suffix{position:absolute;font-family:'DM Mono',monospace;font-size:12px;color:var(--ink3);right:12px;top:50%;transform:translateY(-50%);pointer-events:none;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+/* DIVIDERS */
+.sep{display:flex;align-items:center;gap:12px;margin:20px 0 14px;}
+.sep-line{flex:1;height:1px;background:var(--border);}
+.sep-text{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--ink4);text-transform:uppercase;white-space:nowrap;}
+
+/* SCOPE */
+.scope-header{display:grid;grid-template-columns:1fr 70px 82px 78px 34px;gap:8px;margin-bottom:6px;}
+.scope-header span{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--ink4);text-transform:uppercase;}
+.scope-header span:nth-child(2),.scope-header span:nth-child(3){text-align:center;}
+.scope-header span:nth-child(4){text-align:right;}
+.scope-row{display:grid;grid-template-columns:1fr 70px 82px 78px 34px;gap:8px;align-items:center;margin-bottom:8px;}
+.scope-row input{margin:0;padding:9px 10px;font-size:13px;}
+.scope-total-cell{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink2);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 8px;text-align:right;white-space:nowrap;}
+.scope-del{width:34px;height:36px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:transparent;color:var(--ink4);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;}
+.scope-del:hover{border-color:var(--red);color:var(--red);background:rgba(138,42,26,0.05);}
+.add-btn{width:100%;padding:10px;border:1.5px dashed var(--border2);border-radius:var(--radius-sm);background:transparent;color:var(--ink3);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;margin-top:6px;text-transform:uppercase;}
+.add-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg);}
+
+/* ADJUSTMENT */
+.adj-row{display:grid;grid-template-columns:1fr auto 120px;gap:10px;align-items:center;margin-bottom:12px;}
+.adj-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px;gap:2px;}
+.adj-opt{padding:5px 10px;border:none;border-radius:5px;background:transparent;color:var(--ink3);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.15s;}
+.adj-opt.active{background:var(--accent);color:white;}
+
+/* TOTALS SUMMARY */
+.totals-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;}
+.totals-inner{padding:16px 20px;}
+.totals-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);}
+.totals-row:last-child{border-bottom:none;}
+.totals-lbl{font-size:13px;color:var(--ink2);}
+.totals-val{font-family:'DM Mono',monospace;font-size:13px;color:var(--ink);}
+.totals-val.neg{color:var(--red);}
+.totals-grand{background:var(--ink);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
+.totals-grand-lbl{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:white;}
+.totals-grand-val{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:#7ab3e8;}
+
+/* QUOTE PREVIEW */
+.preview-col{position:static;}
+.quote-doc{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);overflow:hidden;}
+
+/* quote inner styles */
+.q-head{background:var(--ink);padding:26px 28px 22px;display:flex;justify-content:space-between;align-items:flex-start;}
+.q-brand-name{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:white;line-height:1;}
+.q-brand-sub{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;margin-top:3px;text-transform:uppercase;}
+.q-meta{text-align:right;}
+.q-num{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.6);letter-spacing:1px;}
+.q-dt{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;}
+.q-body{padding:20px 28px;}
+.q-parties{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.q-plbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--ink4);text-transform:uppercase;margin-bottom:5px;}
+.q-pname{font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.q-pdetail{font-size:11px;color:var(--ink3);line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+.q-proj{margin-bottom:14px;}
+.q-proj-lbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--ink4);text-transform:uppercase;margin-bottom:4px;}
+.q-proj-title{font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:var(--ink);}
+.q-proj-desc{font-size:11px;color:var(--ink3);margin-top:3px;line-height:1.5;}
+.q-tbl{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:11px;}
+.q-tbl thead tr{border-bottom:2px solid var(--ink);}
+.q-tbl thead th{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--ink3);text-transform:uppercase;padding:7px 6px;text-align:left;font-weight:400;}
+.q-tbl thead th:nth-child(2),.q-tbl thead th:nth-child(3),.q-tbl thead th:nth-child(4){text-align:right;}
+.q-tbl tbody tr{border-bottom:1px solid var(--border);}
+.q-tbl tbody tr:last-child{border-bottom:none;}
+.q-tbl tbody td{padding:9px 6px;color:var(--ink2);vertical-align:top;}
+.q-tbl tbody td:nth-child(2),.q-tbl tbody td:nth-child(3),.q-tbl tbody td:nth-child(4){text-align:right;font-family:'DM Mono',monospace;font-size:10px;}
+.q-tbl .q-empty td{text-align:center;color:var(--ink4);font-style:italic;padding:16px;font-size:11px;}
+.q-totals{border-top:1px solid var(--border);padding-top:10px;}
+.q-trow{display:flex;justify-content:space-between;padding:3px 0;}
+.q-trow span:first-child{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);}
+.q-trow span:last-child{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink2);}
+.q-trow.q-disc span:last-child{color:var(--red);}
+.q-grand-row{border-top:2px solid var(--ink);margin-top:8px;padding-top:10px;display:flex;justify-content:space-between;align-items:baseline;}
+.q-grand-row span:first-child{font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:var(--ink);}
+.q-grand-row span:last-child{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--accent);}
+.q-terms-blk{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+.q-terms-lbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--ink4);text-transform:uppercase;margin-bottom:5px;}
+.q-terms-txt{font-size:10px;color:var(--ink3);line-height:1.6;white-space:pre-wrap;}
+.q-foot{background:var(--bg2);padding:12px 28px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);}
+.q-foot-note{font-size:10px;color:var(--ink3);font-style:italic;}
+.q-status{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:99px;background:rgba(26,106,58,0.1);color:var(--green);border:1px solid rgba(26,106,58,0.2);}
+
+/* ACTIONS */
+.action-row{display:flex;gap:8px;margin-top:14px;}
+.btn-primary{flex:1;padding:13px;background:var(--ink);border:none;border-radius:var(--radius-sm);color:white;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.btn-primary:hover{background:var(--accent);transform:translateY(-1px);}
+.btn-sec{padding:13px 16px;background:transparent;border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--ink2);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.btn-sec:hover{border-color:var(--ink);color:var(--ink);}
+
+/* FOOTER */
+.site-footer{text-align:center;padding:28px 24px;border-top:2px solid var(--ink);font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:2px;background:var(--white);}
+.site-footer a{color:var(--accent);text-decoration:none;}
+
+/* PRINT — isolated, A4 ready */
+@media print {
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+  body,html{background:white !important;}
+  .nav,.hero-strip,.form-col,.totals-card,.action-row,.site-footer{display:none !important;}
+  .layout{display:block !important;padding:0 !important;margin:0 !important;}
+  .preview-col{position:static !important;top:auto !important;}
+  .quote-doc{border:none !important;border-radius:0 !important;box-shadow:none !important;max-width:100% !important;}
+  @page{size:A4;margin:0;}
 }
-
-/* scope */
-.scope-item{display:grid;grid-template-columns:1fr 70px 90px 90px 40px;gap:6px;margin-bottom:6px}
-.scope-total{font-family:monospace;background:var(--bg2);display:flex;align-items:center;justify-content:flex-end;padding:8px;border-radius:6px}
-
-/* preview */
-.quote-doc{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.q-header{background:#111;color:white;padding:20px}
-.q-body{padding:20px}
-
-/* buttons */
-.btn{padding:10px 12px;border:0;border-radius:6px;cursor:pointer}
-.btn-primary{background:#111;color:white}
-.btn-secondary{background:transparent;border:1px solid var(--border)}
-
-/* totals */
-.totals-card{background:white;border:1px solid var(--border);border-radius:12px;margin-bottom:10px}
-.totals-inner{padding:14px}
-.totals-row{display:flex;justify-content:space-between;padding:6px 0}
-.totals-grand{background:#111;color:white;padding:12px 14px;display:flex;justify-content:space-between}
 </style>
 </head>
-
 <body>
 
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-brand" href="https://zerokitapp.github.io">
+    <span class="nav-logo">Zero<span>Kit</span></span>
+    <span class="nav-divider">/</span>
+    <span class="nav-tool">Quote Generator</span>
+  </a>
+  <div class="nav-badge">Tool 02 / 50</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-strip">
+  <div class="hero-inner">
+    <div class="hero-cat">Freelancer Tools</div>
+    <h1 class="hero-title">Send quotes that <em>win projects.</em></h1>
+    <p class="hero-desc">Build a professional project quote in minutes. Add deliverables, set rates, apply discounts, download PDF — no account needed.</p>
+  </div>
+</div>
+
+<!-- LAYOUT -->
 <div class="layout">
 
-<!-- FORM -->
-<div>
+  <!-- FORM COL -->
+  <div class="form-col">
 
-<div class="card">
-<div class="card-header"><b>Client</b></div>
-<div class="card-body">
-<input id="fromName" placeholder="Your name" oninput="update()">
-<input id="fromEmail" placeholder="Your email" oninput="update()">
-<input id="toName" placeholder="Client name" oninput="update()">
-</div>
-</div>
+    <!-- CARD 1 -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Your Info & Client</span><span class="card-step">1</span></div>
+      <div class="card-body">
+        <div class="sep"><div class="sep-line"></div><span class="sep-text">Your Details</span><div class="sep-line"></div></div>
+        <div class="grid-2">
+          <div class="field"><div class="field-label">Name / Business</div><input type="text" id="fromName" placeholder="Your Name" oninput="update()"/></div>
+          <div class="field"><div class="field-label">Your Email</div><input type="text" id="fromEmail" placeholder="you@email.com" oninput="update()"/></div>
+        </div>
+        <div class="field"><div class="field-label">Address / Extra</div><textarea id="fromExtra" placeholder="Address, phone, website..." rows="2" oninput="update()"></textarea></div>
+        <div class="sep"><div class="sep-line"></div><span class="sep-text">Client Details</span><div class="sep-line"></div></div>
+        <div class="grid-2">
+          <div class="field"><div class="field-label">Client Name / Co.</div><input type="text" id="toName" placeholder="Client Name" oninput="update()"/></div>
+          <div class="field"><div class="field-label">Client Email</div><input type="text" id="toEmail" placeholder="client@email.com" oninput="update()"/></div>
+        </div>
+        <div class="field"><div class="field-label">Client Address</div><textarea id="toExtra" placeholder="Client address..." rows="2" oninput="update()"></textarea></div>
+      </div>
+    </div>
 
-<div class="card">
-<div class="card-header"><b>Scope</b></div>
-<div class="card-body">
+    <!-- CARD 2 -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Quote Details</span><span class="card-step">2</span></div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="field"><div class="field-label">Quote #</div><input type="text" id="quoteNum" value="QT-001" oninput="update()"/></div>
+          <div class="field"><div class="field-label">Currency</div>
+            <select id="currency" onchange="update()">
+              <option value="$">USD ($)</option><option value="€">EUR (€)</option>
+              <option value="£">GBP (£)</option><option value="CHF">CHF</option>
+              <option value="A$">AUD</option><option value="C$">CAD</option><option value="KM">BAM</option>
+            </select>
+          </div>
+          <div class="field"><div class="field-label">Valid For</div>
+            <select id="validDays" onchange="update()">
+              <option value="7">7 days</option><option value="14">14 days</option>
+              <option value="30" selected>30 days</option><option value="60">60 days</option><option value="90">90 days</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><div class="field-label">Project Title</div><input type="text" id="projectTitle" placeholder="e.g. Brand Identity Design..." oninput="update()"/></div>
+        <div class="field"><div class="field-label">Project Description</div><textarea id="projectDesc" placeholder="Brief overview of what this quote covers..." rows="3" oninput="update()"></textarea></div>
+      </div>
+    </div>
 
-<div id="scopeContainer"></div>
+    <!-- CARD 3 -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Scope of Work</span><span class="card-step">3</span></div>
+      <div class="card-body">
+        <div class="scope-header">
+          <span>Deliverable</span><span>Hrs</span><span>Rate</span><span>Total</span><span></span>
+        </div>
+        <div id="scopeContainer"></div>
+        <button class="add-btn" onclick="addScope()">+ Add Deliverable</button>
+      </div>
+    </div>
 
-<button class="btn btn-secondary" onclick="addScope()">Add</button>
+    <!-- CARD 4 -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Adjustments & Terms</span><span class="card-step">4</span></div>
+      <div class="card-body">
+        <div class="sep"><div class="sep-line"></div><span class="sep-text">Discount</span><div class="sep-line"></div></div>
+        <div class="adj-row">
+          <input type="text" id="discLabel" placeholder="e.g. Early bird discount" oninput="update()" style="margin:0"/>
+          <div class="adj-toggle">
+            <button class="adj-opt active" id="btnPct" onclick="setDiscType('pct')">%</button>
+            <button class="adj-opt" id="btnFlat" onclick="setDiscType('flat')">Flat</button>
+          </div>
+          <div class="has-suffix" style="position:relative">
+            <input type="number" id="discVal" value="0" min="0" oninput="update()" style="margin:0"/>
+            <span class="input-suffix" id="discSuffix">%</span>
+          </div>
+        </div>
+        <div class="sep"><div class="sep-line"></div><span class="sep-text">Tax</span><div class="sep-line"></div></div>
+        <div class="adj-row">
+          <input type="text" id="taxLabel" value="Tax" placeholder="e.g. VAT, GST" oninput="update()" style="margin:0"/>
+          <div></div>
+          <div class="has-suffix" style="position:relative">
+            <input type="number" id="taxVal" value="0" min="0" max="100" oninput="update()" style="margin:0"/>
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="sep"><div class="sep-line"></div><span class="sep-text">Payment Terms</span><div class="sep-line"></div></div>
+        <div class="field">
+          <select id="payTerms" onchange="onTermsChange()">
+            <option value="50% upfront, 50% on completion">50% upfront, 50% on completion</option>
+            <option value="100% upfront">100% upfront</option>
+            <option value="100% on completion">100% on completion</option>
+            <option value="33% upfront, 33% midway, 33% on completion">33/33/33 milestone split</option>
+            <option value="Net 14 (payment within 14 days of completion)">Net 14</option>
+            <option value="Net 30 (payment within 30 days of completion)">Net 30</option>
+            <option value="custom">Custom...</option>
+          </select>
+        </div>
+        <div class="field" id="customTermsWrap" style="display:none">
+          <input type="text" id="customTerms" placeholder="Describe payment terms..." oninput="update()"/>
+        </div>
+        <div class="sep"><div class="sep-line"></div><span class="sep-text">Notes</span><div class="sep-line"></div></div>
+        <div class="field"><textarea id="notes" rows="3" placeholder="Revisions, exclusions, confidentiality..." oninput="update()"></textarea></div>
+      </div>
+    </div>
 
-</div>
-</div>
+  </div><!-- /form-col -->
 
-</div>
+  <!-- PREVIEW COL -->
+  <div class="preview-col">
 
-<!-- PREVIEW -->
-<div>
+    <!-- TOTALS SUMMARY -->
+    <div class="totals-card">
+      <div class="totals-inner">
+        <div class="totals-row"><span class="totals-lbl">📐 Subtotal</span><span class="totals-val" id="tSub">$0.00</span></div>
+        <div class="totals-row" id="tDiscRow" style="display:none"><span class="totals-lbl" id="tDiscLbl">🏷 Discount</span><span class="totals-val neg" id="tDisc">-$0.00</span></div>
+        <div class="totals-row" id="tTaxRow" style="display:none"><span class="totals-lbl" id="tTaxLbl">🧾 Tax</span><span class="totals-val" id="tTax">$0.00</span></div>
+        <div class="totals-row"><span class="totals-lbl">⏱ Total Hours</span><span class="totals-val" id="tHours">0h</span></div>
+      </div>
+      <div class="totals-grand"><span class="totals-grand-lbl">Total Quote</span><span class="totals-grand-val" id="tGrand">$0</span></div>
+    </div>
 
-<div class="totals-card">
-<div class="totals-inner">
-<div class="totals-row"><span>Subtotal</span><span id="tSubtotal">$0</span></div>
-<div class="totals-row"><span>Hours</span><span id="tHours">0</span></div>
-</div>
-<div class="totals-grand">
-<span>Total</span>
-<span id="tGrand">$0</span>
-</div>
-</div>
+    <!-- QUOTE PREVIEW -->
+    <div class="quote-doc" id="quoteDoc">
+      <div class="q-head">
+        <div>
+          <div class="q-brand-name" id="qBrand">Your Business</div>
+          <div class="q-brand-sub" id="qBrandSub"></div>
+        </div>
+        <div class="q-meta">
+          <div class="q-num" id="qNum">QT-001</div>
+          <div class="q-dt" id="qDate"></div>
+          <div class="q-dt" id="qValid"></div>
+        </div>
+      </div>
+      <div class="q-body">
+        <div class="q-parties">
+          <div>
+            <div class="q-plbl">Prepared by</div>
+            <div class="q-pname" id="qFromName">—</div>
+            <div class="q-pdetail" id="qFromDetail"></div>
+          </div>
+          <div>
+            <div class="q-plbl">Prepared for</div>
+            <div class="q-pname" id="qToName">—</div>
+            <div class="q-pdetail" id="qToDetail"></div>
+          </div>
+        </div>
+        <div class="q-proj" id="qProjWrap" style="display:none">
+          <div class="q-proj-lbl">Project</div>
+          <div class="q-proj-title" id="qProjTitle"></div>
+          <div class="q-proj-desc" id="qProjDesc"></div>
+        </div>
+        <table class="q-tbl">
+          <thead><tr><th>Deliverable</th><th>Hrs</th><th>Rate</th><th>Amount</th></tr></thead>
+          <tbody id="qTbody"><tr class="q-empty"><td colspan="4">Add deliverables to see them here</td></tr></tbody>
+        </table>
+        <div class="q-totals">
+          <div class="q-trow"><span>Subtotal</span><span id="qSub">$0.00</span></div>
+          <div class="q-trow q-disc" id="qDiscRow" style="display:none"><span id="qDiscLbl">Discount</span><span id="qDisc">-$0.00</span></div>
+          <div class="q-trow" id="qTaxRow" style="display:none"><span id="qTaxLbl">Tax</span><span id="qTax">$0.00</span></div>
+        </div>
+        <div class="q-grand-row"><span>Total</span><span id="qGrand">$0</span></div>
+        <div class="q-terms-blk">
+          <div class="q-terms-lbl">Payment Terms</div>
+          <div class="q-terms-txt" id="qTermsTxt">50% upfront, 50% on completion</div>
+        </div>
+        <div class="q-terms-blk" id="qNotesWrap" style="display:none">
+          <div class="q-terms-lbl">Notes</div>
+          <div class="q-terms-txt" id="qNotesTxt"></div>
+        </div>
+      </div>
+      <div class="q-foot">
+        <div class="q-foot-note">Generated with ZeroKit · zerokitapp.github.io</div>
+        <div class="q-status">Pending</div>
+      </div>
+    </div>
 
-<div id="quoteDoc" class="quote-doc">
+    <!-- ACTIONS -->
+    <div class="action-row">
+      <button class="btn-primary" onclick="downloadPDF()">⬇ Download PDF</button>
+      <button class="btn-sec" onclick="window.print()">Print</button>
+      <button class="btn-sec" onclick="resetForm()">Reset</button>
+    </div>
 
-<div class="q-header">
-<h2 id="qBrand">Your Business</h2>
-</div>
+  </div><!-- /preview-col -->
 
-<div class="q-body">
-<table width="100%">
-<tbody id="qTable"></tbody>
-</table>
-</div>
+</div><!-- /layout -->
 
-</div>
-
-<div style="margin-top:10px;display:flex;gap:6px">
-<button class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
-<button class="btn btn-secondary" onclick="printQuote()">Print</button>
-</div>
-
-</div>
-</div>
+<footer class="site-footer">
+  <a href="https://zerokitapp.github.io">ZeroKit</a> &nbsp;·&nbsp; Free Business Tools &nbsp;·&nbsp; No signup &nbsp;·&nbsp; No limits
+</footer>
 
 <script>
+// ── STATE ─────────────────────────────────────────────────────
+// Each scope item has a unique id to avoid index-shift bugs on delete
+let nextId = 1;
+let scopes = [{ id: nextId++, desc: '', hours: 0, rate: 0 }];
+let discType = 'pct';
 
-let scopeItems = [{desc:'',hours:0,rate:0}];
+// ── INIT ──────────────────────────────────────────────────────
+window.onload = function() {
+  renderScopes();
+  update();
+};
 
-function addScope(){
-  scopeItems.push({desc:'',hours:0,rate:0});
-  renderScope();
+// ── SAFE HELPERS ──────────────────────────────────────────────
+// Always parse to float — never rely on string math
+function num(id) {
+  return parseFloat(document.getElementById(id).value) || 0;
 }
 
-function renderScope(){
-  const c=document.getElementById("scopeContainer");
-  c.innerHTML="";
-  scopeItems.forEach((it,i)=>{
-    const div=document.createElement("div");
-    div.className="scope-item";
-    div.innerHTML=`
-      <input placeholder="Work" value="${it.desc}" oninput="scopeItems[${i}].desc=this.value;update()">
-      <input type="number" value="${it.hours}" oninput="scopeItems[${i}].hours=this.value;update()">
-      <input type="number" value="${it.rate}" oninput="scopeItems[${i}].rate=this.value;update()">
-      <div class="scope-total">$0</div>
-      <button onclick="removeScope(${i})">x</button>
-    `;
-    c.appendChild(div);
-  });
+function str(id) {
+  return document.getElementById(id).value || '';
 }
 
-function removeScope(i){
-  scopeItems.splice(i,1);
-  if(scopeItems.length===0) scopeItems=[{desc:'',hours:0,rate:0}];
-  renderScope();
+function el(id) {
+  return document.getElementById(id);
+}
+
+function sym() {
+  return str('currency') || '$';
+}
+
+// Safe money formatter — never throws
+function money(n, dec) {
+  dec = (dec === undefined) ? 2 : dec;
+  var val = isNaN(n) ? 0 : n;
+  return sym() + val.toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// Sanitize user input before injecting into HTML — prevents layout breaks
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// Safe element text setter — never fails if element missing
+function setText(id, val) {
+  var e = el(id);
+  if (e) e.textContent = val;
+}
+
+function show(id, visible) {
+  var e = el(id);
+  if (e) e.style.display = visible ? 'flex' : 'none';
+}
+
+function showBlock(id, visible) {
+  var e = el(id);
+  if (e) e.style.display = visible ? 'block' : 'none';
+}
+
+// ── SCOPE MANAGEMENT ──────────────────────────────────────────
+function addScope() {
+  scopes.push({ id: nextId++, desc: '', hours: 0, rate: 0 });
+  renderScopes();
+}
+
+function removeScope(scopeId) {
+  if (scopes.length === 1) {
+    // Reset instead of remove — always keep at least one row
+    scopes[0] = { id: nextId++, desc: '', hours: 0, rate: 0 };
+  } else {
+    scopes = scopes.filter(function(s) { return s.id !== scopeId; });
+  }
+  renderScopes();
   update();
 }
 
-function calc(){
-  let sub=0,h=0;
-  scopeItems.forEach(it=>{
-    sub += (it.hours||0)*(it.rate||0);
-    h += Number(it.hours||0);
-  });
-  return {sub,h};
-}
+function renderScopes() {
+  var container = el('scopeContainer');
+  container.innerHTML = '';
 
-function update(){
-  const c=calc();
+  scopes.forEach(function(item) {
+    var sid = item.id;
+    var total = (parseFloat(item.hours) || 0) * (parseFloat(item.rate) || 0);
 
-  document.getElementById("tSubtotal").innerText="$"+c.sub.toFixed(2);
-  document.getElementById("tHours").innerText=c.h;
+    var row = document.createElement('div');
+    row.className = 'scope-row';
+    row.id = 'scope-row-' + sid;
 
-  document.getElementById("tGrand").innerText="$"+c.sub.toFixed(2);
+    row.innerHTML =
+      '<input type="text" placeholder="e.g. UI Design, Development..." value="' + esc(item.desc) + '" ' +
+        'oninput="updateScopeField(' + sid + ', \'desc\', this.value)"/>' +
+      '<input type="number" placeholder="0" value="' + (item.hours || '') + '" min="0" ' +
+        'oninput="updateScopeField(' + sid + ', \'hours\', this.value)"/>' +
+      '<input type="number" placeholder="0" value="' + (item.rate || '') + '" min="0" ' +
+        'oninput="updateScopeField(' + sid + ', \'rate\', this.value)"/>' +
+      '<div class="scope-total-cell" id="scope-total-' + sid + '">' + sym() + total.toFixed(2) + '</div>' +
+      '<button class="scope-del" onclick="removeScope(' + sid + ')">×</button>';
 
-  const t=document.getElementById("qTable");
-  t.innerHTML="";
-
-  scopeItems.forEach(it=>{
-    const total=(it.hours||0)*(it.rate||0);
-    t.innerHTML+=`
-      <tr>
-        <td>${it.desc||"—"}</td>
-        <td>${it.hours||0}</td>
-        <td>$${it.rate||0}</td>
-        <td>$${total.toFixed(2)}</td>
-      </tr>
-    `;
+    container.appendChild(row);
   });
 }
 
-function printQuote(){
-  window.print();
+// Update a single scope field without rebuilding DOM — preserves focus
+function updateScopeField(scopeId, field, value) {
+  var item = scopes.find(function(s) { return s.id === scopeId; });
+  if (!item) return;
+
+  item[field] = value;
+
+  // Update just the total cell for this row
+  var hours = parseFloat(item.hours) || 0;
+  var rate  = parseFloat(item.rate)  || 0;
+  var total = hours * rate;
+
+  var cell = el('scope-total-' + scopeId);
+  if (cell) cell.textContent = sym() + total.toFixed(2);
+
+  update();
 }
 
-/* ✅ FIXED PDF EXPORT (THIS WAS YOUR MAIN BUG) */
-function downloadPDF(){
+// ── DISCOUNT TYPE ─────────────────────────────────────────────
+function setDiscType(type) {
+  discType = type;
+  el('btnPct').classList.toggle('active', type === 'pct');
+  el('btnFlat').classList.toggle('active', type === 'flat');
+  el('discSuffix').textContent = type === 'pct' ? '%' : sym();
+  update();
+}
 
-  const doc=document.getElementById("quoteDoc").outerHTML;
+// ── TERMS CHANGE ──────────────────────────────────────────────
+function onTermsChange() {
+  showBlock('customTermsWrap', str('payTerms') === 'custom');
+  update();
+}
 
-  const win=window.open("","_blank");
-  win.document.write(`
-  <html>
-  <head>
-  <title>Quote</title>
-  <style>
-  body{font-family:Arial;padding:20px}
-  table{width:100%;border-collapse:collapse}
-  td,th{border-bottom:1px solid #ddd;padding:8px}
-  </style>
-  </head>
-  <body>
-  ${doc}
-  <script>
-  window.onload=function(){
-    window.print();
-    window.onafterprint=()=>window.close();
+// ── CALCULATE ─────────────────────────────────────────────────
+function calcTotals() {
+  var subtotal = 0;
+  var totalHours = 0;
+
+  scopes.forEach(function(item) {
+    var h = parseFloat(item.hours) || 0;
+    var r = parseFloat(item.rate)  || 0;
+    subtotal   += h * r;
+    totalHours += h;
+  });
+
+  var discVal  = num('discVal');
+  var discount = discType === 'pct'
+    ? subtotal * (discVal / 100)
+    : Math.min(discVal, subtotal);
+
+  var afterDisc = subtotal - discount;
+  var taxRate   = num('taxVal') / 100;
+  var tax       = afterDisc * taxRate;
+  var total     = afterDisc + tax;
+
+  return {
+    subtotal:   subtotal,
+    discount:   discount,
+    tax:        tax,
+    total:      total,
+    totalHours: totalHours,
+    discVal:    discVal,
+    taxVal:     num('taxVal')
+  };
+}
+
+// ── UPDATE DISPLAY ────────────────────────────────────────────
+function update() {
+  var c = calcTotals();
+
+  // — Summary card —
+  setText('tSub',   money(c.subtotal));
+  setText('tHours', c.totalHours + 'h');
+  setText('tGrand', money(c.total, 0));
+
+  show('tDiscRow', c.discVal > 0);
+  setText('tDiscLbl', '🏷 ' + (str('discLabel') || 'Discount'));
+  setText('tDisc', '-' + money(c.discount));
+
+  show('tTaxRow', c.taxVal > 0);
+  setText('tTaxLbl', '🧾 ' + (str('taxLabel') || 'Tax'));
+  setText('tTax', money(c.tax));
+
+  // — Preview header —
+  var fromName = str('fromName') || 'Your Business';
+  setText('qBrand',    fromName);
+  setText('qBrandSub', str('fromEmail'));
+  setText('qNum',      str('quoteNum') || 'QT-001');
+
+  var today  = new Date();
+  var expiry = new Date(today);
+  expiry.setDate(expiry.getDate() + (parseInt(el('validDays').value) || 30));
+  setText('qDate',  'Issued ' + fmtDate(today));
+  setText('qValid', 'Valid until ' + fmtDate(expiry));
+
+  // — Parties —
+  setText('qFromName',   fromName);
+  setText('qFromDetail', [str('fromEmail'), str('fromExtra')].filter(Boolean).join('\n'));
+  setText('qToName',     str('toName') || '—');
+  setText('qToDetail',   [str('toEmail'), str('toExtra')].filter(Boolean).join('\n'));
+
+  // — Project —
+  var projTitle = str('projectTitle');
+  showBlock('qProjWrap', !!projTitle);
+  setText('qProjTitle', projTitle);
+  setText('qProjDesc',  str('projectDesc'));
+
+  // — Scope table —
+  // Uses sanitized output — no raw user input injected
+  var tbody = el('qTbody');
+  var hasItems = scopes.some(function(it) {
+    return it.desc || (parseFloat(it.rate) || 0) > 0;
+  });
+
+  if (!hasItems) {
+    tbody.innerHTML = '<tr class="q-empty"><td colspan="4">Add deliverables to see them here</td></tr>';
+  } else {
+    var rows = scopes.map(function(it) {
+      var h = parseFloat(it.hours) || 0;
+      var r = parseFloat(it.rate)  || 0;
+      var t = h * r;
+      return '<tr>' +
+        '<td>' + esc(it.desc || '—') + '</td>' +
+        '<td>' + h + 'h</td>' +
+        '<td>' + sym() + r.toFixed(2) + '</td>' +
+        '<td>' + sym() + t.toFixed(2) + '</td>' +
+        '</tr>';
+    });
+    tbody.innerHTML = rows.join('');
   }
-  <\/script>
-  </body>
-  </html>
-  `);
 
-  win.document.close();
+  // — Preview totals —
+  setText('qSub',   money(c.subtotal));
+  show('qDiscRow',  c.discVal > 0);
+  setText('qDiscLbl', str('discLabel') || 'Discount');
+  setText('qDisc',  '-' + money(c.discount));
+  show('qTaxRow',   c.taxVal > 0);
+  setText('qTaxLbl', str('taxLabel') || 'Tax');
+  setText('qTax',   money(c.tax));
+  setText('qGrand', money(c.total, 0));
+
+  // — Terms & notes —
+  var terms = str('payTerms') === 'custom' ? str('customTerms') : str('payTerms');
+  setText('qTermsTxt', terms || '50% upfront, 50% on completion');
+
+  var notes = str('notes');
+  showBlock('qNotesWrap', !!notes);
+  setText('qNotesTxt', notes);
 }
 
-renderScope();
-update();
+// ── RESET ─────────────────────────────────────────────────────
+function resetForm() {
+  if (!confirm('Reset all fields?')) return;
 
+  ['fromName','fromEmail','fromExtra','toName','toEmail','toExtra',
+   'projectTitle','projectDesc','notes','discLabel','customTerms'].forEach(function(id) {
+    var e = el(id);
+    if (e) e.value = '';
+  });
+
+  el('quoteNum').value = 'QT-001';
+  el('discVal').value  = '0';
+  el('taxVal').value   = '0';
+
+  nextId = 1;
+  scopes = [{ id: nextId++, desc: '', hours: 0, rate: 0 }];
+  renderScopes();
+  update();
+}
+
+// ── PDF DOWNLOAD ──────────────────────────────────────────────
+// Captures current preview, injects into isolated HTML page,
+// waits for fonts to load before triggering print
+function downloadPDF() {
+  var previewHTML = el('quoteDoc').outerHTML;
+  var quoteNum    = str('quoteNum') || 'quote';
+
+  // Inline all styles needed for print — no external state leaks
+  var printCSS = [
+    ':root{--bg:#f5f2eb;--bg2:#eeeadf;--white:#fdfcf9;--ink:#1a1814;--ink2:#3d3a34;',
+    '--ink3:#7a7570;--ink4:#b5b0a8;--border:#ddd9d0;--accent:#1a4a8a;',
+    '--red:#8a2a1a;--green:#1a6a3a;}',
+    '*{margin:0;padding:0;box-sizing:border-box;}',
+    'body{background:white;font-family:\'Outfit\',sans-serif;color:#1a1814;}',
+    '.quote-doc{max-width:800px;margin:0 auto;}',
+    '.q-head{background:#1a1814;padding:26px 28px 22px;display:flex;justify-content:space-between;align-items:flex-start;}',
+    '.q-brand-name{font-family:\'Fraunces\',serif;font-size:20px;font-weight:700;color:white;line-height:1;}',
+    '.q-brand-sub{font-family:\'DM Mono\',monospace;font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;margin-top:3px;text-transform:uppercase;}',
+    '.q-meta{text-align:right;}',
+    '.q-num{font-family:\'DM Mono\',monospace;font-size:12px;color:rgba(255,255,255,0.6);letter-spacing:1px;}',
+    '.q-dt{font-family:\'DM Mono\',monospace;font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;}',
+    '.q-body{padding:20px 28px;}',
+    '.q-parties{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #ddd9d0;}',
+    '.q-plbl{font-family:\'DM Mono\',monospace;font-size:8px;letter-spacing:3px;color:#b5b0a8;text-transform:uppercase;margin-bottom:5px;}',
+    '.q-pname{font-family:\'Fraunces\',serif;font-size:14px;font-weight:600;color:#1a1814;margin-bottom:3px;}',
+    '.q-pdetail{font-size:11px;color:#7a7570;line-height:1.5;white-space:pre-wrap;word-break:break-word;}',
+    '.q-proj{margin-bottom:14px;}',
+    '.q-proj-lbl{font-family:\'DM Mono\',monospace;font-size:8px;letter-spacing:3px;color:#b5b0a8;text-transform:uppercase;margin-bottom:4px;}',
+    '.q-proj-title{font-family:\'Fraunces\',serif;font-size:14px;font-weight:600;color:#1a1814;}',
+    '.q-proj-desc{font-size:11px;color:#7a7570;margin-top:3px;line-height:1.5;}',
+    '.q-tbl{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:11px;}',
+    '.q-tbl thead tr{border-bottom:2px solid #1a1814;}',
+    '.q-tbl thead th{font-family:\'DM Mono\',monospace;font-size:8px;letter-spacing:2px;color:#7a7570;text-transform:uppercase;padding:7px 6px;text-align:left;font-weight:400;}',
+    '.q-tbl thead th:nth-child(2),.q-tbl thead th:nth-child(3),.q-tbl thead th:nth-child(4){text-align:right;}',
+    '.q-tbl tbody tr{border-bottom:1px solid #ddd9d0;}',
+    '.q-tbl tbody tr:last-child{border-bottom:none;}',
+    '.q-tbl tbody td{padding:9px 6px;color:#3d3a34;vertical-align:top;}',
+    '.q-tbl tbody td:nth-child(2),.q-tbl tbody td:nth-child(3),.q-tbl tbody td:nth-child(4){text-align:right;font-family:\'DM Mono\',monospace;font-size:10px;}',
+    '.q-tbl .q-empty td{text-align:center;color:#b5b0a8;font-style:italic;padding:16px;}',
+    '.q-totals{border-top:1px solid #ddd9d0;padding-top:10px;}',
+    '.q-trow{display:flex;justify-content:space-between;padding:3px 0;}',
+    '.q-trow span:first-child{font-family:\'DM Mono\',monospace;font-size:10px;color:#7a7570;}',
+    '.q-trow span:last-child{font-family:\'DM Mono\',monospace;font-size:11px;color:#3d3a34;}',
+    '.q-trow.q-disc span:last-child{color:#8a2a1a;}',
+    '.q-grand-row{border-top:2px solid #1a1814;margin-top:8px;padding-top:10px;display:flex;justify-content:space-between;align-items:baseline;}',
+    '.q-grand-row span:first-child{font-family:\'Fraunces\',serif;font-size:14px;font-weight:600;color:#1a1814;}',
+    '.q-grand-row span:last-child{font-family:\'Fraunces\',serif;font-size:24px;font-weight:700;color:#1a4a8a;}',
+    '.q-terms-blk{margin-top:14px;padding-top:12px;border-top:1px solid #ddd9d0;}',
+    '.q-terms-lbl{font-family:\'DM Mono\',monospace;font-size:8px;letter-spacing:3px;color:#b5b0a8;text-transform:uppercase;margin-bottom:5px;}',
+    '.q-terms-txt{font-size:10px;color:#7a7570;line-height:1.6;white-space:pre-wrap;}',
+    '.q-foot{background:#eeeadf;padding:12px 28px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #ddd9d0;}',
+    '.q-foot-note{font-size:10px;color:#7a7570;font-style:italic;}',
+    '.q-status{font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:99px;background:rgba(26,106,58,0.1);color:#1a6a3a;border:1px solid rgba(26,106,58,0.2);}',
+    '@media print{@page{size:A4;margin:15mm;}-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}'
+  ].join('');
+
+  var html = '<!DOCTYPE html>' +
+    '<html lang="en"><head>' +
+    '<meta charset="UTF-8"/>' +
+    '<title>Quote ' + esc(quoteNum) + '</title>' +
+    '<link rel="preconnect" href="https://fonts.googleapis.com"/>' +
+    '<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>' +
+    '<style>' + printCSS + '</style>' +
+    '</head><body>' +
+    previewHTML +
+    '<script>' +
+    // Wait for fonts before printing — fixes blank font bug
+    'document.fonts.ready.then(function(){' +
+    '  window.print();' +
+    '  window.onafterprint=function(){window.close();};' +
+    '});' +
+    '<\/script>' +
+    '</body></html>';
+
+  // Use Blob URL — more stable than document.write
+  var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  var url  = URL.createObjectURL(blob);
+  var win  = window.open(url, '_blank');
+
+  if (!win) {
+    alert('Please allow popups for this site, then try again. In the print dialog choose "Save as PDF".');
+    URL.revokeObjectURL(url);
+    return;
+  }
+
+  // Clean up blob URL after a delay
+  setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
+}
 </script>
-
 </body>
 </html>
