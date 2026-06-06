@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Project Quote Generator — ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════
+   ZEROKIT — PROJECT QUOTE GENERATOR
+   Tool 02 / 50
+   Theme: Light editorial / newspaper
+═══════════════════════════════════════════ */
+:root {
+  --bg:       #f5f2eb;
+  --bg2:      #eeeadf;
+  --white:    #fdfcf9;
+  --ink:      #1a1814;
+  --ink2:     #3d3a34;
+  --ink3:     #7a7570;
+  --ink4:     #b5b0a8;
+  --border:   #ddd9d0;
+  --border2:  #ccc8bf;
+  --accent:   #1a4a8a;
+  --accent2:  #2a5fa0;
+  --accent-bg: rgba(26,74,138,0.06);
+  --accent-border: rgba(26,74,138,0.2);
+  --red:      #8a2a1a;
+  --green:    #1a6a3a;
+  --radius:   12px;
+  --radius-sm: 7px;
+  --shadow:   0 1px 4px rgba(26,24,20,0.08), 0 4px 16px rgba(26,24,20,0.06);
+  --shadow-lg: 0 4px 24px rgba(26,24,20,0.12), 0 12px 48px rgba(26,24,20,0.08);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* SUBTLE PAPER TEXTURE */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* NAV */
+.nav {
+  background: var(--white);
+  border-bottom: 2px solid var(--ink);
+  padding: 0 24px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.nav-logo {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+}
+
+.nav-logo span { color: var(--accent); }
+
+.nav-divider { color: var(--ink4); font-size: 14px; }
+
+.nav-tool {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--ink3);
+  letter-spacing: 1px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--ink3);
+  border: 1px solid var(--border2);
+  padding: 3px 8px;
+  border-radius: 99px;
+}
+
+/* HERO STRIP */
+.hero-strip {
+  background: var(--ink);
+  color: var(--white);
+  padding: 40px 24px 36px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-strip::after {
+  content: '02';
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Fraunces', serif;
+  font-size: 120px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.04);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.hero-inner { max-width: 960px; margin: 0 auto; }
+
+.hero-cat {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.hero-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+}
+
+.hero-title em {
+  font-style: italic;
+  font-weight: 300;
+  color: rgba(255,255,255,0.6);
+}
+
+.hero-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.55);
+  max-width: 480px;
+  line-height: 1.7;
+}
+
+/* LAYOUT */
+.layout {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 28px 24px 80px;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+  .quote-preview-wrap { order: -1; }
+}
+
+/* CARD */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.card:last-child { margin-bottom: 0; }
+
+.card-header {
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg2);
+}
+
+.card-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--ink3);
+  text-transform: uppercase;
+}
+
+.card-step {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink4);
+}
+
+.card-body { padding: 22px; }
+
+/* FIELDS */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+
+.field-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--ink3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.field-hint {
+  font-family: 'Outfit', sans-serif;
+  font-size: 10px;
+  color: var(--ink4);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 13px;
+  color: var(--ink);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+  background: var(--white);
+}
+
+textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7570' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+.input-wrap { position: relative; }
+.input-prefix, .input-suffix {
+  position: absolute;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--ink3);
+  top: 50%; transform: translateY(-50%);
+  pointer-events: none;
+}
+.input-prefix { left: 12px; }
+.input-suffix { right: 12px; }
+.has-prefix input { padding-left: 26px; }
+.has-suffix input { padding-right: 36px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* SECTION LABEL */
+.section-sep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 14px;
+}
+
+.section-sep-line { flex: 1; height: 1px; background: var(--border); }
+
+.section-sep-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--ink4);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* SCOPE ITEMS */
+.scope-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+  animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+  from { opacity:0; transform:translateY(-6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.scope-item input { margin-bottom: 0; }
+
+.scope-hours {
+  width: 72px;
+}
+
+.scope-rate {
+  width: 84px;
+}
+
+.scope-total {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--ink2);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 10px;
+  text-align: right;
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.scope-del {
+  width: 32px;
+  height: 38px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink4);
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.scope-del:hover { border-color: var(--red); color: var(--red); background: rgba(138,42,26,0.05); }
+
+.scope-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto auto;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.scope-header span {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--ink4);
+  text-transform: uppercase;
+}
+
+.scope-header span:nth-child(2) { width: 72px; text-align: center; }
+.scope-header span:nth-child(3) { width: 84px; text-align: center; }
+.scope-header span:nth-child(4) { min-width: 80px; text-align: right; }
+.scope-header span:nth-child(5) { width: 32px; }
+
+.add-scope-btn {
+  width: 100%;
+  padding: 10px;
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink3);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+  text-transform: uppercase;
+}
+
+.add-scope-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+
+/* ADJUSTMENT ROWS */
+.adj-row {
+  display: grid;
+  grid-template-columns: 1fr auto 120px;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.adj-toggle {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.adj-toggle-opt {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ink3);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.adj-toggle-opt.active {
+  background: var(--accent);
+  color: white;
+}
+
+/* ══════════════════════
+   QUOTE PREVIEW
+══════════════════════ */
+.quote-preview-wrap { position: sticky; top: 74px; }
+
+.quote-doc {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* QUOTE HEADER */
+.q-header {
+  background: var(--ink);
+  padding: 28px 28px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.q-brand {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.q-brand-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 2px;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.q-meta { text-align: right; }
+
+.q-number {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 1px;
+}
+
+.q-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  margin-top: 4px;
+}
+
+.q-valid {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  margin-top: 2px;
+}
+
+/* QUOTE BODY */
+.q-body { padding: 22px 28px; }
+
+.q-parties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.q-party-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: var(--ink4);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.q-party-name {
+  font-family: 'Fraunces', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 3px;
+  word-break: break-word;
+}
+
+.q-party-detail {
+  font-size: 11px;
+  color: var(--ink3);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* SCOPE TABLE */
+.q-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12px; }
+
+.q-table thead tr { border-bottom: 2px solid var(--ink); }
+
+.q-table thead th {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--ink3);
+  text-transform: uppercase;
+  padding: 8px 8px;
+  text-align: left;
+  font-weight: 400;
+}
+
+.q-table thead th:last-child,
+.q-table thead th:nth-child(2),
+.q-table thead th:nth-child(3) { text-align: right; }
+
+.q-table tbody tr { border-bottom: 1px solid var(--border); }
+.q-table tbody tr:last-child { border-bottom: none; }
+
+.q-table tbody td {
+  padding: 10px 8px;
+  color: var(--ink2);
+  vertical-align: top;
+}
+
+.q-table tbody td:nth-child(2),
+.q-table tbody td:nth-child(3),
+.q-table tbody td:nth-child(4) {
+  text-align: right;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.q-table .empty-row td {
+  text-align: center;
+  color: var(--ink4);
+  font-style: italic;
+  padding: 20px;
+  font-size: 12px;
+}
+
+/* TOTALS */
+.q-totals { border-top: 1px solid var(--border); padding-top: 12px; }
+
+.q-totals-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.q-totals-row span:first-child {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--ink3);
+  letter-spacing: 0.5px;
+}
+
+.q-totals-row span:last-child {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--ink2);
+}
+
+.q-totals-row.discount span:last-child { color: var(--red); }
+.q-totals-row.adj span:last-child { color: var(--green); }
+
+.q-grand {
+  border-top: 2px solid var(--ink);
+  margin-top: 8px;
+  padding-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.q-grand span:first-child {
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.q-grand span:last-child {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* TERMS */
+.q-terms {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.q-terms-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: var(--ink4);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.q-terms-text {
+  font-size: 10px;
+  color: var(--ink3);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* Q FOOTER */
+.q-footer {
+  background: var(--bg2);
+  padding: 14px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+}
+
+.q-footer-note {
+  font-size: 10px;
+  color: var(--ink3);
+  font-style: italic;
+}
+
+.q-status {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: rgba(26,106,58,0.1);
+  color: var(--green);
+  border: 1px solid rgba(26,106,58,0.2);
+}
+
+/* ACTION BUTTONS */
+.action-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 13px;
+  background: var(--ink);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 16px var(--accent-border); }
+
+.btn-secondary {
+  padding: 13px 16px;
+  background: transparent;
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--ink2);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover { border-color: var(--ink); color: var(--ink); }
+
+/* TOTALS SUMMARY CARD */
+.totals-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.totals-inner { padding: 18px 22px; }
+
+.totals-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.totals-row:last-child { border-bottom: none; }
+
+.totals-label {
+  font-size: 13px;
+  color: var(--ink2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.totals-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.totals-value.neg { color: var(--red); }
+.totals-value.pos { color: var(--green); }
+
+.totals-grand {
+  background: var(--ink);
+  padding: 16px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.totals-grand-label {
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.totals-grand-value {
+  font-family: 'Fraunces', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #7ab3e8;
+}
+
+/* FOOTER */
+.site-footer {
+  text-align: center;
+  padding: 28px 24px;
+  border-top: 2px solid var(--ink);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--ink3);
+  letter-spacing: 2px;
+  background: var(--white);
+}
+
+.site-footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-brand" href="https://zerokitapp.github.io">
+    <span class="nav-logo">Zero<span>Kit</span></span>
+    <span class="nav-divider">/</span>
+    <span class="nav-tool">Quote Generator</span>
+  </a>
+  <div class="nav-right">
+    <div class="nav-badge">Tool 02 / 50</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-strip">
+  <div class="hero-inner">
+    <div class="hero-cat">Freelancer Tools</div>
+    <h1 class="hero-title">Send quotes that <em>win projects.</em></h1>
+    <p class="hero-desc">Build a professional project quote in minutes. Add scope items, set rates, apply discounts, and send a PDF — no account needed.</p>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT: FORM -->
+  <div>
+
+    <!-- CARD 1: Parties -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Your Info & Client</span>
+        <span class="card-step">1</span>
+      </div>
+      <div class="card-body">
+
+        <div class="section-sep"><div class="section-sep-line"></div><span class="section-sep-text">Your Details</span><div class="section-sep-line"></div></div>
+
+        <div class="grid-2">
+          <div class="field">
+            <div class="field-label">Your Name / Business</div>
+            <input type="text" id="fromName" placeholder="Your Name" oninput="update()"/>
+          </div>
+          <div class="field">
+            <div class="field-label">Your Email</div>
+            <input type="text" id="fromEmail" placeholder="you@email.com" oninput="update()"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">Your Address / Extra Info</div>
+          <textarea id="fromExtra" placeholder="Address, phone, website..." rows="2" oninput="update()"></textarea>
+        </div>
+
+        <div class="section-sep"><div class="section-sep-line"></div><span class="section-sep-text">Client Details</span><div class="section-sep-line"></div></div>
+
+        <div class="grid-2">
+          <div class="field">
+            <div class="field-label">Client Name / Company</div>
+            <input type="text" id="toName" placeholder="Client Name" oninput="update()"/>
+          </div>
+          <div class="field">
+            <div class="field-label">Client Email</div>
+            <input type="text" id="toEmail" placeholder="client@email.com" oninput="update()"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">Client Address</div>
+          <textarea id="toExtra" placeholder="Client address..." rows="2" oninput="update()"></textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CARD 2: Quote Meta -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Quote Details</span>
+        <span class="card-step">2</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="field">
+            <div class="field-label">Quote #</div>
+            <input type="text" id="quoteNum" value="QT-001" oninput="update()"/>
+          </div>
+          <div class="field">
+            <div class="field-label">Currency</div>
+            <select id="currency" onchange="update()">
+              <option value="$">USD ($)</option>
+              <option value="€">EUR (€)</option>
+              <option value="£">GBP (£)</option>
+              <option value="CHF">CHF</option>
+              <option value="A$">AUD</option>
+              <option value="C$">CAD</option>
+              <option value="KM">BAM</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Valid For</div>
+            <select id="validDays" onchange="update()">
+              <option value="7">7 days</option>
+              <option value="14">14 days</option>
+              <option value="30" selected>30 days</option>
+              <option value="60">60 days</option>
+              <option value="90">90 days</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">Project Title</div>
+          <input type="text" id="projectTitle" placeholder="e.g. Brand Identity Design, Website Redesign..." oninput="update()"/>
+        </div>
+
+        <div class="field">
+          <div class="field-label">Project Description</div>
+          <textarea id="projectDesc" placeholder="Brief overview of what this quote covers..." rows="3" oninput="update()"></textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CARD 3: Scope -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Scope of Work</span>
+        <span class="card-step">3</span>
+      </div>
+      <div class="card-body">
+
+        <div class="scope-header">
+          <span>Deliverable</span>
+          <span>Hours</span>
+          <span>Rate</span>
+          <span>Total</span>
+          <span></span>
+        </div>
+
+        <div id="scopeContainer"></div>
+
+        <button class="add-scope-btn" onclick="addScope()">+ Add Deliverable</button>
+
+      </div>
+    </div>
+
+    <!-- CARD 4: Adjustments -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Adjustments & Terms</span>
+        <span class="card-step">4</span>
+      </div>
+      <div class="card-body">
+
+        <div class="section-sep"><div class="section-sep-line"></div><span class="section-sep-text">Discount</span><div class="section-sep-line"></div></div>
+
+        <div class="adj-row">
+          <div class="field" style="margin:0">
+            <input type="text" id="discountLabel" placeholder="e.g. Early bird discount" oninput="update()"/>
+          </div>
+          <div class="adj-toggle">
+            <button class="adj-toggle-opt active" id="discPct" onclick="setDiscType('pct')">%</button>
+            <button class="adj-toggle-opt" id="discFlat" onclick="setDiscType('flat')">Flat</button>
+          </div>
+          <div class="input-wrap has-suffix">
+            <input type="number" id="discountVal" value="0" min="0" oninput="update()"/>
+            <span class="input-suffix" id="discSuffix">%</span>
+          </div>
+        </div>
+
+        <div class="section-sep"><div class="section-sep-line"></div><span class="section-sep-text">Tax</span><div class="section-sep-line"></div></div>
+
+        <div class="adj-row">
+          <div class="field" style="margin:0">
+            <input type="text" id="taxLabel" placeholder="e.g. VAT, GST" value="Tax" oninput="update()"/>
+          </div>
+          <div></div>
+          <div class="input-wrap has-suffix">
+            <input type="number" id="taxVal" value="0" min="0" max="100" oninput="update()"/>
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <div class="section-sep"><div class="section-sep-line"></div><span class="section-sep-text">Payment Terms</span><div class="section-sep-line"></div></div>
+
+        <div class="field">
+          <select id="paymentTerms" onchange="update()">
+            <option value="50% upfront, 50% on completion">50% upfront, 50% on completion</option>
+            <option value="100% upfront">100% upfront</option>
+            <option value="100% on completion">100% on completion</option>
+            <option value="33% upfront, 33% midway, 33% on completion">33/33/33 milestone split</option>
+            <option value="Net 14 (payment within 14 days of completion)">Net 14</option>
+            <option value="Net 30 (payment within 30 days of completion)">Net 30</option>
+            <option value="custom">Custom...</option>
+          </select>
+        </div>
+
+        <div class="field" id="customTermsWrap" style="display:none">
+          <input type="text" id="customTerms" placeholder="Describe payment terms..." oninput="update()"/>
+        </div>
+
+        <div class="section-sep"><div class="section-sep-line"></div><span class="section-sep-text">Notes / Terms</span><div class="section-sep-line"></div></div>
+
+        <div class="field">
+          <textarea id="notes" rows="3" placeholder="Revisions included, what's NOT included, confidentiality, etc..." oninput="update()"></textarea>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: PREVIEW -->
+  <div class="quote-preview-wrap">
+
+    <!-- TOTALS CARD -->
+    <div class="totals-card">
+      <div class="totals-inner" id="totalsInner">
+        <div class="totals-row">
+          <span class="totals-label">📐 Subtotal</span>
+          <span class="totals-value" id="tSubtotal">$0.00</span>
+        </div>
+        <div class="totals-row" id="tDiscRow" style="display:none">
+          <span class="totals-label" id="tDiscLabel">🏷 Discount</span>
+          <span class="totals-value neg" id="tDisc">-$0.00</span>
+        </div>
+        <div class="totals-row" id="tTaxRow" style="display:none">
+          <span class="totals-label" id="tTaxLabel">🧾 Tax</span>
+          <span class="totals-value" id="tTax">$0.00</span>
+        </div>
+        <div class="totals-row">
+          <span class="totals-label">⏱ Total Hours</span>
+          <span class="totals-value" id="tHours">0h</span>
+        </div>
+      </div>
+      <div class="totals-grand">
+        <span class="totals-grand-label">Total Quote</span>
+        <span class="totals-grand-value" id="tGrand">$0</span>
+      </div>
+    </div>
+
+    <!-- QUOTE DOC PREVIEW -->
+    <div class="quote-doc" id="quoteDoc">
+
+      <div class="q-header">
+        <div>
+          <div class="q-brand" id="qBrand">Your Business</div>
+          <div class="q-brand-sub" id="qBrandSub"></div>
+        </div>
+        <div class="q-meta">
+          <div class="q-number" id="qNumber">QT-001</div>
+          <div class="q-date" id="qDate"></div>
+          <div class="q-valid" id="qValid"></div>
+        </div>
+      </div>
+
+      <div class="q-body">
+
+        <div class="q-parties">
+          <div>
+            <div class="q-party-label">Prepared by</div>
+            <div class="q-party-name" id="qFromName">—</div>
+            <div class="q-party-detail" id="qFromDetail"></div>
+          </div>
+          <div>
+            <div class="q-party-label">Prepared for</div>
+            <div class="q-party-name" id="qToName">—</div>
+            <div class="q-party-detail" id="qToDetail"></div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px" id="qProjectWrap">
+          <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--ink4);text-transform:uppercase;margin-bottom:4px">Project</div>
+          <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--ink)" id="qProjectTitle"></div>
+          <div style="font-size:12px;color:var(--ink3);margin-top:4px;line-height:1.5" id="qProjectDesc"></div>
+        </div>
+
+        <table class="q-table">
+          <thead>
+            <tr>
+              <th>Deliverable</th>
+              <th>Hours</th>
+              <th>Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody id="qTableBody">
+            <tr class="empty-row"><td colspan="4">Add deliverables to see them here</td></tr>
+          </tbody>
+        </table>
+
+        <div class="q-totals">
+          <div class="q-totals-row">
+            <span>Subtotal</span>
+            <span id="qSubtotal">$0.00</span>
+          </div>
+          <div class="q-totals-row discount" id="qDiscRow" style="display:none">
+            <span id="qDiscLabel">Discount</span>
+            <span id="qDisc">-$0.00</span>
+          </div>
+          <div class="q-totals-row" id="qTaxRow" style="display:none">
+            <span id="qTaxLabel">Tax</span>
+            <span id="qTax">$0.00</span>
+          </div>
+        </div>
+
+        <div class="q-grand">
+          <span>Total</span>
+          <span id="qGrand">$0</span>
+        </div>
+
+        <div class="q-terms" id="qTermsWrap">
+          <div class="q-terms-title">Payment Terms</div>
+          <div class="q-terms-text" id="qTermsText">50% upfront, 50% on completion</div>
+        </div>
+
+        <div class="q-terms" id="qNotesWrap" style="display:none">
+          <div class="q-terms-title">Notes</div>
+          <div class="q-terms-text" id="qNotesText"></div>
+        </div>
+
+      </div>
+
+      <div class="q-footer">
+        <div class="q-footer-note">Quote generated with ZeroKit · zerokitapp.github.io</div>
+        <div class="q-status">Pending</div>
+      </div>
+
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="action-row">
+      <button class="btn-primary" onclick="downloadPDF()">⬇ Download PDF</button>
+      <button class="btn-secondary" onclick="printQuote()">Print</button>
+      <button class="btn-secondary" onclick="resetForm()">Reset</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <a href="https://zerokitapp.github.io">ZeroKit</a>
+  &nbsp;·&nbsp; Free Business Tools &nbsp;·&nbsp; No signup &nbsp;·&nbsp; No limits
+</footer>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────
+let scopeItems = [
+  { desc:'', hours:0, rate:0 }
+];
+let discType = 'pct';
+
+// ── INIT ──────────────────────────────────────────────────────
+window.onload = () => {
+  renderScope();
+  update();
+};
+
+// ── HELPERS ───────────────────────────────────────────────────
+function sym() { return document.getElementById('currency').value; }
+function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function s(id) { return document.getElementById(id).value || ''; }
+function el(id) { return document.getElementById(id); }
+
+function fmt(n, dec=2) {
+  return sym() + n.toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+}
+
+function escHtml(str) {
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── SCOPE ─────────────────────────────────────────────────────
+function addScope() {
+  scopeItems.push({ desc:'', hours:0, rate:0 });
+  renderScope();
+}
+
+function removeScope(i) {
+  if (scopeItems.length === 1) {
+    scopeItems[0] = { desc:'', hours:0, rate:0 };
+  } else {
+    scopeItems.splice(i, 1);
+  }
+  renderScope();
+  update();
+}
+
+function renderScope() {
+  const c = el('scopeContainer');
+  c.innerHTML = '';
+  scopeItems.forEach((item, i) => {
+    const total = (parseFloat(item.hours)||0) * (parseFloat(item.rate)||0);
+    const row = document.createElement('div');
+    row.className = 'scope-item';
+    row.innerHTML = `
+      <input type="text" placeholder="e.g. UI Design, Development..." value="${escHtml(item.desc)}"
+        oninput="scopeItems[${i}].desc=this.value;update()"/>
+      <input type="number" class="scope-hours" placeholder="0" value="${item.hours||''}" min="0"
+        oninput="scopeItems[${i}].hours=this.value;updateScopeTotal(${i});update()"/>
+      <input type="number" class="scope-rate" placeholder="0" value="${item.rate||''}" min="0"
+        oninput="scopeItems[${i}].rate=this.value;updateScopeTotal(${i});update()"/>
+      <div class="scope-total" id="scopeTotal${i}">${sym()}${total.toFixed(2)}</div>
+      <button class="scope-del" onclick="removeScope(${i})">×</button>
+    `;
+    c.appendChild(row);
+  });
+}
+
+function updateScopeTotal(i) {
+  const total = (parseFloat(scopeItems[i].hours)||0) * (parseFloat(scopeItems[i].rate)||0);
+  const el2 = document.getElementById(`scopeTotal${i}`);
+  if (el2) el2.textContent = sym() + total.toFixed(2);
+}
+
+// ── DISC TYPE ─────────────────────────────────────────────────
+function setDiscType(type) {
+  discType = type;
+  el('discPct').classList.toggle('active', type === 'pct');
+  el('discFlat').classList.toggle('active', type === 'flat');
+  el('discSuffix').textContent = type === 'pct' ? '%' : sym();
+  update();
+}
+
+// ── PAYMENT TERMS ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  el('paymentTerms').addEventListener('change', function() {
+    el('customTermsWrap').style.display = this.value === 'custom' ? 'block' : 'none';
+    update();
+  });
+});
+
+// ── CALCULATE ─────────────────────────────────────────────────
+function calcTotals() {
+  const subtotal = scopeItems.reduce((s, it) =>
+    s + (parseFloat(it.hours)||0) * (parseFloat(it.rate)||0), 0);
+  const totalHours = scopeItems.reduce((s, it) => s + (parseFloat(it.hours)||0), 0);
+
+  const discVal   = v('discountVal');
+  const discount  = discType === 'pct' ? subtotal * (discVal/100) : Math.min(discVal, subtotal);
+  const afterDisc = subtotal - discount;
+  const taxRate   = v('taxVal') / 100;
+  const tax       = afterDisc * taxRate;
+  const total     = afterDisc + tax;
+
+  return { subtotal, discount, tax, total, totalHours, afterDisc };
+}
+
+// ── UPDATE ────────────────────────────────────────────────────
+function update() {
+  const c = calcTotals();
+  const s2 = sym();
+
+  // Totals card
+  el('tSubtotal').textContent = fmt(c.subtotal);
+  el('tHours').textContent    = c.totalHours + 'h';
+  el('tGrand').textContent    = fmt(c.total, 0);
+
+  const discVal = v('discountVal');
+  el('tDiscRow').style.display = discVal > 0 ? 'flex' : 'none';
+  el('tDiscLabel').textContent = '🏷 ' + (s('discountLabel') || 'Discount');
+  el('tDisc').textContent = '-' + fmt(c.discount);
+
+  const taxVal = v('taxVal');
+  el('tTaxRow').style.display = taxVal > 0 ? 'flex' : 'none';
+  el('tTaxLabel').textContent = '🧾 ' + (s('taxLabel') || 'Tax');
+  el('tTax').textContent = fmt(c.tax);
+
+  // Quote preview header
+  const fromName = s('fromName') || 'Your Business';
+  el('qBrand').textContent    = fromName;
+  el('qBrandSub').textContent = s('fromEmail');
+  el('qNumber').textContent   = s('quoteNum') || 'QT-001';
+
+  const today = new Date();
+  const validDays = parseInt(el('validDays').value) || 30;
+  const expiry = new Date(today); expiry.setDate(expiry.getDate() + validDays);
+  el('qDate').textContent = 'Issued ' + fmtDate(today);
+  el('qValid').textContent = 'Valid until ' + fmtDate(expiry);
+
+  // Parties
+  el('qFromName').textContent   = fromName;
+  el('qFromDetail').textContent = [s('fromEmail'), s('fromExtra')].filter(Boolean).join('\n');
+  el('qToName').textContent     = s('toName') || '—';
+  el('qToDetail').textContent   = [s('toEmail'), s('toExtra')].filter(Boolean).join('\n');
+
+  // Project
+  const projTitle = s('projectTitle');
+  el('qProjectTitle').textContent = projTitle || '';
+  el('qProjectDesc').textContent  = s('projectDesc');
+  el('qProjectWrap').style.display = projTitle ? 'block' : 'none';
+
+  // Scope table
+  const tbody = el('qTableBody');
+  const validItems = scopeItems.filter(it => it.desc || parseFloat(it.rate) > 0);
+  if (validItems.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="4">Add deliverables to see them here</td></tr>`;
+  } else {
+    tbody.innerHTML = scopeItems.map(it => {
+      const t = (parseFloat(it.hours)||0) * (parseFloat(it.rate)||0);
+      return `<tr>
+        <td>${escHtml(it.desc) || '—'}</td>
+        <td>${parseFloat(it.hours)||0}h</td>
+        <td>${s2}${(parseFloat(it.rate)||0).toFixed(2)}</td>
+        <td>${s2}${t.toFixed(2)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Preview totals
+  el('qSubtotal').textContent = fmt(c.subtotal);
+  el('qDiscRow').style.display = discVal > 0 ? 'flex' : 'none';
+  el('qDiscLabel').textContent = s('discountLabel') || 'Discount';
+  el('qDisc').textContent      = '-' + fmt(c.discount);
+  el('qTaxRow').style.display  = taxVal > 0 ? 'flex' : 'none';
+  el('qTaxLabel').textContent  = s('taxLabel') || 'Tax';
+  el('qTax').textContent       = fmt(c.tax);
+  el('qGrand').textContent     = fmt(c.total, 0);
+
+  // Terms & notes
+  const terms = s('paymentTerms') === 'custom' ? s('customTerms') : s('paymentTerms');
+  el('qTermsText').textContent = terms || '50% upfront, 50% on completion';
+
+  const notes = s('notes');
+  el('qNotesWrap').style.display = notes ? 'block' : 'none';
+  el('qNotesText').textContent   = notes;
+
+  // Update scope totals display
+  scopeItems.forEach((_,i) => updateScopeTotal(i));
+}
+
+// ── PRINT ─────────────────────────────────────────────────────
+function printQuote() { window.print(); }
+
+// ── RESET ─────────────────────────────────────────────────────
+function resetForm() {
+  if (!confirm('Reset all fields?')) return;
+  ['fromName','fromEmail','fromExtra','toName','toEmail','toExtra',
+   'projectTitle','projectDesc','notes','discountLabel','customTerms'].forEach(id => {
+    const e = el(id); if (e) e.value = '';
+  });
+  el('quoteNum').value   = 'QT-001';
+  el('discountVal').value = '0';
+  el('taxVal').value      = '0';
+  scopeItems = [{ desc:'', hours:0, rate:0 }];
+  renderScope();
+  update();
+}
+
+// ── PDF ───────────────────────────────────────────────────────
+function downloadPDF() {
+  const preview = el('quoteDoc').outerHTML;
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>Quote ${s('quoteNum')}</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#f5f2eb;--bg2:#eeeadf;--white:#fdfcf9;--ink:#1a1814;--ink2:#3d3a34;--ink3:#7a7570;--ink4:#b5b0a8;--border:#ddd9d0;--accent:#1a4a8a;--red:#8a2a1a;--green:#1a6a3a;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:white;font-family:'Outfit',sans-serif;}
+.quote-doc{max-width:800px;margin:0 auto;font-family:'Outfit',sans-serif;}
+.q-header{background:var(--ink);padding:28px 28px 24px;display:flex;justify-content:space-between;align-items:flex-start;}
+.q-brand{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:white;line-height:1;}
+.q-brand-sub{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;margin-top:4px;text-transform:uppercase;}
+.q-meta{text-align:right;}
+.q-number{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.6);letter-spacing:1px;}
+.q-date,.q-valid{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px;}
+.q-body{padding:22px 28px;}
+.q-parties{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.q-party-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--ink4);text-transform:uppercase;margin-bottom:6px;}
+.q-party-name{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.q-party-detail{font-size:11px;color:var(--ink3);line-height:1.5;white-space:pre-wrap;}
+.q-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px;}
+.q-table thead tr{border-bottom:2px solid var(--ink);}
+.q-table thead th{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--ink3);text-transform:uppercase;padding:8px;text-align:left;font-weight:400;}
+.q-table thead th:last-child,.q-table thead th:nth-child(2),.q-table thead th:nth-child(3){text-align:right;}
+.q-table tbody tr{border-bottom:1px solid var(--border);}
+.q-table tbody td{padding:10px 8px;color:var(--ink2);}
+.q-table tbody td:nth-child(2),.q-table tbody td:nth-child(3),.q-table tbody td:nth-child(4){text-align:right;font-family:'DM Mono',monospace;font-size:11px;}
+.q-totals{border-top:1px solid var(--border);padding-top:12px;}
+.q-totals-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;}
+.q-totals-row span:first-child{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);}
+.q-totals-row span:last-child{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink2);}
+.q-totals-row.discount span:last-child{color:var(--red);}
+.q-grand{border-top:2px solid var(--ink);margin-top:8px;padding-top:12px;display:flex;justify-content:space-between;align-items:baseline;}
+.q-grand span:first-child{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--ink);}
+.q-grand span:last-child{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--accent);}
+.q-terms{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.q-terms-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--ink4);text-transform:uppercase;margin-bottom:6px;}
+.q-terms-text{font-size:10px;color:var(--ink3);line-height:1.6;white-space:pre-wrap;}
+.q-footer{background:var(--bg2);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);}
+.q-footer-note{font-size:10px;color:var(--ink3);font-style:italic;}
+.q-status{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:99px;background:rgba(26,106,58,0.1);color:var(--green);border:1px solid rgba(26,106,58,0.2);}
+.empty-row td{text-align:center;color:var(--ink4);font-style:italic;padding:20px;font-size:12px;}
+</style>
+</head>
+<body>${preview}<script>window.onload=()=>{window.print();window.onafterprint=()=>window.close();}<\/script></body>
+</html>`;
+
+  const blob = new Blob([html], {type:'text/html'});
+  const url  = URL.createObjectURL(blob);
+  const w    = window.open(url, '_blank');
+  if (!w) alert('Allow popups to download PDF, then use Save as PDF.');
+}
+</script>
+</body>
+</html>
