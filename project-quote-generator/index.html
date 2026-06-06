@@ -178,8 +178,17 @@ body::before {
 }
 
 @media (max-width: 800px) {
-  .layout { grid-template-columns: 1fr; }
-  .quote-preview-wrap { order: -1; }
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .quote-preview-wrap {
+    order: 0;
+    position: relative;
+    top: auto;
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 /* CARD */
