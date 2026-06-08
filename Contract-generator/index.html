@@ -1093,53 +1093,77 @@ function printContract() {
     alert('Please generate a contract first.');
     return;
   }
+
+  const css = `
+    @page{size:A4;margin:18mm}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--ink:#1a1612;--paper:#f5f0e8;--cream:#ede7d7;--accent:#8b4513;--muted:#7a6e60;--line:#c8bfad;--serif:'Playfair Display',Georgia,serif;--mono:'IBM Plex Mono','Courier New',monospace;--sans:'IBM Plex Sans',sans-serif}
+    body{font-family:var(--sans);font-size:10pt;color:var(--ink);line-height:1.6;background:#fff}
+    .c-header{text-align:center;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:2px solid var(--ink)}
+    .c-title{font-family:var(--serif);font-size:1.4rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+    .c-subtitle{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-top:.3rem}
+    .c-parties{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:1.5rem;padding:1rem;background:var(--paper);border-left:3px solid var(--accent)}
+    .c-party-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:.3rem}
+    .c-party-name{font-weight:700;font-size:.9rem;margin-bottom:.2rem}
+    .c-party-detail{font-family:var(--sans);font-size:.75rem;color:var(--muted);line-height:1.5}
+    .c-section{margin-bottom:1.4rem;page-break-inside:avoid}
+    .c-section-num{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;color:var(--accent);display:block;margin-bottom:.15rem}
+    .c-section h3{font-family:var(--serif);font-size:.95rem;font-weight:700;margin-bottom:.4rem}
+    .c-section p,.c-section li{font-family:var(--sans);font-size:.82rem;color:#2d2820;line-height:1.7}
+    .c-section ul{padding-left:1.2rem}
+    .c-section li{margin-bottom:.25rem}
+    .c-highlight{background:#fff8e8;border:1px solid #e8d8a0;border-radius:3px;padding:.75rem 1rem;margin:.6rem 0}
+    .c-kv{display:flex;justify-content:space-between;font-family:var(--sans);font-size:.78rem;padding:.18rem 0;border-bottom:1px dotted var(--line)}
+    .c-kv:last-child{border-bottom:none}
+    .c-kv .k{color:var(--muted)}.c-kv .v{font-weight:500}
+    .c-signatures{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:3rem;page-break-inside:avoid}
+    .c-sig-line{border-bottom:1px solid var(--ink);height:2rem;margin-bottom:.35rem}
+    .c-sig-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+    .c-sig-name{font-weight:700;font-size:.85rem;margin-top:.2rem}
+    .c-footer{margin-top:2rem;padding-top:.75rem;border-top:2px solid var(--ink);display:flex;justify-content:space-between;font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+  `;
+
+  const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Contract</title>` +
+    `<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400` +
+    `&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">` +
+    `<style>${css}</style></head><body>${out.innerHTML}</body></html>`;
+
+  // Remove any old iframe
+  const old = document.getElementById('_printFrame');
+  if (old) old.remove();
+
   document.fonts.ready.then(() => {
-    const w = window.open('', '_blank');
-    if (!w) {
-      alert('Pop-up blocked. Please allow pop-ups for this site and try again.');
-      return;
-    }
-    w.document.write(`<!DOCTYPE html><html><head>
-      <meta charset="UTF-8">
-      <title>Contract</title>
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-      <style>
-        @page { size: A4; margin: 18mm; }
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        :root{--ink:#1a1612;--paper:#f5f0e8;--cream:#ede7d7;--accent:#8b4513;--accent2:#c17f3a;--muted:#7a6e60;--line:#c8bfad;--serif:'Playfair Display',Georgia,serif;--mono:'IBM Plex Mono','Courier New',monospace;--sans:'IBM Plex Sans',sans-serif;}
-        body{font-family:var(--sans);font-size:10pt;color:var(--ink);line-height:1.6;background:#fff;}
-        .c-header{text-align:center;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:2px solid var(--ink);}
-        .c-title{font-family:var(--serif);font-size:1.4rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
-        .c-subtitle{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-top:.3rem;}
-        .c-parties{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:1.5rem;padding:1rem;background:var(--paper);border-left:3px solid var(--accent);}
-        .c-party-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:.3rem;}
-        .c-party-name{font-weight:700;font-size:.9rem;margin-bottom:.2rem;}
-        .c-party-detail{font-family:var(--sans);font-size:.75rem;color:var(--muted);line-height:1.5;}
-        .c-section{margin-bottom:1.4rem;page-break-inside:avoid;}
-        .c-section-num{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;color:var(--accent);display:block;margin-bottom:.15rem;}
-        .c-section h3{font-family:var(--serif);font-size:.95rem;font-weight:700;margin-bottom:.4rem;}
-        .c-section p,.c-section li{font-family:var(--sans);font-size:.82rem;color:#2d2820;line-height:1.7;}
-        .c-section ul{padding-left:1.2rem;}
-        .c-section li{margin-bottom:.25rem;}
-        .c-highlight{background:#fff8e8;border:1px solid #e8d8a0;border-radius:3px;padding:.75rem 1rem;margin:.6rem 0;}
-        .c-kv{display:flex;justify-content:space-between;font-family:var(--sans);font-size:.78rem;padding:.18rem 0;border-bottom:1px dotted var(--line);}
-        .c-kv:last-child{border-bottom:none;}
-        .c-kv .k{color:var(--muted)}.c-kv .v{font-weight:500;}
-        .c-signatures{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:3rem;page-break-inside:avoid;}
-        .c-sig-line{border-bottom:1px solid var(--ink);height:2rem;margin-bottom:.35rem;}
-        .c-sig-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
-        .c-sig-name{font-weight:700;font-size:.85rem;margin-top:.2rem;}
-        .c-footer{margin-top:2rem;padding-top:.75rem;border-top:2px solid var(--ink);display:flex;justify-content:space-between;font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;}
-      </style>
-    </head><body>${out.innerHTML}</body></html>`);
-    w.document.close();
-    w.focus();
-    setTimeout(() => {
-      w.print();
-      setTimeout(() => { try { w.close(); } catch(e){} }, 1000);
-    }, 800);
+    const blob = new Blob([fullHtml], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+
+    const iframe = document.createElement('iframe');
+    iframe.id = '_printFrame';
+    iframe.style.cssText = 'position:fixed;width:0;height:0;top:-999px;left:-999px;border:none;opacity:0;';
+    document.body.appendChild(iframe);
+
+    iframe.onload = function() {
+      setTimeout(() => {
+        try {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        } catch(e) {
+          // Fallback: open blob URL in new tab for manual Ctrl+P
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.target = '_blank';
+          a.click();
+        }
+        setTimeout(() => {
+          iframe.remove();
+          URL.revokeObjectURL(blobUrl);
+        }, 3000);
+      }, 900);
+    };
+
+    iframe.src = blobUrl;
   });
 }
 </script>
 </body>
 </html>
+
