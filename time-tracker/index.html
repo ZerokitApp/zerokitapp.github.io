@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Tracker — ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  /* ─── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --bg:        #0d0f12;
+    --surface:   #161920;
+    --panel:     #1d2129;
+    --border:    #2a2f3a;
+    --border2:   #343b48;
+    --text:      #e8eaf0;
+    --muted:     #7a8399;
+    --accent:    #f0a500;
+    --accent2:   #e05c2a;
+    --green:     #3ecf8e;
+    --red:       #e05c2a;
+    --mono:      'DM Mono', monospace;
+    --sans:      'Barlow', sans-serif;
+    --cond:      'Barlow Condensed', sans-serif;
+  }
+
+  /* ─── RESET ──────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── NAV ────────────────────────────────────────────────── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,15,18,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 54px;
+  }
+  .nav-logo {
+    font-family: var(--cond); font-weight: 700; font-size: 1.1rem;
+    letter-spacing: .08em; color: var(--accent); text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-links a {
+    font-size: .8rem; font-weight: 500; letter-spacing: .06em;
+    color: var(--muted); text-decoration: none; text-transform: uppercase;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .tool-badge {
+    font-family: var(--mono); font-size: .7rem;
+    background: var(--panel); border: 1px solid var(--border2);
+    color: var(--accent); padding: .25rem .65rem; border-radius: 4px;
+  }
+
+  /* ─── HERO ───────────────────────────────────────────────── */
+  .hero {
+    padding: 3.5rem 2rem 2rem;
+    max-width: 860px; margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .12em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: .75rem;
+  }
+  .hero h1 {
+    font-family: var(--cond); font-weight: 700; font-size: clamp(2rem,5vw,3rem);
+    letter-spacing: .03em; line-height: 1.1; color: var(--text);
+  }
+  .hero p {
+    margin-top: .75rem; color: var(--muted); font-size: .95rem;
+    font-weight: 300; max-width: 480px; line-height: 1.6;
+  }
+
+  /* ─── LAYOUT ─────────────────────────────────────────────── */
+  .app {
+    max-width: 860px; margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+    display: flex; flex-direction: column; gap: 1.5rem;
+  }
+
+  /* ─── TRACKER CARD ───────────────────────────────────────── */
+  .tracker-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .tracker-top {
+    padding: 1.75rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;
+  }
+  .field-group { display: flex; flex-direction: column; gap: .4rem; flex: 1; min-width: 160px; }
+  .field-label {
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .1em;
+    color: var(--muted); text-transform: uppercase;
+  }
+  .field-group input, .field-group select {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    font-family: var(--sans); font-size: .9rem;
+    padding: .55rem .85rem;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color .2s;
+    width: 100%;
+  }
+  .field-group input:focus, .field-group select:focus {
+    border-color: var(--accent);
+  }
+  .field-group input::placeholder { color: var(--muted); }
+  .field-group select option { background: var(--panel); }
+
+  /* ─── CLOCK DISPLAY ──────────────────────────────────────── */
+  .clock-section {
+    padding: 2rem;
+    display: flex; flex-wrap: wrap; gap: 2rem;
+    align-items: center; justify-content: space-between;
+  }
+  .clock-face {
+    display: flex; flex-direction: column; gap: .25rem;
+  }
+  .clock-digits {
+    font-family: var(--mono); font-size: clamp(2.6rem, 8vw, 4.2rem);
+    font-weight: 300; letter-spacing: -.02em;
+    color: var(--text); line-height: 1;
+    transition: color .3s;
+  }
+  .clock-digits.running { color: var(--accent); }
+  .clock-sub {
+    font-family: var(--mono); font-size: .72rem; color: var(--muted);
+    letter-spacing: .08em;
+  }
+  .clock-controls { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+
+  /* ─── BUTTONS ────────────────────────────────────────────── */
+  .btn {
+    font-family: var(--cond); font-weight: 700; letter-spacing: .08em;
+    font-size: .9rem; text-transform: uppercase;
+    border: none; border-radius: 6px; cursor: pointer;
+    padding: .65rem 1.5rem; transition: all .15s; white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--accent); color: #000;
+  }
+  .btn-primary:hover { background: #ffc830; }
+  .btn-stop {
+    background: var(--accent2); color: #fff;
+  }
+  .btn-stop:hover { background: #ff6e3a; }
+  .btn-ghost {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); background: var(--panel); }
+  .btn:disabled { opacity: .35; cursor: not-allowed; }
+  .btn-sm { padding: .4rem .9rem; font-size: .78rem; }
+
+  /* ─── PROJECT TABS ───────────────────────────────────────── */
+  .projects-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 1.1rem 1.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: .75rem;
+  }
+  .section-title {
+    font-family: var(--cond); font-weight: 700; font-size: 1rem;
+    letter-spacing: .07em; text-transform: uppercase; color: var(--text);
+  }
+  .project-tabs {
+    display: flex; gap: .5rem; flex-wrap: wrap;
+    padding: 1rem 1.75rem; border-bottom: 1px solid var(--border);
+  }
+  .tab-chip {
+    font-family: var(--mono); font-size: .72rem;
+    padding: .3rem .75rem; border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: var(--panel); color: var(--muted);
+    cursor: pointer; transition: all .15s;
+  }
+  .tab-chip.active, .tab-chip:hover {
+    background: var(--accent); color: #000; border-color: var(--accent);
+  }
+  .tab-chip.all.active { background: var(--panel); color: var(--text); border-color: var(--border2); }
+
+  /* ─── LOG TABLE ──────────────────────────────────────────── */
+  .log-wrap { overflow-x: auto; }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: .85rem;
+  }
+  thead tr { border-bottom: 1px solid var(--border); }
+  th {
+    font-family: var(--mono); font-size: .65rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted);
+    padding: .75rem 1.75rem; text-align: left; white-space: nowrap;
+  }
+  td {
+    padding: .75rem 1.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: rgba(255,255,255,.02); }
+  .tag-pill {
+    display: inline-block;
+    font-family: var(--mono); font-size: .65rem; letter-spacing: .06em;
+    padding: .2rem .55rem; border-radius: 4px;
+    background: var(--panel); border: 1px solid var(--border2);
+    color: var(--accent);
+  }
+  .duration-cell {
+    font-family: var(--mono); font-size: .82rem; color: var(--green);
+  }
+  .action-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: .85rem; padding: .2rem .4rem;
+    border-radius: 4px; transition: color .15s;
+  }
+  .action-btn:hover { color: var(--red); }
+  .empty-state {
+    padding: 3rem 1.75rem; text-align: center;
+    color: var(--muted); font-size: .88rem; line-height: 1.7;
+  }
+  .empty-state .icon { font-size: 2rem; margin-bottom: .5rem; opacity: .4; }
+
+  /* ─── SUMMARY STRIP ──────────────────────────────────────── */
+  .summary-strip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    display: grid; gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+  .stat-cell { display: flex; flex-direction: column; gap: .35rem; }
+  .stat-label {
+    font-family: var(--mono); font-size: .65rem; letter-spacing: .1em;
+    color: var(--muted); text-transform: uppercase;
+  }
+  .stat-value {
+    font-family: var(--mono); font-size: 1.45rem;
+    font-weight: 500; color: var(--text);
+  }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.green { color: var(--green); }
+
+  /* ─── FOOTER ─────────────────────────────────────────────── */
+  footer {
+    text-align: center;
+    padding: 2rem 1rem 3rem;
+    font-size: .75rem; color: var(--muted);
+    border-top: 1px solid var(--border);
+    letter-spacing: .04em;
+  }
+
+  /* ─── PRINT ──────────────────────────────────────────────── */
+  @media print {
+    @page { size: A4; margin: 16mm; }
+    nav, .hero, .tracker-card, .project-tabs, .summary-strip .summary-strip > *:nth-child(n+4),
+    .btn, button, footer, .action-btn, .section-header .btn { display: none !important; }
+    body { background: #fff; color: #000; }
+    .summary-strip { border: 1px solid #ccc; }
+    .projects-section { border: 1px solid #ccc; }
+    .stat-value, .duration-cell { color: #000 !important; }
+    .tag-pill { border-color: #999; color: #333; }
+    .muted, th, .stat-label { color: #666 !important; }
+    td, th { border-color: #ddd !important; }
+  }
+
+  /* ─── RESPONSIVE ─────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; }
+    .hero, .app { padding-left: 1rem; padding-right: 1rem; }
+    th:nth-child(3), td:nth-child(3),
+    th:nth-child(4), td:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="https://zerokitapp.github.io">ZeroKit</a>
+  <div class="nav-links">
+    <a href="https://zerokitapp.github.io">All Tools</a>
+    <span class="tool-badge">Tool 04 / 50</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <p class="hero-eyebrow">Freelancer Tools · Tool 04</p>
+  <h1>Time Tracker</h1>
+  <p>Track billable hours by project and client. Log sessions, add notes, and export a clean time report — no login required.</p>
+</header>
+
+<!-- APP -->
+<main class="app">
+
+  <!-- TRACKER CARD -->
+  <div class="tracker-card">
+    <div class="tracker-top">
+      <div class="field-group" style="max-width:280px">
+        <label class="field-label">Task / Description</label>
+        <input type="text" id="taskInput" placeholder="e.g. Homepage redesign" autocomplete="off">
+      </div>
+      <div class="field-group" style="max-width:180px">
+        <label class="field-label">Project</label>
+        <input type="text" id="projectInput" placeholder="e.g. Acme Corp" autocomplete="off">
+      </div>
+      <div class="field-group" style="max-width:130px">
+        <label class="field-label">Rate ($/hr)</label>
+        <input type="number" id="rateInput" placeholder="0.00" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="clock-section">
+      <div class="clock-face">
+        <div class="clock-digits" id="clockDisplay">00:00:00</div>
+        <div class="clock-sub" id="clockSub">READY TO TRACK</div>
+      </div>
+      <div class="clock-controls">
+        <button class="btn btn-primary" id="startBtn" onclick="startTimer()">▶ Start</button>
+        <button class="btn btn-stop" id="stopBtn" onclick="stopTimer()" disabled>■ Stop</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetClock()" id="resetBtn">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY STRIP -->
+  <div class="summary-strip" id="summaryStrip">
+    <div class="stat-cell">
+      <span class="stat-label">Total Time</span>
+      <span class="stat-value accent" id="statTotal">0h 00m</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">Sessions</span>
+      <span class="stat-value" id="statSessions">0</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">Est. Earnings</span>
+      <span class="stat-value green" id="statEarnings">$0.00</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">Projects</span>
+      <span class="stat-value" id="statProjects">0</span>
+    </div>
+  </div>
+
+  <!-- LOG TABLE -->
+  <div class="projects-section">
+    <div class="section-header">
+      <span class="section-title">Session Log</span>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">↓ Export CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="printLog()">⎙ Print</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearAll()">✕ Clear All</button>
+      </div>
+    </div>
+
+    <!-- Project filter chips -->
+    <div class="project-tabs" id="projectTabs">
+      <span class="tab-chip all active" onclick="filterByProject('ALL', this)">All</span>
+    </div>
+
+    <div class="log-wrap">
+      <table id="logTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Task</th>
+            <th>Project</th>
+            <th>Date</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Duration</th>
+            <th>Earnings</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="logBody">
+          <tr id="emptyRow">
+            <td colspan="9">
+              <div class="empty-state">
+                <div class="icon">⏱</div>
+                No sessions logged yet.<br>Enter a task above and hit Start to begin tracking.
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<footer>ZeroKit · Free Business Tools · No signup · No limits</footer>
+
+<script>
+/* ─── STATE ──────────────────────────────────────────────────── */
+let timerInterval = null;
+let startTime     = null;
+let elapsed       = 0;          // ms accumulated before current run
+let running       = false;
+
+let sessions      = [];         // { id, task, project, rate, start, end, duration }
+let nextId        = 1;
+let activeFilter  = 'ALL';
+
+/* ─── TIMER ──────────────────────────────────────────────────── */
+function startTimer() {
+  if (running) return;
+  running   = true;
+  startTime = Date.now() - elapsed;
+  timerInterval = setInterval(tick, 100);
+  document.getElementById('clockDisplay').classList.add('running');
+  document.getElementById('clockSub').textContent = 'TRACKING…';
+  document.getElementById('startBtn').disabled  = true;
+  document.getElementById('stopBtn').disabled   = false;
+}
+
+function tick() {
+  elapsed = Date.now() - startTime;
+  document.getElementById('clockDisplay').textContent = fmt(elapsed);
+}
+
+function stopTimer() {
+  if (!running) return;
+  clearInterval(timerInterval);
+  running = false;
+  const duration = elapsed;
+  elapsed = 0;
+  document.getElementById('clockDisplay').classList.remove('running');
+  document.getElementById('startBtn').disabled  = false;
+  document.getElementById('stopBtn').disabled   = true;
+
+  const task    = document.getElementById('taskInput').value.trim()    || 'Untitled Task';
+  const project = document.getElementById('projectInput').value.trim() || 'General';
+  const rate    = parseFloat(document.getElementById('rateInput').value) || 0;
+  const end     = new Date();
+  const start   = new Date(end.getTime() - duration);
+
+  const sess = {
+    id: nextId++,
+    task, project, rate,
+    start: start.toISOString(),
+    end:   end.toISOString(),
+    duration  // ms
+  };
+  sessions.unshift(sess);
+  saveState();
+  renderLog();
+  renderStats();
+  renderTabs();
+  document.getElementById('clockDisplay').textContent = '00:00:00';
+  document.getElementById('clockSub').textContent = 'READY TO TRACK';
+}
+
+function resetClock() {
+  if (running) return;
+  elapsed = 0;
+  document.getElementById('clockDisplay').textContent = '00:00:00';
+}
+
+/* ─── FORMAT HELPERS ─────────────────────────────────────────── */
+function fmt(ms) {
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${pad(h)}:${pad(m)}:${pad(sec)}`;
+}
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function fmtDuration(ms) {
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}h ${pad(m)}m`;
+  if (m > 0) return `${m}m ${pad(sec)}s`;
+  return `${sec}s`;
+}
+
+function fmtTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+function earnings(ms, rate) {
+  const hrs = ms / 3600000;
+  return (hrs * rate).toFixed(2);
+}
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ─── RENDER LOG ─────────────────────────────────────────────── */
+function renderLog() {
+  const tbody   = document.getElementById('logBody');
+  const visible = activeFilter === 'ALL'
+    ? sessions
+    : sessions.filter(s => s.project === activeFilter);
+
+  if (visible.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="icon">⏱</div>${
+      sessions.length === 0
+        ? 'No sessions logged yet.<br>Enter a task above and hit Start to begin tracking.'
+        : `No sessions for <strong>${esc(activeFilter)}</strong>.`
+    }</div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = visible.map((s, i) => `
+    <tr id="row-${s.id}">
+      <td style="color:var(--muted);font-family:var(--mono);font-size:.72rem">${visible.length - i}</td>
+      <td>${esc(s.task)}</td>
+      <td><span class="tag-pill">${esc(s.project)}</span></td>
+      <td style="color:var(--muted);font-size:.8rem">${fmtDate(s.start)}</td>
+      <td style="font-family:var(--mono);font-size:.8rem">${fmtTime(s.start)}</td>
+      <td style="font-family:var(--mono);font-size:.8rem">${fmtTime(s.end)}</td>
+      <td class="duration-cell">${fmtDuration(s.duration)}</td>
+      <td style="font-family:var(--mono);font-size:.82rem;color:var(--accent)">${
+        s.rate > 0 ? '$' + earnings(s.duration, s.rate) : '—'
+      }</td>
+      <td><button class="action-btn" onclick="deleteSession(${s.id})" title="Delete">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+/* ─── RENDER STATS ───────────────────────────────────────────── */
+function renderStats() {
+  const visible = activeFilter === 'ALL'
+    ? sessions
+    : sessions.filter(s => s.project === activeFilter);
+
+  const totalMs = visible.reduce((a, s) => a + s.duration, 0);
+  const totalEarnings = visible.reduce((a, s) => a + parseFloat(earnings(s.duration, s.rate)), 0);
+  const projects = new Set(sessions.map(s => s.project)).size;
+  const h = Math.floor(totalMs / 3600000);
+  const m = Math.floor((totalMs % 3600000) / 60000);
+
+  document.getElementById('statTotal').textContent    = `${h}h ${pad(m)}m`;
+  document.getElementById('statSessions').textContent = visible.length;
+  document.getElementById('statEarnings').textContent = '$' + totalEarnings.toFixed(2);
+  document.getElementById('statProjects').textContent = projects;
+}
+
+/* ─── RENDER TABS ────────────────────────────────────────────── */
+function renderTabs() {
+  const tabs     = document.getElementById('projectTabs');
+  const projects = [...new Set(sessions.map(s => s.project))];
+  tabs.innerHTML = `<span class="tab-chip all${activeFilter==='ALL'?' active':''}" onclick="filterByProject('ALL',this)">All</span>`;
+  projects.forEach(p => {
+    const chip = document.createElement('span');
+    chip.className = 'tab-chip' + (activeFilter === p ? ' active' : '');
+    chip.textContent = p;
+    chip.onclick = () => filterByProject(p, chip);
+    tabs.appendChild(chip);
+  });
+}
+
+function filterByProject(project, el) {
+  activeFilter = project;
+  document.querySelectorAll('.tab-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderLog();
+  renderStats();
+}
+
+/* ─── DELETE ─────────────────────────────────────────────────── */
+function deleteSession(id) {
+  sessions = sessions.filter(s => s.id !== id);
+  saveState();
+  renderLog();
+  renderStats();
+  renderTabs();
+}
+
+function clearAll() {
+  if (!sessions.length) return;
+  if (!confirm('Clear all logged sessions? This cannot be undone.')) return;
+  sessions = []; nextId = 1; activeFilter = 'ALL';
+  saveState();
+  renderLog(); renderStats(); renderTabs();
+}
+
+/* ─── EXPORT CSV ─────────────────────────────────────────────── */
+function exportCSV() {
+  if (!sessions.length) { alert('No sessions to export.'); return; }
+  const rows = [['#','Task','Project','Date','Start','End','Duration (min)','Rate ($/hr)','Earnings ($)']];
+  sessions.forEach((s, i) => {
+    rows.push([
+      i + 1,
+      `"${s.task.replace(/"/g,'""')}"`,
+      `"${s.project.replace(/"/g,'""')}"`,
+      fmtDate(s.start),
+      fmtTime(s.start),
+      fmtTime(s.end),
+      (s.duration / 60000).toFixed(2),
+      s.rate.toFixed(2),
+      earnings(s.duration, s.rate)
+    ]);
+  });
+  const csv  = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'time-log.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+/* ─── PRINT ──────────────────────────────────────────────────── */
+function printLog() {
+  document.fonts.ready.then(() => window.print());
+}
+
+/* ─── PERSIST ────────────────────────────────────────────────── */
+function saveState() {
+  try {
+    localStorage.setItem('zk-timetracker', JSON.stringify({ sessions, nextId }));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('zk-timetracker');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    sessions = d.sessions || [];
+    nextId   = d.nextId   || 1;
+  } catch(e) {}
+}
+
+/* ─── INIT ───────────────────────────────────────────────────── */
+loadState();
+renderLog();
+renderStats();
+renderTabs();
+</script>
+</body>
+</html>
