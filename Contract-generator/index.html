@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contract Generator · ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── Reset & Base ─────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:      #1a1612;
+    --paper:    #f5f0e8;
+    --cream:    #ede7d7;
+    --warm:     #e8dfc8;
+    --accent:   #8b4513;
+    --accent2:  #c17f3a;
+    --muted:    #7a6e60;
+    --line:     #c8bfad;
+    --red:      #a0320a;
+    --green:    #2d6a2d;
+    --serif:    'Playfair Display', Georgia, serif;
+    --mono:     'IBM Plex Mono', 'Courier New', monospace;
+    --sans:     'IBM Plex Sans', sans-serif;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Grain overlay ────────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.5;
+  }
+
+  /* ── Nav ──────────────────────────────────────────────── */
+  nav {
+    background: var(--ink);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 2px solid var(--accent);
+  }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    color: var(--paper);
+    text-decoration: none;
+    letter-spacing: 0.03em;
+  }
+  .nav-logo span { color: var(--accent2); font-style: italic; }
+  .nav-badge {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    border: 1px solid #3a332a;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  /* ── Hero ─────────────────────────────────────────────── */
+  .hero {
+    text-align: center;
+    padding: 3.5rem 2rem 2.5rem;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '§';
+    position: absolute;
+    font-family: var(--serif);
+    font-size: 12rem;
+    color: var(--cream);
+    bottom: -1.5rem;
+    right: 2rem;
+    pointer-events: none;
+    line-height: 1;
+    z-index: 0;
+    opacity: 0.7;
+  }
+  .hero > * { position: relative; z-index: 1; }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── Layout ───────────────────────────────────────────── */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    max-width: 1300px;
+    margin: 0 auto;
+    min-height: calc(100vh - 52px - 200px);
+  }
+
+  /* ── Form Panel ───────────────────────────────────────── */
+  .form-panel {
+    padding: 2.5rem 2.5rem 3rem;
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
+  }
+
+  .section-title {
+    font-family: var(--serif);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title:first-child { margin-top: 0; }
+  .section-title .num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    background: var(--accent);
+    color: var(--paper);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .field-row.full { grid-template-columns: 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 0.35rem; }
+  label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  input, select, textarea {
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.55rem 0.75rem;
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    color: var(--ink);
+    transition: border-color 0.15s, background 0.15s;
+    outline: none;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    background: #fff;
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  select { cursor: pointer; }
+
+  /* Deliverables list */
+  .deliverables-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .deliverable-item {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .deliverable-item input { flex: 1; }
+  .btn-icon {
+    width: 30px; height: 30px;
+    border: 1px solid var(--line);
+    background: var(--cream);
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); background: var(--warm); }
+  .btn-add {
+    margin-top: 0.5rem;
+    background: none;
+    border: 1px dashed var(--line);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    padding: 0.4rem 0.75rem;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+    width: 100%;
+  }
+  .btn-add:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Checkboxes */
+  .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.45rem 0.65rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .check-item:hover { border-color: var(--accent); }
+  .check-item input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--accent); }
+  .check-item span { font-size: 0.82rem; color: var(--ink); }
+
+  /* Generate button */
+  .btn-generate {
+    margin-top: 2rem;
+    width: 100%;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 1rem;
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-style: italic;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-generate::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+  .btn-generate:hover { background: #2d261f; }
+  .btn-generate:hover::before { width: 6px; }
+
+  /* ── Preview Panel ────────────────────────────────────── */
+  .preview-panel {
+    padding: 2.5rem;
+    background: #faf7f0;
+    position: static;
+  }
+
+  .preview-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+  }
+  .preview-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .toolbar-actions { display: flex; gap: 0.5rem; }
+  .btn-action {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border: 1px solid var(--line);
+    background: var(--cream);
+    color: var(--ink);
+    transition: all 0.15s;
+  }
+  .btn-action:hover { border-color: var(--accent); color: var(--accent); background: var(--warm); }
+  .btn-action.primary {
+    background: var(--accent);
+    color: var(--paper);
+    border-color: var(--accent);
+  }
+  .btn-action.primary:hover { background: #7a3a0f; }
+
+  /* Contract document */
+  .contract-doc {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 3rem 3.5rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    font-family: var(--serif);
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: var(--ink);
+    min-height: 600px;
+  }
+
+  .contract-doc .placeholder-msg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 500px;
+    text-align: center;
+    gap: 1rem;
+    color: var(--muted);
+  }
+  .contract-doc .placeholder-msg .big-glyph {
+    font-family: var(--serif);
+    font-size: 5rem;
+    color: var(--line);
+    line-height: 1;
+  }
+  .contract-doc .placeholder-msg p {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+  }
+
+  /* Generated contract styles */
+  .c-header { text-align: center; margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 2px solid var(--ink); }
+  .c-header .c-title {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .c-header .c-subtitle {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .c-parties {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--paper);
+    border-left: 3px solid var(--accent);
+  }
+  .c-party-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.35rem;
+  }
+  .c-party-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .c-party-detail { font-family: var(--sans); font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+  .c-section { margin-bottom: 1.75rem; }
+  .c-section-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  .c-section h3 {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+    color: var(--ink);
+  }
+  .c-section p, .c-section li {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    color: #2d2820;
+    line-height: 1.75;
+  }
+  .c-section ul { padding-left: 1.25rem; }
+  .c-section li { margin-bottom: 0.3rem; }
+
+  .c-highlight {
+    background: #fff8e8;
+    border: 1px solid #e8d8a0;
+    border-radius: 3px;
+    padding: 1rem 1.25rem;
+    margin: 0.75rem 0;
+  }
+  .c-highlight .c-kv {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--sans);
+    font-size: 0.83rem;
+    padding: 0.2rem 0;
+    border-bottom: 1px dotted var(--line);
+  }
+  .c-highlight .c-kv:last-child { border-bottom: none; }
+  .c-highlight .c-kv .k { color: var(--muted); }
+  .c-highlight .c-kv .v { font-weight: 500; }
+
+  .c-signatures {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+  .c-sig-block { }
+  .c-sig-line {
+    border-bottom: 1px solid var(--ink);
+    height: 2.5rem;
+    margin-bottom: 0.4rem;
+  }
+  .c-sig-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .c-sig-name { font-weight: 700; font-size: 0.88rem; margin-top: 0.2rem; }
+
+  .c-footer {
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ── Footer ───────────────────────────────────────────── */
+  footer {
+    background: var(--ink);
+    color: var(--muted);
+    text-align: center;
+    padding: 1.2rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-top: 2px solid var(--accent);
+  }
+  footer span { color: var(--accent2); }
+
+  /* ── Print ────────────────────────────────────────────── */
+  @media print {
+    @page { size: A4; margin: 18mm 18mm 18mm 18mm; }
+    nav, .hero, .form-panel, .preview-toolbar, footer { display: none !important; }
+    body { background: #fff; }
+    .layout { display: block; }
+    .preview-panel { background: #fff; padding: 0; }
+    .contract-doc {
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      font-size: 10pt;
+      line-height: 1.6;
+    }
+    .c-parties { background: #f9f9f9; }
+    body::before { display: none; }
+  }
+
+  /* ── Responsive ───────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .form-panel { border-right: none; border-bottom: 1px solid var(--line); }
+    .preview-panel { position: static; }
+    .c-parties { grid-template-columns: 1fr; gap: 1rem; }
+    .c-signatures { grid-template-columns: 1fr; gap: 2rem; }
+    .contract-doc { padding: 2rem 1.5rem; }
+  }
+  @media (max-width: 520px) {
+    .field-row { grid-template-columns: 1fr; }
+    .checkbox-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 1.8rem; }
+    nav { padding: 0 1rem; }
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .contract-doc.generated { animation: fadeUp 0.35s ease; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a class="nav-logo" href="https://zerokitapp.github.io">Zero<span>Kit</span></a>
+  <span class="nav-badge">Tool 03 / 50</span>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-eyebrow">Free Business Tools · No Signup · No Limits</div>
+  <h1>Contract Generator</h1>
+  <p>Create professional freelance contracts in seconds. Fill the form, download as PDF — done.</p>
+</div>
+
+<!-- Main Layout -->
+<div class="layout">
+
+  <!-- ── FORM PANEL ── -->
+  <div class="form-panel">
+
+    <div class="section-title"><span class="num">01</span> Service Provider</div>
+    <div class="field-row">
+      <div class="field">
+        <label>Full Name / Company</label>
+        <input type="text" id="providerName" placeholder="Acme Studio LLC">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="providerEmail" placeholder="hello@acme.com">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Address</label>
+        <input type="text" id="providerAddress" placeholder="123 Main St, City, State">
+      </div>
+      <div class="field">
+        <label>Phone (optional)</label>
+        <input type="tel" id="providerPhone" placeholder="+1 555 000 0000">
+      </div>
+    </div>
+
+    <div class="section-title"><span class="num">02</span> Client</div>
+    <div class="field-row">
+      <div class="field">
+        <label>Full Name / Company</label>
+        <input type="text" id="clientName" placeholder="Client Co. Inc">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="clientEmail" placeholder="pm@clientco.com">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Address</label>
+        <input type="text" id="clientAddress" placeholder="456 Park Ave, City, State">
+      </div>
+      <div class="field">
+        <label>Contact Person</label>
+        <input type="text" id="clientContact" placeholder="Jane Smith">
+      </div>
+    </div>
+
+    <div class="section-title"><span class="num">03</span> Project Details</div>
+    <div class="field-row full">
+      <div class="field">
+        <label>Project / Service Title</label>
+        <input type="text" id="projectTitle" placeholder="Brand Identity & Website Design">
+      </div>
+    </div>
+    <div class="field-row full">
+      <div class="field">
+        <label>Project Description</label>
+        <textarea id="projectDesc" placeholder="Describe the nature and scope of the work to be performed..."></textarea>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Start Date</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="field">
+        <label>End Date / Deadline</label>
+        <input type="date" id="endDate">
+      </div>
+    </div>
+
+    <div class="section-title"><span class="num">04</span> Deliverables</div>
+    <div class="deliverables-list" id="deliverablesList">
+      <div class="deliverable-item">
+        <input type="text" placeholder="e.g. Logo files (SVG, PNG, PDF)">
+        <button class="btn-icon" onclick="removeDeliverable(this)" title="Remove">×</button>
+      </div>
+      <div class="deliverable-item">
+        <input type="text" placeholder="e.g. 5-page responsive website">
+        <button class="btn-icon" onclick="removeDeliverable(this)" title="Remove">×</button>
+      </div>
+    </div>
+    <button class="btn-add" onclick="addDeliverable()">+ Add Deliverable</button>
+
+    <div class="section-title"><span class="num">05</span> Payment Terms</div>
+    <div class="field-row">
+      <div class="field">
+        <label>Total Project Fee</label>
+        <input type="number" id="totalFee" placeholder="5000" min="0" step="0.01">
+      </div>
+      <div class="field">
+        <label>Currency</label>
+        <select id="currency">
+          <option value="USD">USD — US Dollar</option>
+          <option value="EUR">EUR — Euro</option>
+          <option value="GBP">GBP — British Pound</option>
+          <option value="CAD">CAD — Canadian Dollar</option>
+          <option value="AUD">AUD — Australian Dollar</option>
+          <option value="CHF">CHF — Swiss Franc</option>
+          <option value="JPY">JPY — Japanese Yen</option>
+          <option value="INR">INR — Indian Rupee</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Payment Structure</label>
+        <select id="paymentStructure">
+          <option value="full">Full payment on completion</option>
+          <option value="50-50" selected>50% upfront, 50% on completion</option>
+          <option value="milestone">Milestone-based payments</option>
+          <option value="monthly">Monthly retainer</option>
+          <option value="hourly">Hourly billing</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Payment Due (days)</label>
+        <input type="number" id="paymentDue" placeholder="14" value="14" min="1">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Late Fee (%/month)</label>
+        <input type="number" id="lateFee" placeholder="1.5" value="1.5" min="0" step="0.1">
+      </div>
+      <div class="field">
+        <label>Revision Rounds</label>
+        <input type="number" id="revisions" placeholder="2" value="2" min="0">
+      </div>
+    </div>
+
+    <div class="section-title"><span class="num">06</span> Contract Clauses</div>
+    <div class="checkbox-grid">
+      <label class="check-item">
+        <input type="checkbox" id="clsIP" checked>
+        <span>IP / Ownership transfer</span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" id="clsConf" checked>
+        <span>Confidentiality (NDA)</span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" id="clsKillFee" checked>
+        <span>Kill fee / Cancellation</span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" id="clsIndemnity">
+        <span>Indemnification</span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" id="clsDispute" checked>
+        <span>Dispute resolution</span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" id="clsPortfolio" checked>
+        <span>Portfolio / Credit rights</span>
+      </label>
+    </div>
+
+    <div class="field-row" style="margin-top:1rem">
+      <div class="field">
+        <label>Governing Law (State/Country)</label>
+        <input type="text" id="governingLaw" placeholder="New York, USA">
+      </div>
+      <div class="field">
+        <label>Contract Date</label>
+        <input type="date" id="contractDate">
+      </div>
+    </div>
+
+    <button class="btn-generate" onclick="generateContract()">
+      ✦ Generate Contract
+    </button>
+
+  </div><!-- /form-panel -->
+
+  <!-- ── PREVIEW PANEL ── -->
+  <div class="preview-panel">
+    <div class="preview-toolbar">
+      <span class="preview-label">Contract Preview</span>
+      <div class="toolbar-actions">
+        <button class="btn-action" onclick="copyText()">⎘ Copy Text</button>
+        <button class="btn-action primary" onclick="printContract()">↓ Download PDF</button>
+      </div>
+    </div>
+
+    <div class="contract-doc" id="contractOutput">
+      <div class="placeholder-msg">
+        <div class="big-glyph">§</div>
+        <p>Fill in the form and click<br><strong>Generate Contract</strong> to preview your document.</p>
+      </div>
+    </div>
+  </div><!-- /preview-panel -->
+
+</div><!-- /layout -->
+
+<!-- Footer -->
+<footer>
+  <span>ZeroKit</span> · Free Business Tools · No signup · No limits
+</footer>
+
+<script>
+/* ── Helpers ─────────────────────────────────────────────── */
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function fmtDate(d) {
+  if (!d) return '_______________';
+  try {
+    const dt = new Date(d + 'T12:00:00');
+    return dt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  } catch(e) { return d; }
+}
+
+function fmtCurrency(val, cur) {
+  if (!val || isNaN(parseFloat(val))) return '_______________';
+  const v = parseFloat(val);
+  try {
+    return new Intl.NumberFormat('en-US', { style:'currency', currency:cur, minimumFractionDigits:2 }).format(v);
+  } catch(e) { return cur + ' ' + v.toFixed(2); }
+}
+
+/* ── Deliverables ────────────────────────────────────────── */
+function addDeliverable() {
+  const list = document.getElementById('deliverablesList');
+  const item = document.createElement('div');
+  item.className = 'deliverable-item';
+  item.innerHTML = `<input type="text" placeholder="e.g. Source files"><button class="btn-icon" onclick="removeDeliverable(this)" title="Remove">×</button>`;
+  list.appendChild(item);
+  item.querySelector('input').focus();
+}
+
+function removeDeliverable(btn) {
+  const list = document.getElementById('deliverablesList');
+  if (list.children.length <= 1) return;
+  btn.closest('.deliverable-item').remove();
+}
+
+/* ── Payment structure text ──────────────────────────────── */
+function paymentScheduleText(structure, fee, cur, duedays) {
+  const total = fmtCurrency(fee, cur);
+  const half  = fee ? fmtCurrency(parseFloat(fee)/2, cur) : '_______________';
+  switch(structure) {
+    case 'full':
+      return `The full project fee of ${total} is due upon final delivery and Client's acceptance of all deliverables, payable within ${duedays} days of invoice.`;
+    case '50-50':
+      return `A deposit of ${half} (50% of total) is due upon signing this Agreement, with the remaining ${half} (50%) due upon final delivery and Client's acceptance, payable within ${duedays} days of invoice.`;
+    case 'milestone':
+      return `Payment shall be made in milestone installments as mutually agreed in a separate milestone schedule attached hereto. Each milestone payment is due within ${duedays} days of milestone approval.`;
+    case 'monthly':
+      return `The monthly retainer fee of ${total} is due on the 1st of each month, payable within ${duedays} days of invoice. Services will be outlined in a separate monthly scope document.`;
+    case 'hourly':
+      return `Work will be billed at the agreed hourly rate. Invoices will be issued bi-weekly and are payable within ${duedays} days of receipt.`;
+    default:
+      return `The total fee of ${total} is payable within ${duedays} days of invoice.`;
+  }
+}
+
+/* ── Set today's date defaults ───────────────────────────── */
+(function() {
+  const today = new Date();
+  const iso = today.toISOString().split('T')[0];
+  document.getElementById('contractDate').value = iso;
+  const end = new Date(today);
+  end.setDate(end.getDate() + 30);
+  document.getElementById('endDate').value = end.toISOString().split('T')[0];
+})();
+
+/* ── Generate ────────────────────────────────────────────── */
+function generateContract() {
+  // Read form values
+  const pName    = document.getElementById('providerName').value.trim();
+  const pEmail   = document.getElementById('providerEmail').value.trim();
+  const pAddr    = document.getElementById('providerAddress').value.trim();
+  const pPhone   = document.getElementById('providerPhone').value.trim();
+  const cName    = document.getElementById('clientName').value.trim();
+  const cEmail   = document.getElementById('clientEmail').value.trim();
+  const cAddr    = document.getElementById('clientAddress').value.trim();
+  const cContact = document.getElementById('clientContact').value.trim();
+  const projTitle= document.getElementById('projectTitle').value.trim();
+  const projDesc = document.getElementById('projectDesc').value.trim();
+  const startDt  = document.getElementById('startDate').value;
+  const endDt    = document.getElementById('endDate').value;
+  const fee      = document.getElementById('totalFee').value;
+  const cur      = document.getElementById('currency').value;
+  const payStruct= document.getElementById('paymentStructure').value;
+  const duedays  = parseInt(document.getElementById('paymentDue').value) || 14;
+  const lateFeePct = parseFloat(document.getElementById('lateFee').value) || 1.5;
+  const revisions= parseInt(document.getElementById('revisions').value) || 0;
+  const govLaw   = document.getElementById('governingLaw').value.trim();
+  const cDate    = document.getElementById('contractDate').value;
+
+  // Deliverables
+  const dlItems = [...document.querySelectorAll('#deliverablesList .deliverable-item input')]
+    .map(i => i.value.trim()).filter(Boolean);
+
+  // Optional clauses
+  const clsIP        = document.getElementById('clsIP').checked;
+  const clsConf      = document.getElementById('clsConf').checked;
+  const clsKillFee   = document.getElementById('clsKillFee').checked;
+  const clsIndemnity = document.getElementById('clsIndemnity').checked;
+  const clsDispute   = document.getElementById('clsDispute').checked;
+  const clsPortfolio = document.getElementById('clsPortfolio').checked;
+
+  let sectionNum = 1;
+  function nextSection() { return sectionNum++; }
+
+  // Build HTML
+  let html = `
+  <div class="c-header">
+    <div class="c-title">Freelance Service Agreement</div>
+    <div class="c-subtitle">${esc(projTitle) || 'Professional Services Contract'}</div>
+  </div>
+
+  <div class="c-parties">
+    <div>
+      <div class="c-party-label">Service Provider</div>
+      <div class="c-party-name">${esc(pName) || '<em>Provider Name</em>'}</div>
+      <div class="c-party-detail">
+        ${pAddr ? esc(pAddr) + '<br>' : ''}
+        ${pEmail ? esc(pEmail) + '<br>' : ''}
+        ${pPhone ? esc(pPhone) : ''}
+      </div>
+    </div>
+    <div>
+      <div class="c-party-label">Client</div>
+      <div class="c-party-name">${esc(cName) || '<em>Client Name</em>'}</div>
+      <div class="c-party-detail">
+        ${cAddr ? esc(cAddr) + '<br>' : ''}
+        ${cContact ? 'Attn: ' + esc(cContact) + '<br>' : ''}
+        ${cEmail ? esc(cEmail) : ''}
+      </div>
+    </div>
+  </div>
+
+  <div class="c-section">
+    <p>This Freelance Service Agreement (the <strong>"Agreement"</strong>) is entered into as of <strong>${fmtDate(cDate)}</strong>, between <strong>${esc(pName) || '[Service Provider]'}</strong> (<strong>"Provider"</strong>) and <strong>${esc(cName) || '[Client]'}</strong> (<strong>"Client"</strong>). The parties agree as follows:</p>
+  </div>`;
+
+  // 1. Scope
+  html += `
+  <div class="c-section">
+    <span class="c-section-num">Section ${nextSection()}</span>
+    <h3>Scope of Work</h3>
+    <p>${esc(projDesc) || 'Provider agrees to perform professional services as mutually agreed upon, described as: <em>[project description]</em>.'}</p>
+  </div>`;
+
+  // 2. Deliverables
+  if (dlItems.length > 0) {
+    html += `
+  <div class="c-section">
+    <span class="c-section-num">Section ${nextSection()}</span>
+    <h3>Deliverables</h3>
+    <p>Provider shall deliver the following to Client upon completion of the project:</p>
+    <ul>${dlItems.map(d => `<li>${esc(d)}</li>`).join('')}</ul>
+  </div>`;
+  }
+
+  // 3. Timeline
+  html += `
+  <div class="c-section">
+    <span class="c-section-num">Section ${nextSection()}</span>
+    <h3>Project Timeline</h3>
+    <div class="c-highlight">
+      <div class="c-kv"><span class="k">Commencement Date</span><span class="v">${fmtDate(startDt)}</span></div>
+      <div class="c-kv"><span class="k">Completion Date</span><span class="v">${fmtDate(endDt)}</span></div>
+      ${revisions > 0 ? `<div class="c-kv"><span class="k">Included Revision Rounds</span><span class="v">${revisions}</span></div>` : ''}
+    </div>
+    <p>Timelines are contingent upon Client's timely provision of materials, feedback, and approvals. Delays caused by Client may result in revised delivery dates.</p>
+    ${revisions > 0 ? `<p>Up to <strong>${revisions} round${revisions>1?'s':''} of revisions</strong> are included within the scope. Additional revisions will be quoted separately.</p>` : ''}
+  </div>`;
+
+  // 4. Compensation
+  html += `
+  <div class="c-section">
+    <span class="c-section-num">Section ${nextSection()}</span>
+    <h3>Compensation & Payment</h3>
+    <div class="c-highlight">
+      <div class="c-kv"><span class="k">Total Project Fee</span><span class="v">${fmtCurrency(fee, cur)}</span></div>
+      <div class="c-kv"><span class="k">Payment Terms</span><span class="v">Net ${duedays}</span></div>
+      <div class="c-kv"><span class="k">Late Fee</span><span class="v">${lateFeePct}% per month</span></div>
+    </div>
+    <p>${paymentScheduleText(payStruct, fee, cur, duedays)}</p>
+    <p>Invoices unpaid after the due date shall accrue a late fee of <strong>${lateFeePct}% per month</strong> on the outstanding balance. Provider reserves the right to suspend work on any unpaid account.</p>
+  </div>`;
+
+  // 5. IP
+  if (clsIP) {
+    html += `
+  <div class="c-section">
+    <span class="c-section-num">Section ${nextSection()}</span>
+    <h3>Intellectual Property & Ownership</h3>
+    <p>Upon receipt of full payment, Provider assigns to Client all rights, title, and interest in the final deliverables, including all intellectual property rights. Until full payment is received, Provider retains all rights to the work product.</p>
+    <p>Provider retains the right to use preliminary work, concepts, and rejected designs in their own portfolio and for self-promotional purposes unless otherwise agreed in writing.</p>
+  </div>`;
+  }
+
+  // 6. Confidentiality
+  if (clsConf) {
+    html += `
+  <div class="c-section">
+    <span class="c-section-num">Section ${nextSection()}</span>
+    <h3>Confidentiality</h3>
+    <p>Both parties agree to keep confidential all proprietary information, trade secrets, and non-public business information shared in connection with this Agreement. This obligation shall survive termination of this Agreement for a period of <strong>two (2) years</strong>.</p>
+  </div>`;
+  }
+
+  // 7. Kill fee
+  if (clsKillFee) {
+    html += `
+  <div class="c-section">
+    <span class="c-section-num">Section ${nextSection()}</span>
+    <h3>Cancellation & Kill Fee</h3>
+    <p>Either party may terminate this Agreement with <strong>14 days' written notice</strong>. Upon termination:</p>
+    <ul>
+      <li>Client shall pay for all work completed up to the date of termination, calculated on a pro-rata basis.</li>
+      <li>If Client cancels after work has commenced, a cancellation fee of <strong>25% of the remaining balance</strong> shall be due to compensate for scheduling and opportunity costs.</li>
+      <li>All deposits paid are non-refundable.</li>
+    </ul>
+  </div>`;
+  }
+
+  // 8. Indemnification
+  if (clsIndemnity) {
+    html += `
+  <div class="c-section">
+    <span class="c-section-num">Section ${nextSection()}</span>
+    <h3>Indemnification</h3>
+    <p>Client agrees to indemnify and hold harmless Provider from any claims, damages, or expenses arising from Client's use of the deliverables, including any claim that Client-supplied materials infringe third-party rights. Provider's total liability shall not exceed the fees paid under this Agreement.</p>
+  </div>`;
+  }
+
+  // 9. Dispute
+  if (clsDispute) {
+    html += `
+  <div class="c-section">
+    <span class="c-section-num">Section ${nextSection()}</span>
+    <h3>Dispute Resolution</h3>
+    <p>The parties agree to first attempt to resolve any dispute through good-faith negotiation. If unresolved within <strong>30 days</strong>, disputes shall be submitted to binding arbitration in accordance with the rules of the American Arbitration Association${govLaw ? ' in ' + esc(govLaw) : ''}. The prevailing party shall be entitled to recover reasonable attorney's fees.</p>
+  </div>`;
+  }
+
+  // 10. Portfolio
+  if (clsPortfolio) {
+    html += `
+  <div class="c-section">
+    <span class="c-section-num">Section ${nextSection()}</span>
+    <h3>Portfolio & Credit Rights</h3>
+    <p>Provider may display the completed work in their portfolio, website, and marketing materials, and credit Client as a past client. Client may request reasonable limitations on public display by written notice.</p>
+  </div>`;
+  }
+
+  // General
+  html += `
+  <div class="c-section">
+    <span class="c-section-num">Section ${nextSection()}</span>
+    <h3>General Provisions</h3>
+    <ul>
+      <li><strong>Entire Agreement:</strong> This Agreement constitutes the entire understanding between the parties and supersedes all prior discussions or representations.</li>
+      <li><strong>Amendments:</strong> Any modifications must be in writing and signed by both parties.</li>
+      <li><strong>Independent Contractor:</strong> Provider operates as an independent contractor. Nothing herein creates an employment relationship.</li>
+      ${govLaw ? `<li><strong>Governing Law:</strong> This Agreement shall be governed by the laws of ${esc(govLaw)}.</li>` : ''}
+      <li><strong>Severability:</strong> If any provision is found unenforceable, the remaining provisions shall remain in full force.</li>
+    </ul>
+  </div>`;
+
+  // Signatures
+  html += `
+  <div class="c-signatures">
+    <div class="c-sig-block">
+      <div class="c-sig-label">Service Provider</div>
+      <div class="c-sig-line"></div>
+      <div class="c-sig-name">${esc(pName) || '[Provider Name]'}</div>
+      <div class="c-sig-label">Signature &amp; Date</div>
+    </div>
+    <div class="c-sig-block">
+      <div class="c-sig-label">Client</div>
+      <div class="c-sig-line"></div>
+      <div class="c-sig-name">${esc(cContact || cName) || '[Client Name]'}</div>
+      <div class="c-sig-label">Signature &amp; Date</div>
+    </div>
+  </div>`;
+
+  // Doc footer
+  html += `
+  <div class="c-footer">
+    <span>${esc(projTitle) || 'Freelance Service Agreement'}</span>
+    <span>Generated ${fmtDate(new Date().toISOString().split('T')[0])} · ZeroKit</span>
+  </div>`;
+
+  const out = document.getElementById('contractOutput');
+  out.innerHTML = html;
+  out.classList.add('generated');
+  // Scroll to preview on mobile
+  if (window.innerWidth <= 900) {
+    out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+/* ── Copy ────────────────────────────────────────────────── */
+function copyText() {
+  const out = document.getElementById('contractOutput');
+  const text = out.innerText;
+  if (!text || out.querySelector('.placeholder-msg')) {
+    alert('Please generate a contract first.');
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Contract text copied to clipboard!');
+    }).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  alert('Contract text copied!');
+}
+
+/* ── Print / PDF ─────────────────────────────────────────── */
+function printContract() {
+  const out = document.getElementById('contractOutput');
+  if (out.querySelector('.placeholder-msg')) {
+    alert('Please generate a contract first.');
+    return;
+  }
+  document.fonts.ready.then(() => {
+    const w = window.open('', '_blank');
+    if (!w) {
+      alert('Pop-up blocked. Please allow pop-ups for this site and try again.');
+      return;
+    }
+    w.document.write(`<!DOCTYPE html><html><head>
+      <meta charset="UTF-8">
+      <title>Contract</title>
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+      <style>
+        @page { size: A4; margin: 18mm; }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--ink:#1a1612;--paper:#f5f0e8;--cream:#ede7d7;--accent:#8b4513;--accent2:#c17f3a;--muted:#7a6e60;--line:#c8bfad;--serif:'Playfair Display',Georgia,serif;--mono:'IBM Plex Mono','Courier New',monospace;--sans:'IBM Plex Sans',sans-serif;}
+        body{font-family:var(--sans);font-size:10pt;color:var(--ink);line-height:1.6;background:#fff;}
+        .c-header{text-align:center;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:2px solid var(--ink);}
+        .c-title{font-family:var(--serif);font-size:1.4rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+        .c-subtitle{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-top:.3rem;}
+        .c-parties{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:1.5rem;padding:1rem;background:var(--paper);border-left:3px solid var(--accent);}
+        .c-party-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:.3rem;}
+        .c-party-name{font-weight:700;font-size:.9rem;margin-bottom:.2rem;}
+        .c-party-detail{font-family:var(--sans);font-size:.75rem;color:var(--muted);line-height:1.5;}
+        .c-section{margin-bottom:1.4rem;page-break-inside:avoid;}
+        .c-section-num{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;color:var(--accent);display:block;margin-bottom:.15rem;}
+        .c-section h3{font-family:var(--serif);font-size:.95rem;font-weight:700;margin-bottom:.4rem;}
+        .c-section p,.c-section li{font-family:var(--sans);font-size:.82rem;color:#2d2820;line-height:1.7;}
+        .c-section ul{padding-left:1.2rem;}
+        .c-section li{margin-bottom:.25rem;}
+        .c-highlight{background:#fff8e8;border:1px solid #e8d8a0;border-radius:3px;padding:.75rem 1rem;margin:.6rem 0;}
+        .c-kv{display:flex;justify-content:space-between;font-family:var(--sans);font-size:.78rem;padding:.18rem 0;border-bottom:1px dotted var(--line);}
+        .c-kv:last-child{border-bottom:none;}
+        .c-kv .k{color:var(--muted)}.c-kv .v{font-weight:500;}
+        .c-signatures{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:3rem;page-break-inside:avoid;}
+        .c-sig-line{border-bottom:1px solid var(--ink);height:2rem;margin-bottom:.35rem;}
+        .c-sig-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+        .c-sig-name{font-weight:700;font-size:.85rem;margin-top:.2rem;}
+        .c-footer{margin-top:2rem;padding-top:.75rem;border-top:2px solid var(--ink);display:flex;justify-content:space-between;font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;}
+      </style>
+    </head><body>${out.innerHTML}</body></html>`);
+    w.document.close();
+    w.focus();
+    setTimeout(() => {
+      w.print();
+      setTimeout(() => { try { w.close(); } catch(e){} }, 1000);
+    }, 800);
+  });
+}
+</script>
+</body>
+</html>
