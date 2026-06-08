@@ -326,8 +326,56 @@
         <label class="field-label">Project</label>
         <input type="text" id="projectInput" placeholder="e.g. Acme Corp" autocomplete="off">
       </div>
-      <div class="field-group" style="max-width:130px">
-        <label class="field-label">Rate ($/hr)</label>
+      <div class="field-group" style="max-width:110px">
+        <label class="field-label">Currency</label>
+        <select id="currencySelect">
+          <option value="USD">$ USD</option>
+          <option value="EUR">€ EUR</option>
+          <option value="GBP">£ GBP</option>
+          <option value="CAD">$ CAD</option>
+          <option value="AUD">$ AUD</option>
+          <option value="CHF">Fr CHF</option>
+          <option value="JPY">¥ JPY</option>
+          <option value="CNY">¥ CNY</option>
+          <option value="INR">₹ INR</option>
+          <option value="BRL">R$ BRL</option>
+          <option value="MXN">$ MXN</option>
+          <option value="ARS">$ ARS</option>
+          <option value="CLP">$ CLP</option>
+          <option value="COP">$ COP</option>
+          <option value="SEK">kr SEK</option>
+          <option value="NOK">kr NOK</option>
+          <option value="DKK">kr DKK</option>
+          <option value="PLN">zł PLN</option>
+          <option value="CZK">Kč CZK</option>
+          <option value="HUF">Ft HUF</option>
+          <option value="RON">lei RON</option>
+          <option value="TRY">₺ TRY</option>
+          <option value="RUB">₽ RUB</option>
+          <option value="UAH">₴ UAH</option>
+          <option value="ZAR">R ZAR</option>
+          <option value="NGN">₦ NGN</option>
+          <option value="KES">Ksh KES</option>
+          <option value="EGP">£ EGP</option>
+          <option value="AED">د.إ AED</option>
+          <option value="SAR">﷼ SAR</option>
+          <option value="ILS">₪ ILS</option>
+          <option value="PKR">₨ PKR</option>
+          <option value="BDT">৳ BDT</option>
+          <option value="SGD">$ SGD</option>
+          <option value="HKD">$ HKD</option>
+          <option value="MYR">RM MYR</option>
+          <option value="IDR">Rp IDR</option>
+          <option value="PHP">₱ PHP</option>
+          <option value="THB">฿ THB</option>
+          <option value="VND">₫ VND</option>
+          <option value="KRW">₩ KRW</option>
+          <option value="TWD">$ TWD</option>
+          <option value="NZD">$ NZD</option>
+        </select>
+      </div>
+      <div class="field-group" style="max-width:110px">
+        <label class="field-label">Rate / hr</label>
         <input type="number" id="rateInput" placeholder="0.00" min="0" step="0.01">
       </div>
     </div>
@@ -451,15 +499,16 @@ function stopTimer() {
   document.getElementById('startBtn').disabled  = false;
   document.getElementById('stopBtn').disabled   = true;
 
-  const task    = document.getElementById('taskInput').value.trim()    || 'Untitled Task';
-  const project = document.getElementById('projectInput').value.trim() || 'General';
-  const rate    = parseFloat(document.getElementById('rateInput').value) || 0;
-  const end     = new Date();
-  const start   = new Date(end.getTime() - duration);
+  const task     = document.getElementById('taskInput').value.trim()    || 'Untitled Task';
+  const project  = document.getElementById('projectInput').value.trim() || 'General';
+  const rate     = parseFloat(document.getElementById('rateInput').value) || 0;
+  const currency = document.getElementById('currencySelect').value || 'USD';
+  const end      = new Date();
+  const start    = new Date(end.getTime() - duration);
 
   const sess = {
     id: nextId++,
-    task, project, rate,
+    task, project, rate, currency,
     start: start.toISOString(),
     end:   end.toISOString(),
     duration  // ms
@@ -509,6 +558,17 @@ function fmtDate(iso) {
   return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
 
+const CURRENCY_SYMBOLS = {
+  USD:'$', EUR:'€', GBP:'£', CAD:'$', AUD:'$', CHF:'Fr', JPY:'¥', CNY:'¥',
+  INR:'₹', BRL:'R$', MXN:'$', ARS:'$', CLP:'$', COP:'$', SEK:'kr', NOK:'kr',
+  DKK:'kr', PLN:'zł', CZK:'Kč', HUF:'Ft', RON:'lei', TRY:'₺', RUB:'₽',
+  UAH:'₴', ZAR:'R', NGN:'₦', KES:'Ksh', EGP:'£', AED:'د.إ', SAR:'﷼',
+  ILS:'₪', PKR:'₨', BDT:'৳', SGD:'$', HKD:'$', MYR:'RM', IDR:'Rp',
+  PHP:'₱', THB:'฿', VND:'₫', KRW:'₩', TWD:'$', NZD:'$'
+};
+
+function sym(code) { return CURRENCY_SYMBOLS[code] || code; }
+
 function earnings(ms, rate) {
   const hrs = ms / 3600000;
   return (hrs * rate).toFixed(2);
@@ -546,7 +606,7 @@ function renderLog() {
       <td style="font-family:var(--mono);font-size:.8rem">${fmtTime(s.end)}</td>
       <td class="duration-cell">${fmtDuration(s.duration)}</td>
       <td style="font-family:var(--mono);font-size:.82rem;color:var(--accent)">${
-        s.rate > 0 ? '$' + earnings(s.duration, s.rate) : '—'
+        s.rate > 0 ? sym(s.currency || 'USD') + earnings(s.duration, s.rate) : '—'
       }</td>
       <td><button class="action-btn" onclick="deleteSession(${s.id})" title="Delete">✕</button></td>
     </tr>
@@ -560,14 +620,29 @@ function renderStats() {
     : sessions.filter(s => s.project === activeFilter);
 
   const totalMs = visible.reduce((a, s) => a + s.duration, 0);
-  const totalEarnings = visible.reduce((a, s) => a + parseFloat(earnings(s.duration, s.rate)), 0);
+  // Group earnings by currency
+  const byCurrency = {};
+  visible.forEach(s => {
+    const c = s.currency || 'USD';
+    byCurrency[c] = (byCurrency[c] || 0) + parseFloat(earnings(s.duration, s.rate));
+  });
+  const currencyKeys = Object.keys(byCurrency);
+  let earningsDisplay;
+  if (currencyKeys.length === 0) {
+    earningsDisplay = '$0.00';
+  } else if (currencyKeys.length === 1) {
+    const c = currencyKeys[0];
+    earningsDisplay = sym(c) + byCurrency[c].toFixed(2);
+  } else {
+    earningsDisplay = currencyKeys.map(c => sym(c) + byCurrency[c].toFixed(2)).join(' + ');
+  }
   const projects = new Set(sessions.map(s => s.project)).size;
   const h = Math.floor(totalMs / 3600000);
   const m = Math.floor((totalMs % 3600000) / 60000);
 
   document.getElementById('statTotal').textContent    = `${h}h ${pad(m)}m`;
   document.getElementById('statSessions').textContent = visible.length;
-  document.getElementById('statEarnings').textContent = '$' + totalEarnings.toFixed(2);
+  document.getElementById('statEarnings').textContent = earningsDisplay;
   document.getElementById('statProjects').textContent = projects;
 }
 
@@ -613,8 +688,9 @@ function clearAll() {
 /* ─── EXPORT CSV ─────────────────────────────────────────────── */
 function exportCSV() {
   if (!sessions.length) { alert('No sessions to export.'); return; }
-  const rows = [['#','Task','Project','Date','Start','End','Duration (min)','Rate ($/hr)','Earnings ($)']];
+  const rows = [['#','Task','Project','Date','Start','End','Duration (min)','Currency','Rate/hr','Earnings']];
   sessions.forEach((s, i) => {
+    const c = s.currency || 'USD';
     rows.push([
       i + 1,
       `"${s.task.replace(/"/g,'""')}"`,
@@ -623,6 +699,7 @@ function exportCSV() {
       fmtTime(s.start),
       fmtTime(s.end),
       (s.duration / 60000).toFixed(2),
+      c,
       s.rate.toFixed(2),
       earnings(s.duration, s.rate)
     ]);
@@ -647,7 +724,8 @@ function printLog() {
 /* ─── PERSIST ────────────────────────────────────────────────── */
 function saveState() {
   try {
-    localStorage.setItem('zk-timetracker', JSON.stringify({ sessions, nextId }));
+    const currency = document.getElementById('currencySelect').value;
+    localStorage.setItem('zk-timetracker', JSON.stringify({ sessions, nextId, currency }));
   } catch(e) {}
 }
 
@@ -658,6 +736,7 @@ function loadState() {
     const d = JSON.parse(raw);
     sessions = d.sessions || [];
     nextId   = d.nextId   || 1;
+    if (d.currency) document.getElementById('currencySelect').value = d.currency;
   } catch(e) {}
 }
 
@@ -669,3 +748,4 @@ renderTabs();
 </script>
 </body>
 </html>
+
