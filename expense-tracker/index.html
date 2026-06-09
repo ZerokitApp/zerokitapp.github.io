@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Tracker — ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ───────────────────────────────────────────── */
+:root {
+  --bg:       #080b10;
+  --surface:  #0f1318;
+  --panel:    #161c24;
+  --border:   #1f2733;
+  --border2:  #2a3544;
+  --text:     #dce4f0;
+  --muted:    #5a6a80;
+  --accent:   #3b82f6;
+  --accent2:  #60a5fa;
+  --red:      #f43f5e;
+  --green:    #34d399;
+  --amber:    #fbbf24;
+  --purple:   #a78bfa;
+  --cyan:     #22d3ee;
+  --sans:     'Space Grotesk', system-ui, sans-serif;
+  --mono:     'Space Mono', monospace;
+}
+
+/* ─── RESET ────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--sans);min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── SCANLINE TEXTURE ─────────────────────────────────── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,transparent 2px,
+    rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px
+  );
+}
+.app,nav,header{position:relative;z-index:1}
+
+/* ─── NAV ──────────────────────────────────────────────── */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(8,11,16,.94);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:52px;
+}
+.nav-logo{
+  font-family:var(--mono);font-weight:700;font-size:.95rem;
+  letter-spacing:.06em;color:var(--accent);text-decoration:none;
+}
+.nav-links{display:flex;gap:1.5rem;align-items:center}
+.nav-links a{
+  font-size:.75rem;font-weight:500;letter-spacing:.06em;
+  color:var(--muted);text-decoration:none;text-transform:uppercase;
+  transition:color .2s;
+}
+.nav-links a:hover{color:var(--text)}
+.tool-badge{
+  font-family:var(--mono);font-size:.68rem;
+  background:var(--panel);border:1px solid var(--border2);
+  color:var(--accent);padding:.22rem .6rem;border-radius:3px;
+}
+
+/* ─── HERO ─────────────────────────────────────────────── */
+header{
+  max-width:960px;margin:0 auto;
+  padding:3rem 2rem 1.75rem;
+  border-bottom:1px solid var(--border);
+}
+.hero-top{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;flex-wrap:wrap;gap:1.5rem;
+}
+.hero-eyebrow{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.14em;
+  color:var(--muted);text-transform:uppercase;margin-bottom:.6rem;
+}
+header h1{
+  font-size:clamp(1.8rem,5vw,2.6rem);font-weight:700;
+  letter-spacing:-.02em;line-height:1.1;color:var(--text);
+}
+header h1 span{color:var(--accent)}
+header p{
+  margin-top:.65rem;color:var(--muted);font-size:.9rem;
+  font-weight:400;max-width:400px;line-height:1.6;
+}
+
+/* ─── TOTALS BAR ───────────────────────────────────────── */
+.totals-bar{
+  display:grid;gap:1px;background:var(--border);
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  border:1px solid var(--border);border-radius:8px;overflow:hidden;
+  margin-top:1.75rem;
+}
+.total-cell{
+  background:var(--surface);padding:1rem 1.25rem;
+}
+.total-label{
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;
+  color:var(--muted);text-transform:uppercase;margin-bottom:.3rem;
+}
+.total-value{
+  font-family:var(--mono);font-size:1.3rem;font-weight:700;
+  color:var(--text);line-height:1;
+}
+.total-value.blue  {color:var(--accent2)}
+.total-value.red   {color:var(--red)}
+.total-value.green {color:var(--green)}
+.total-value.amber {color:var(--amber)}
+
+/* ─── LAYOUT ───────────────────────────────────────────── */
+.app{
+  max-width:960px;margin:0 auto;
+  padding:1.75rem 2rem 5rem;
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:1.5rem;
+}
+@media(max-width:740px){
+  .app{grid-template-columns:1fr}
+  .sidebar{order:-1}
+}
+
+/* ─── PANEL ────────────────────────────────────────────── */
+.pane{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;overflow:hidden;
+}
+.pane-header{
+  padding:.85rem 1.25rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:.5rem;
+}
+.pane-title{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);
+}
+.pane-body{padding:1.25rem}
+
+/* ─── ADD EXPENSE FORM ─────────────────────────────────── */
+.form-stack{display:flex;flex-direction:column;gap:.85rem}
+.field{display:flex;flex-direction:column;gap:.35rem}
+.field label{
+  font-size:.68rem;font-weight:500;letter-spacing:.09em;
+  color:var(--muted);text-transform:uppercase;
+}
+.field input,.field select,.field textarea{
+  background:var(--panel);border:1px solid var(--border2);
+  color:var(--text);font-family:var(--sans);font-size:.88rem;
+  padding:.5rem .8rem;border-radius:5px;outline:none;width:100%;
+  transition:border-color .2s,box-shadow .2s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.15);
+}
+.field input::placeholder,.field textarea::placeholder{color:var(--muted)}
+.field select option{background:var(--panel)}
+.field-row2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+
+/* ─── AMOUNT ROW ───────────────────────────────────────── */
+.amt-row{display:flex;gap:0}
+.amt-prefix{
+  background:var(--border);border:1px solid var(--border2);border-right:none;
+  color:var(--muted);font-family:var(--mono);font-size:.8rem;
+  padding:.5rem .7rem;border-radius:5px 0 0 5px;
+  display:flex;align-items:center;white-space:nowrap;
+}
+.amt-row input{border-radius:0 5px 5px 0;flex:1}
+
+/* ─── CATEGORY DOTS ────────────────────────────────────── */
+.cat-dot{
+  display:inline-block;width:8px;height:8px;
+  border-radius:50%;margin-right:6px;
+}
+
+/* ─── BUTTONS ──────────────────────────────────────────── */
+.btn{
+  font-family:var(--sans);font-weight:600;font-size:.85rem;
+  letter-spacing:.02em;border:none;border-radius:5px;
+  cursor:pointer;padding:.6rem 1.4rem;transition:all .15s;
+  white-space:nowrap;
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);color:#000}
+.btn-ghost{
+  background:transparent;color:var(--muted);
+  border:1px solid var(--border2);
+}
+.btn-ghost:hover{color:var(--text);background:var(--panel)}
+.btn-sm{padding:.35rem .8rem;font-size:.75rem}
+.btn-danger{background:transparent;color:var(--red);border:1px solid transparent}
+.btn-danger:hover{background:rgba(244,63,94,.1);border-color:var(--red)}
+
+/* ─── EXPENSE LIST ─────────────────────────────────────── */
+.expense-list{display:flex;flex-direction:column}
+.exp-row{
+  display:grid;
+  grid-template-columns:auto 1fr auto auto;
+  gap:.75rem;align-items:center;
+  padding:.85rem 1.25rem;
+  border-bottom:1px solid var(--border);
+  transition:background .15s;
+}
+.exp-row:last-child{border-bottom:none}
+.exp-row:hover{background:var(--panel)}
+.exp-icon{
+  width:34px;height:34px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;flex-shrink:0;
+}
+.exp-info{min-width:0}
+.exp-desc{
+  font-size:.88rem;font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.exp-meta{
+  font-family:var(--mono);font-size:.65rem;color:var(--muted);
+  margin-top:.15rem;
+}
+.exp-amount{
+  font-family:var(--mono);font-size:.92rem;font-weight:700;
+  color:var(--red);white-space:nowrap;
+}
+.exp-amount.income{color:var(--green)}
+.del-btn{
+  background:none;border:none;cursor:pointer;
+  color:var(--muted);font-size:.8rem;padding:.2rem .35rem;
+  border-radius:4px;transition:color .15s;opacity:0;
+}
+.exp-row:hover .del-btn{opacity:1}
+.del-btn:hover{color:var(--red)}
+
+.empty-state{
+  padding:3rem 1.25rem;text-align:center;
+  color:var(--muted);font-size:.85rem;line-height:1.7;
+}
+.empty-icon{font-size:2rem;opacity:.3;margin-bottom:.5rem}
+
+/* ─── SIDEBAR ──────────────────────────────────────────── */
+.sidebar{display:flex;flex-direction:column;gap:1.25rem}
+
+/* ─── CATEGORY BREAKDOWN ───────────────────────────────── */
+.cat-list{display:flex;flex-direction:column;gap:.65rem;padding:1.25rem}
+.cat-row{display:flex;flex-direction:column;gap:.3rem}
+.cat-row-top{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:.82rem;
+}
+.cat-name{display:flex;align-items:center;gap:.4rem;font-weight:500}
+.cat-amount{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.cat-bar-track{
+  height:4px;background:var(--border);border-radius:2px;overflow:hidden;
+}
+.cat-bar-fill{
+  height:100%;border-radius:2px;transition:width .4s ease;
+}
+
+/* ─── BUDGET SECTION ───────────────────────────────────── */
+.budget-form{
+  padding:1.25rem;display:flex;flex-direction:column;gap:.85rem;
+}
+.budget-row{
+  display:flex;align-items:center;gap:.75rem;
+}
+.budget-row label{
+  font-size:.75rem;color:var(--muted);min-width:80px;
+  font-weight:500;letter-spacing:.04em;
+}
+.budget-row input{
+  background:var(--panel);border:1px solid var(--border2);
+  color:var(--text);font-family:var(--mono);font-size:.82rem;
+  padding:.4rem .65rem;border-radius:4px;outline:none;
+  width:100%;transition:border-color .2s;
+}
+.budget-row input:focus{border-color:var(--accent)}
+.budget-meter{
+  margin-top:.25rem;display:flex;flex-direction:column;gap:.3rem;
+}
+.budget-meter-bar{
+  height:6px;background:var(--border);border-radius:3px;overflow:hidden;
+}
+.budget-meter-fill{
+  height:100%;border-radius:3px;transition:width .4s ease,background .3s;
+}
+.budget-meter-label{
+  font-family:var(--mono);font-size:.65rem;color:var(--muted);
+  display:flex;justify-content:space-between;
+}
+
+/* ─── FILTER ROW ───────────────────────────────────────── */
+.filter-row{
+  display:flex;gap:.5rem;flex-wrap:wrap;
+  padding:.85rem 1.25rem;border-bottom:1px solid var(--border);
+}
+.filter-chip{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.06em;
+  padding:.25rem .65rem;border-radius:20px;
+  border:1px solid var(--border2);background:var(--panel);
+  color:var(--muted);cursor:pointer;transition:all .15s;
+  text-transform:uppercase;
+}
+.filter-chip:hover,.filter-chip.active{
+  background:var(--accent);color:#fff;border-color:var(--accent);
+}
+
+/* ─── FOOTER ───────────────────────────────────────────── */
+footer{
+  position:relative;z-index:1;
+  text-align:center;padding:2rem 1rem 3rem;
+  font-size:.73rem;color:var(--muted);
+  border-top:1px solid var(--border);letter-spacing:.04em;
+}
+
+/* ─── PRINT ────────────────────────────────────────────── */
+@media print{
+  @page{size:A4;margin:16mm}
+  nav,header,.pane:first-child,.sidebar,.filter-row,
+  .btn,.del-btn,footer{display:none!important}
+  body,html{background:#fff;color:#000}
+  .app{display:block}
+  .pane{border:1px solid #ccc;margin-bottom:1rem}
+  .exp-amount{color:#c00!important}
+  .exp-amount.income{color:#060!important}
+  .exp-meta,.pane-title{color:#666!important}
+  .exp-row:hover{background:none}
+  .exp-row{border-color:#ddd!important}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="https://zerokitapp.github.io">ZeroKit</a>
+  <div class="nav-links">
+    <a href="https://zerokitapp.github.io">All Tools</a>
+    <span class="tool-badge">Tool 06 / 50</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header>
+  <div class="hero-top">
+    <div>
+      <p class="hero-eyebrow">Freelancer Tools · Tool 06</p>
+      <h1>Expense <span>Tracker</span></h1>
+      <p>Log income and expenses by category. Set a monthly budget, watch your balance in real time, and export a clean report.</p>
+    </div>
+  </div>
+  <div class="totals-bar">
+    <div class="total-cell">
+      <div class="total-label">Income</div>
+      <div class="total-value green" id="totIncome">$0.00</div>
+    </div>
+    <div class="total-cell">
+      <div class="total-label">Expenses</div>
+      <div class="total-value red" id="totExpenses">$0.00</div>
+    </div>
+    <div class="total-cell">
+      <div class="total-label">Balance</div>
+      <div class="total-value blue" id="totBalance">$0.00</div>
+    </div>
+    <div class="total-cell">
+      <div class="total-label">Transactions</div>
+      <div class="total-value amber" id="totCount">0</div>
+    </div>
+  </div>
+</header>
+
+<!-- APP -->
+<main class="app">
+
+  <!-- LEFT: list + add -->
+  <div style="display:flex;flex-direction:column;gap:1.25rem">
+
+    <!-- Add Entry -->
+    <div class="pane">
+      <div class="pane-header">
+        <span class="pane-title">Add Entry</span>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">↓ CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="printLog()">⎙ Print</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearAll()">✕ Clear</button>
+        </div>
+      </div>
+      <div class="pane-body">
+        <div class="form-stack">
+          <div class="field-row2">
+            <div class="field">
+              <label>Type</label>
+              <select id="entryType">
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Currency</label>
+              <select id="currency" onchange="updatePrefix()">
+                <option value="USD">$ USD</option>
+                <option value="EUR">€ EUR</option>
+                <option value="GBP">£ GBP</option>
+                <option value="CAD">$ CAD</option>
+                <option value="AUD">$ AUD</option>
+                <option value="CHF">Fr CHF</option>
+                <option value="JPY">¥ JPY</option>
+                <option value="CNY">¥ CNY</option>
+                <option value="INR">₹ INR</option>
+                <option value="BRL">R$ BRL</option>
+                <option value="MXN">$ MXN</option>
+                <option value="ARS">$ ARS</option>
+                <option value="SEK">kr SEK</option>
+                <option value="NOK">kr NOK</option>
+                <option value="DKK">kr DKK</option>
+                <option value="PLN">zł PLN</option>
+                <option value="TRY">₺ TRY</option>
+                <option value="ZAR">R ZAR</option>
+                <option value="NGN">₦ NGN</option>
+                <option value="AED">د.إ AED</option>
+                <option value="INR">₹ INR</option>
+                <option value="SGD">$ SGD</option>
+                <option value="HKD">$ HKD</option>
+                <option value="MYR">RM MYR</option>
+                <option value="IDR">Rp IDR</option>
+                <option value="PHP">₱ PHP</option>
+                <option value="THB">฿ THB</option>
+                <option value="KRW">₩ KRW</option>
+                <option value="NZD">$ NZD</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Description</label>
+            <input type="text" id="desc" placeholder="e.g. Client payment, Adobe CC, coffee…" autocomplete="off">
+          </div>
+          <div class="field-row2">
+            <div class="field">
+              <label>Amount</label>
+              <div class="amt-row">
+                <span class="amt-prefix" id="amtPrefix">$</span>
+                <input type="number" id="amount" placeholder="0.00" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="field">
+              <label>Date</label>
+              <input type="date" id="entryDate">
+            </div>
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <select id="category">
+              <option value="client">💼 Client Payment</option>
+              <option value="software">💻 Software & Tools</option>
+              <option value="hardware">🖥 Hardware</option>
+              <option value="marketing">📣 Marketing</option>
+              <option value="office">🏢 Office & Workspace</option>
+              <option value="travel">✈️ Travel</option>
+              <option value="food">🍔 Food & Drink</option>
+              <option value="education">📚 Education</option>
+              <option value="subscriptions">🔄 Subscriptions</option>
+              <option value="taxes">🏛 Taxes & Fees</option>
+              <option value="utilities">⚡ Utilities</option>
+              <option value="other">📦 Other</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="addEntry()" style="align-self:flex-start">+ Add Entry</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Log -->
+    <div class="pane">
+      <div class="pane-header">
+        <span class="pane-title">Log</span>
+        <span style="font-family:var(--mono);font-size:.65rem;color:var(--muted)" id="logCount">0 entries</span>
+      </div>
+      <div class="filter-row" id="filterRow">
+        <span class="filter-chip active" onclick="setFilter('all',this)">All</span>
+        <span class="filter-chip" onclick="setFilter('income',this)">Income</span>
+        <span class="filter-chip" onclick="setFilter('expense',this)">Expenses</span>
+      </div>
+      <div class="expense-list" id="expenseList">
+        <div class="empty-state">
+          <div class="empty-icon">📊</div>
+          No entries yet.<br>Add your first income or expense above.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Budget -->
+    <div class="pane">
+      <div class="pane-header">
+        <span class="pane-title">Monthly Budget</span>
+      </div>
+      <div class="budget-form">
+        <div class="budget-row">
+          <label>Budget</label>
+          <input type="number" id="budgetInput" placeholder="e.g. 2000" min="0" step="1" oninput="renderBudget()">
+        </div>
+        <div class="budget-meter" id="budgetMeter" style="display:none">
+          <div class="budget-meter-bar">
+            <div class="budget-meter-fill" id="budgetFill" style="width:0%"></div>
+          </div>
+          <div class="budget-meter-label">
+            <span id="budgetSpent">Spent: $0</span>
+            <span id="budgetLeft">Left: $0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category breakdown -->
+    <div class="pane">
+      <div class="pane-header">
+        <span class="pane-title">By Category</span>
+      </div>
+      <div class="cat-list" id="catBreakdown">
+        <div style="color:var(--muted);font-size:.8rem;text-align:center;padding:.5rem 0">No expenses yet</div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>ZeroKit · Free Business Tools · No signup · No limits</footer>
+
+<script>
+/* ─── CURRENCY MAP ─────────────────────────────────────── */
+const SYM = {
+  USD:'$',EUR:'€',GBP:'£',CAD:'$',AUD:'$',CHF:'Fr',JPY:'¥',CNY:'¥',
+  INR:'₹',BRL:'R$',MXN:'$',ARS:'$',SEK:'kr',NOK:'kr',DKK:'kr',PLN:'zł',
+  TRY:'₺',ZAR:'R',NGN:'₦',AED:'د.إ',SGD:'$',HKD:'$',MYR:'RM',IDR:'Rp',
+  PHP:'₱',THB:'฿',KRW:'₩',NZD:'$'
+};
+function sym(){ return SYM[document.getElementById('currency').value]||'$'; }
+function updatePrefix(){ document.getElementById('amtPrefix').textContent=sym(); }
+
+/* ─── CATEGORY CONFIG ──────────────────────────────────── */
+const CAT_ICONS = {
+  client:'💼',software:'💻',hardware:'🖥',marketing:'📣',
+  office:'🏢',travel:'✈️',food:'🍔',education:'📚',
+  subscriptions:'🔄',taxes:'🏛',utilities:'⚡',other:'📦'
+};
+const CAT_COLORS = {
+  client:'#34d399',software:'#3b82f6',hardware:'#a78bfa',marketing:'#f59e0b',
+  office:'#22d3ee',travel:'#f97316',food:'#ec4899',education:'#8b5cf6',
+  subscriptions:'#06b6d4',taxes:'#ef4444',utilities:'#84cc16',other:'#94a3b8'
+};
+const CAT_LABELS = {
+  client:'Client Payment',software:'Software & Tools',hardware:'Hardware',
+  marketing:'Marketing',office:'Office & Workspace',travel:'Travel',
+  food:'Food & Drink',education:'Education',subscriptions:'Subscriptions',
+  taxes:'Taxes & Fees',utilities:'Utilities',other:'Other'
+};
+
+/* ─── STATE ────────────────────────────────────────────── */
+let entries = [];
+let nextId  = 1;
+let activeFilter = 'all';
+
+/* ─── ADD ENTRY ────────────────────────────────────────── */
+function addEntry(){
+  const desc   = document.getElementById('desc').value.trim()||'Untitled';
+  const amount = parseFloat(document.getElementById('amount').value);
+  const date   = document.getElementById('entryDate').value;
+  const type   = document.getElementById('entryType').value;
+  const cat    = document.getElementById('category').value;
+  const currency = document.getElementById('currency').value;
+
+  if(!amount||amount<=0){ alert('Enter a valid amount.'); return; }
+  if(!date){ alert('Pick a date.'); return; }
+
+  entries.unshift({ id:nextId++, desc, amount, date, type, cat, currency });
+  saveState();
+  renderAll();
+  document.getElementById('desc').value='';
+  document.getElementById('amount').value='';
+}
+
+/* ─── DELETE ───────────────────────────────────────────── */
+function deleteEntry(id){
+  entries=entries.filter(e=>e.id!==id);
+  saveState(); renderAll();
+}
+
+function clearAll(){
+  if(!entries.length) return;
+  if(!confirm('Clear all entries?')) return;
+  entries=[]; nextId=1; saveState(); renderAll();
+}
+
+/* ─── FILTER ───────────────────────────────────────────── */
+function setFilter(f,el){
+  activeFilter=f;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+/* ─── RENDER ALL ───────────────────────────────────────── */
+function renderAll(){
+  renderTotals();
+  renderList();
+  renderCategories();
+  renderBudget();
+}
+
+/* ─── TOTALS ───────────────────────────────────────────── */
+function renderTotals(){
+  const income   = entries.filter(e=>e.type==='income').reduce((a,e)=>a+e.amount,0);
+  const expenses = entries.filter(e=>e.type==='expense').reduce((a,e)=>a+e.amount,0);
+  const balance  = income-expenses;
+  const s = SYM[entries[0]?.currency]||'$';
+  document.getElementById('totIncome').textContent   = s+income.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('totExpenses').textContent = s+expenses.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  const balEl = document.getElementById('totBalance');
+  balEl.textContent = (balance<0?'-':'')+s+Math.abs(balance).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  balEl.className = 'total-value '+(balance>=0?'green':'red');
+  document.getElementById('totCount').textContent = entries.length;
+}
+
+/* ─── LIST ─────────────────────────────────────────────── */
+function renderList(){
+  const list = document.getElementById('expenseList');
+  const visible = activeFilter==='all' ? entries
+    : entries.filter(e=>e.type===activeFilter);
+  document.getElementById('logCount').textContent = visible.length+' entr'+(visible.length===1?'y':'ies');
+
+  if(!visible.length){
+    list.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div>${
+      entries.length===0
+        ? 'No entries yet.<br>Add your first income or expense above.'
+        : `No ${activeFilter} entries.`
+    }</div>`;
+    return;
+  }
+
+  list.innerHTML = visible.map(e=>{
+    const s = SYM[e.currency]||'$';
+    const amtStr = s+e.amount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    return `<div class="exp-row">
+      <div class="exp-icon" style="background:${CAT_COLORS[e.cat]}22">${CAT_ICONS[e.cat]}</div>
+      <div class="exp-info">
+        <div class="exp-desc">${esc(e.desc)}</div>
+        <div class="exp-meta">${CAT_LABELS[e.cat]} · ${e.date}</div>
+      </div>
+      <div class="exp-amount${e.type==='income'?' income':''}">${e.type==='income'?'+':'-'}${amtStr}</div>
+      <button class="del-btn" onclick="deleteEntry(${e.id})" title="Delete">✕</button>
+    </div>`;
+  }).join('');
+}
+
+/* ─── CATEGORIES ───────────────────────────────────────── */
+function renderCategories(){
+  const wrap = document.getElementById('catBreakdown');
+  const expOnly = entries.filter(e=>e.type==='expense');
+  if(!expOnly.length){
+    wrap.innerHTML='<div style="color:var(--muted);font-size:.8rem;text-align:center;padding:.5rem 0">No expenses yet</div>';
+    return;
+  }
+  const totals={};
+  expOnly.forEach(e=>{ totals[e.cat]=(totals[e.cat]||0)+e.amount; });
+  const max = Math.max(...Object.values(totals));
+  const s = SYM[entries[0]?.currency]||'$';
+  const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+  wrap.innerHTML = sorted.map(([cat,amt])=>`
+    <div class="cat-row">
+      <div class="cat-row-top">
+        <div class="cat-name">
+          <span>${CAT_ICONS[cat]}</span>
+          <span style="font-size:.8rem">${CAT_LABELS[cat]}</span>
+        </div>
+        <div class="cat-amount">${s}${amt.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+      </div>
+      <div class="cat-bar-track">
+        <div class="cat-bar-fill" style="width:${(amt/max*100).toFixed(1)}%;background:${CAT_COLORS[cat]}"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ─── BUDGET METER ─────────────────────────────────────── */
+function renderBudget(){
+  const budget = parseFloat(document.getElementById('budgetInput').value)||0;
+  const meter  = document.getElementById('budgetMeter');
+  if(!budget){ meter.style.display='none'; return; }
+  meter.style.display='';
+  const spent  = entries.filter(e=>e.type==='expense').reduce((a,e)=>a+e.amount,0);
+  const pct    = Math.min(100,(spent/budget*100));
+  const left   = budget-spent;
+  const fill   = document.getElementById('budgetFill');
+  fill.style.width  = pct+'%';
+  fill.style.background = pct>=100?'#ef4444':pct>=80?'#fbbf24':'#34d399';
+  const s = SYM[entries[0]?.currency||document.getElementById('currency').value]||'$';
+  document.getElementById('budgetSpent').textContent=`Spent: ${s}${spent.toFixed(2)}`;
+  document.getElementById('budgetLeft').textContent=`${left>=0?'Left':'Over'}: ${s}${Math.abs(left).toFixed(2)}`;
+}
+
+/* ─── EXPORT CSV ───────────────────────────────────────── */
+function exportCSV(){
+  if(!entries.length){ alert('No entries to export.'); return; }
+  const rows=[['Date','Type','Category','Description','Currency','Amount']];
+  entries.forEach(e=>rows.push([
+    e.date, e.type, CAT_LABELS[e.cat],
+    `"${e.desc.replace(/"/g,'""')}"`,
+    e.currency, e.amount.toFixed(2)
+  ]));
+  const csv  = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download='expenses.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+
+/* ─── PRINT ────────────────────────────────────────────── */
+function printLog(){
+  document.fonts.ready.then(()=>window.print());
+}
+
+/* ─── PERSIST ──────────────────────────────────────────── */
+function saveState(){
+  try{ localStorage.setItem('zk-expenses',JSON.stringify({entries,nextId})); }catch(e){}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem('zk-expenses');
+    if(!raw) return;
+    const d=JSON.parse(raw);
+    entries=d.entries||[]; nextId=d.nextId||1;
+  }catch(e){}
+}
+
+/* ─── HELPERS ──────────────────────────────────────────── */
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ─── INIT ─────────────────────────────────────────────── */
+(function(){
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('entryDate').value=today;
+  loadState();
+  renderAll();
+})();
+</script>
+</body>
+</html>
