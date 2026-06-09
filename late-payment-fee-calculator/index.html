@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Late Payment Fee Calculator — ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ──────────────────────────────────────────── */
+:root {
+  --bg:       #f5f2ed;
+  --surface:  #ffffff;
+  --panel:    #f9f7f4;
+  --border:   #e2ddd6;
+  --border2:  #cdc7be;
+  --text:     #1a1714;
+  --muted:    #7a736a;
+  --accent:   #b5341c;
+  --accent2:  #d4440f;
+  --green:    #1a6b3a;
+  --amber:    #c47d00;
+  --serif:    'Lora', Georgia, serif;
+  --sans:     'Inter', system-ui, sans-serif;
+  --mono:     'DM Mono', monospace;
+}
+
+/* ─── RESET ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── NAV ─────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(245,242,237,.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem; height: 52px;
+}
+.nav-logo {
+  font-family: var(--serif); font-weight: 600; font-size: 1.05rem;
+  color: var(--accent); text-decoration: none; letter-spacing: .01em;
+}
+.nav-links { display: flex; gap: 1.5rem; align-items: center; }
+.nav-links a {
+  font-size: .78rem; font-weight: 500; letter-spacing: .05em;
+  color: var(--muted); text-decoration: none; text-transform: uppercase;
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--text); }
+.tool-badge {
+  font-family: var(--mono); font-size: .68rem;
+  background: var(--surface); border: 1px solid var(--border2);
+  color: var(--accent); padding: .22rem .6rem; border-radius: 3px;
+}
+
+/* ─── HERO ────────────────────────────────────────────── */
+.hero {
+  max-width: 820px; margin: 0 auto;
+  padding: 3.5rem 2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap; gap: 1.5rem;
+}
+.hero-text {}
+.hero-eyebrow {
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .12em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: .65rem;
+}
+.hero h1 {
+  font-family: var(--serif); font-weight: 600; font-size: clamp(1.9rem,5vw,2.8rem);
+  line-height: 1.15; color: var(--text);
+}
+.hero h1 em { color: var(--accent); font-style: italic; }
+.hero p {
+  margin-top: .75rem; color: var(--muted); font-size: .92rem;
+  font-weight: 400; max-width: 420px; line-height: 1.65;
+}
+.hero-rule {
+  width: 1px; height: 80px; background: var(--border2);
+  align-self: center;
+}
+.hero-stat { text-align: right; }
+.hero-stat-num {
+  font-family: var(--mono); font-size: 2.4rem; font-weight: 300;
+  color: var(--accent); line-height: 1;
+}
+.hero-stat-label {
+  font-size: .72rem; color: var(--muted); margin-top: .25rem;
+  letter-spacing: .05em; text-transform: uppercase;
+}
+
+/* ─── LAYOUT ──────────────────────────────────────────── */
+.app {
+  max-width: 820px; margin: 0 auto;
+  padding: 2rem 2rem 5rem;
+  display: flex; flex-direction: column; gap: 1.5rem;
+}
+
+/* ─── CARD ────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: .5rem;
+}
+.card-title {
+  font-family: var(--serif); font-weight: 600; font-size: 1rem;
+  color: var(--text);
+}
+.card-body { padding: 1.5rem; }
+
+/* ─── FORM GRID ───────────────────────────────────────── */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+.field { display: flex; flex-direction: column; gap: .4rem; }
+.field label {
+  font-size: .72rem; font-weight: 500; letter-spacing: .07em;
+  color: var(--muted); text-transform: uppercase;
+}
+.field-row { display: flex; gap: 0; }
+.field-row .prefix, .field-row .suffix {
+  background: var(--panel); border: 1px solid var(--border2);
+  color: var(--muted); font-family: var(--mono); font-size: .82rem;
+  padding: .55rem .7rem; display: flex; align-items: center;
+  white-space: nowrap;
+}
+.field-row .prefix { border-right: none; border-radius: 5px 0 0 5px; }
+.field-row .suffix { border-left: none; border-radius: 0 5px 5px 0; }
+.field input, .field select {
+  background: var(--panel); border: 1px solid var(--border2);
+  color: var(--text); font-family: var(--sans); font-size: .9rem;
+  padding: .55rem .85rem; border-radius: 5px;
+  outline: none; width: 100%;
+  transition: border-color .2s, box-shadow .2s;
+}
+.field-row input { border-radius: 0; flex: 1; }
+.field input:focus, .field select:focus, .field-row input:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px rgba(181,52,28,.1);
+}
+.field input::placeholder { color: #b0a89e; }
+.field select option { background: #fff; }
+
+/* ─── RATE TYPE TOGGLE ────────────────────────────────── */
+.rate-toggle {
+  display: flex; border: 1px solid var(--border2); border-radius: 5px; overflow: hidden;
+}
+.rate-toggle label {
+  flex: 1; text-align: center; padding: .55rem .5rem;
+  font-size: .8rem; font-weight: 500; cursor: pointer;
+  background: var(--panel); color: var(--muted);
+  border-right: 1px solid var(--border2);
+  transition: all .15s; letter-spacing: .03em;
+  text-transform: none;
+}
+.rate-toggle label:last-child { border-right: none; }
+.rate-toggle input[type=radio] { display: none; }
+.rate-toggle input[type=radio]:checked + label {
+  background: var(--accent); color: #fff;
+}
+
+/* ─── CALC BUTTON ─────────────────────────────────────── */
+.btn {
+  font-family: var(--sans); font-weight: 600; font-size: .88rem;
+  letter-spacing: .03em; border: none; border-radius: 5px;
+  cursor: pointer; padding: .7rem 1.75rem; transition: all .15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-ghost {
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border2);
+}
+.btn-ghost:hover { background: var(--panel); color: var(--text); }
+.btn-sm { padding: .4rem 1rem; font-size: .78rem; }
+
+/* ─── RESULTS ─────────────────────────────────────────── */
+.result-section { display: none; flex-direction: column; gap: 1.5rem; }
+.result-section.visible { display: flex; }
+
+.result-hero {
+  background: var(--accent);
+  border-radius: 8px;
+  padding: 2rem 2rem;
+  display: flex; flex-wrap: wrap; gap: 2rem; align-items: center;
+  justify-content: space-between;
+}
+.result-main { color: #fff; }
+.result-label {
+  font-size: .72rem; font-weight: 500; letter-spacing: .1em;
+  text-transform: uppercase; opacity: .75; margin-bottom: .35rem;
+}
+.result-amount {
+  font-family: var(--mono); font-size: clamp(2.2rem,6vw,3.4rem);
+  font-weight: 300; line-height: 1; letter-spacing: -.02em;
+}
+.result-sub { font-size: .82rem; opacity: .8; margin-top: .4rem; }
+
+.result-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 7px; overflow: hidden;
+}
+.breakdown-cell {
+  background: var(--surface); padding: 1.1rem 1.25rem;
+}
+.breakdown-label {
+  font-size: .68rem; font-weight: 500; letter-spacing: .09em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: .3rem;
+}
+.breakdown-value {
+  font-family: var(--mono); font-size: 1.1rem; color: var(--text);
+}
+.breakdown-value.accent { color: var(--accent); }
+.breakdown-value.green  { color: var(--green); }
+.breakdown-value.amber  { color: var(--amber); }
+
+/* ─── SCHEDULE TABLE ──────────────────────────────────── */
+.schedule-wrap { overflow-x: auto; }
+table {
+  width: 100%; border-collapse: collapse; font-size: .84rem;
+}
+thead tr { border-bottom: 2px solid var(--border2); }
+th {
+  font-family: var(--mono); font-size: .63rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted);
+  padding: .65rem 1rem; text-align: left; white-space: nowrap;
+}
+td {
+  padding: .7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--panel); }
+.badge {
+  display: inline-block; font-size: .65rem; font-weight: 600;
+  padding: .18rem .5rem; border-radius: 3px; letter-spacing: .05em;
+}
+.badge-red   { background: #fde8e4; color: var(--accent); }
+.badge-amber { background: #fdf4dc; color: var(--amber); }
+.badge-green { background: #e4f5ec; color: var(--green); }
+
+/* ─── NOTICE BOX ──────────────────────────────────────── */
+.notice {
+  background: #fdf4dc; border: 1px solid #e8d48a;
+  border-radius: 6px; padding: 1rem 1.25rem;
+  font-size: .82rem; color: #6b5a00; line-height: 1.6;
+}
+.notice strong { color: #4a3e00; }
+
+/* ─── FOOTER ──────────────────────────────────────────── */
+footer {
+  text-align: center; padding: 2rem 1rem 3rem;
+  font-size: .74rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  letter-spacing: .04em;
+}
+
+/* ─── PRINT ───────────────────────────────────────────── */
+@media print {
+  @page { size: A4; margin: 16mm; }
+  nav, .hero, .card:first-of-type, .notice, .btn, footer { display: none !important; }
+  body { background: #fff; color: #000; }
+  .result-section { display: flex !important; }
+  .result-hero { background: #f0f0f0 !important; }
+  .result-amount, .breakdown-value { color: #000 !important; }
+  .result-label, .breakdown-label, th { color: #555 !important; }
+  td, th { border-color: #ddd !important; }
+  .card { border-color: #ccc; }
+}
+
+@media (max-width: 580px) {
+  nav { padding: 0 1rem; }
+  .hero, .app { padding-left: 1rem; padding-right: 1rem; }
+  .hero-rule, .hero-stat { display: none; }
+  th:nth-child(5), td:nth-child(5) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="https://zerokitapp.github.io">ZeroKit</a>
+  <div class="nav-links">
+    <a href="https://zerokitapp.github.io">All Tools</a>
+    <span class="tool-badge">Tool 05 / 50</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-text">
+    <p class="hero-eyebrow">Freelancer Tools · Tool 05</p>
+    <h1>Late Payment<br><em>Fee Calculator</em></h1>
+    <p>Calculate exactly what you're owed when clients pay late — flat fees, daily interest, or compound rates. Export a ready-to-send breakdown.</p>
+  </div>
+  <div class="hero-rule"></div>
+  <div class="hero-stat">
+    <div class="hero-stat-num" id="heroFee">—</div>
+    <div class="hero-stat-label">Total Fee Owed</div>
+  </div>
+</header>
+
+<!-- APP -->
+<main class="app">
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Invoice Details</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+
+        <!-- Currency -->
+        <div class="field">
+          <label>Currency</label>
+          <select id="currency" onchange="recalc()">
+            <option value="USD">$ USD — US Dollar</option>
+            <option value="EUR">€ EUR — Euro</option>
+            <option value="GBP">£ GBP — British Pound</option>
+            <option value="CAD">$ CAD — Canadian Dollar</option>
+            <option value="AUD">$ AUD — Australian Dollar</option>
+            <option value="CHF">Fr CHF — Swiss Franc</option>
+            <option value="JPY">¥ JPY — Japanese Yen</option>
+            <option value="CNY">¥ CNY — Chinese Yuan</option>
+            <option value="INR">₹ INR — Indian Rupee</option>
+            <option value="BRL">R$ BRL — Brazilian Real</option>
+            <option value="MXN">$ MXN — Mexican Peso</option>
+            <option value="ARS">$ ARS — Argentine Peso</option>
+            <option value="CLP">$ CLP — Chilean Peso</option>
+            <option value="COP">$ COP — Colombian Peso</option>
+            <option value="SEK">kr SEK — Swedish Krona</option>
+            <option value="NOK">kr NOK — Norwegian Krone</option>
+            <option value="DKK">kr DKK — Danish Krone</option>
+            <option value="PLN">zł PLN — Polish Złoty</option>
+            <option value="CZK">Kč CZK — Czech Koruna</option>
+            <option value="HUF">Ft HUF — Hungarian Forint</option>
+            <option value="RON">lei RON — Romanian Leu</option>
+            <option value="TRY">₺ TRY — Turkish Lira</option>
+            <option value="RUB">₽ RUB — Russian Ruble</option>
+            <option value="UAH">₴ UAH — Ukrainian Hryvnia</option>
+            <option value="ZAR">R ZAR — South African Rand</option>
+            <option value="NGN">₦ NGN — Nigerian Naira</option>
+            <option value="KES">Ksh KES — Kenyan Shilling</option>
+            <option value="EGP">£ EGP — Egyptian Pound</option>
+            <option value="AED">د.إ AED — UAE Dirham</option>
+            <option value="SAR">﷼ SAR — Saudi Riyal</option>
+            <option value="ILS">₪ ILS — Israeli Shekel</option>
+            <option value="PKR">₨ PKR — Pakistani Rupee</option>
+            <option value="BDT">৳ BDT — Bangladeshi Taka</option>
+            <option value="SGD">$ SGD — Singapore Dollar</option>
+            <option value="HKD">$ HKD — Hong Kong Dollar</option>
+            <option value="MYR">RM MYR — Malaysian Ringgit</option>
+            <option value="IDR">Rp IDR — Indonesian Rupiah</option>
+            <option value="PHP">₱ PHP — Philippine Peso</option>
+            <option value="THB">฿ THB — Thai Baht</option>
+            <option value="VND">₫ VND — Vietnamese Dong</option>
+            <option value="KRW">₩ KRW — South Korean Won</option>
+            <option value="TWD">$ TWD — Taiwan Dollar</option>
+            <option value="NZD">$ NZD — New Zealand Dollar</option>
+          </select>
+        </div>
+
+        <!-- Invoice Amount -->
+        <div class="field">
+          <label>Invoice Amount</label>
+          <div class="field-row">
+            <span class="prefix" id="amtPrefix">$</span>
+            <input type="number" id="invoiceAmount" placeholder="0.00" min="0" step="0.01" oninput="recalc()">
+          </div>
+        </div>
+
+        <!-- Invoice Date -->
+        <div class="field">
+          <label>Invoice Date</label>
+          <input type="date" id="invoiceDate" oninput="recalc()">
+        </div>
+
+        <!-- Due Date -->
+        <div class="field">
+          <label>Payment Due Date</label>
+          <input type="date" id="dueDate" oninput="recalc()">
+        </div>
+
+        <!-- Payment Date -->
+        <div class="field">
+          <label>Payment Received (or Today)</label>
+          <input type="date" id="paymentDate" oninput="recalc()">
+        </div>
+
+        <!-- Grace Period -->
+        <div class="field">
+          <label>Grace Period (days)</label>
+          <input type="number" id="graceDays" value="0" min="0" step="1" oninput="recalc()">
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FEE CARD -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Late Fee Structure</span>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:1.25rem">
+
+      <!-- Rate type toggle -->
+      <div class="field">
+        <label>Fee Type</label>
+        <div class="rate-toggle">
+          <input type="radio" name="feeType" id="ft-flat"     value="flat"     checked>
+          <label for="ft-flat"     onclick="toggleFeeType()">Flat Fee</label>
+          <input type="radio" name="feeType" id="ft-simple"   value="simple">
+          <label for="ft-simple"   onclick="toggleFeeType()">Simple Interest</label>
+          <input type="radio" name="feeType" id="ft-compound" value="compound">
+          <label for="ft-compound" onclick="toggleFeeType()">Compound Interest</label>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <!-- Flat fee amount -->
+        <div class="field" id="flatFeeField">
+          <label>Flat Fee Amount</label>
+          <div class="field-row">
+            <span class="prefix" id="flatPrefix">$</span>
+            <input type="number" id="flatFeeAmount" placeholder="50.00" min="0" step="0.01" oninput="recalc()">
+          </div>
+        </div>
+
+        <!-- Interest rate -->
+        <div class="field" id="interestField" style="display:none">
+          <label>Annual Interest Rate</label>
+          <div class="field-row">
+            <input type="number" id="interestRate" placeholder="18.00" min="0" step="0.01" style="border-radius:5px 0 0 5px" oninput="recalc()">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+
+        <!-- Compound period -->
+        <div class="field" id="compoundField" style="display:none">
+          <label>Compounded</label>
+          <select id="compoundPeriod" onchange="recalc()">
+            <option value="365">Daily</option>
+            <option value="52">Weekly</option>
+            <option value="12" selected>Monthly</option>
+            <option value="4">Quarterly</option>
+            <option value="1">Annually</option>
+          </select>
+        </div>
+
+        <!-- Max fee cap -->
+        <div class="field">
+          <label>Max Fee Cap (optional)</label>
+          <div class="field-row">
+            <span class="prefix" id="capPrefix">$</span>
+            <input type="number" id="feeCap" placeholder="No cap" min="0" step="0.01" oninput="recalc()">
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="recalc()">Calculate</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetAll()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="result-section" id="results">
+
+    <!-- Result hero -->
+    <div class="result-hero">
+      <div class="result-main">
+        <div class="result-label">Total Late Fee</div>
+        <div class="result-amount" id="resFee">$0.00</div>
+        <div class="result-sub" id="resSub">—</div>
+      </div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)" onclick="printResult()">⎙ Print</button>
+        <button class="btn btn-ghost btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)" onclick="exportCSV()">↓ Export CSV</button>
+      </div>
+    </div>
+
+    <!-- Breakdown cells -->
+    <div class="result-breakdown">
+      <div class="breakdown-cell">
+        <div class="breakdown-label">Invoice Amount</div>
+        <div class="breakdown-value" id="bdInvoice">—</div>
+      </div>
+      <div class="breakdown-cell">
+        <div class="breakdown-label">Days Overdue</div>
+        <div class="breakdown-value accent" id="bdDays">—</div>
+      </div>
+      <div class="breakdown-cell">
+        <div class="breakdown-label">Grace Period</div>
+        <div class="breakdown-value" id="bdGrace">—</div>
+      </div>
+      <div class="breakdown-cell">
+        <div class="breakdown-label">Billable Days</div>
+        <div class="breakdown-value amber" id="bdBillable">—</div>
+      </div>
+      <div class="breakdown-cell">
+        <div class="breakdown-label">Late Fee</div>
+        <div class="breakdown-value accent" id="bdFee">—</div>
+      </div>
+      <div class="breakdown-cell">
+        <div class="breakdown-label">Total to Collect</div>
+        <div class="breakdown-value green" id="bdTotal">—</div>
+      </div>
+    </div>
+
+    <!-- Daily accrual schedule -->
+    <div class="card" id="scheduleCard">
+      <div class="card-header">
+        <span class="card-title">Accrual Schedule</span>
+        <span style="font-family:var(--mono);font-size:.72rem;color:var(--muted)" id="scheduleNote"></span>
+      </div>
+      <div class="schedule-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Date</th>
+              <th>Days Late</th>
+              <th>Fee This Period</th>
+              <th>Cumulative Fee</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Legal notice -->
+    <div class="notice">
+      <strong>Note:</strong> This calculator is for reference only. Late payment laws vary by jurisdiction (e.g. EU Late Payment Directive, UK Late Payment of Commercial Debts Act, US state laws). Always review your contract terms and consult a legal professional before pursuing late fees.
+    </div>
+
+  </div>
+
+</main>
+
+<footer>ZeroKit · Free Business Tools · No signup · No limits</footer>
+
+<script>
+/* ─── CURRENCY MAP ─────────────────────────────────────── */
+const SYMBOLS = {
+  USD:'$',EUR:'€',GBP:'£',CAD:'$',AUD:'$',CHF:'Fr',JPY:'¥',CNY:'¥',
+  INR:'₹',BRL:'R$',MXN:'$',ARS:'$',CLP:'$',COP:'$',SEK:'kr',NOK:'kr',
+  DKK:'kr',PLN:'zł',CZK:'Kč',HUF:'Ft',RON:'lei',TRY:'₺',RUB:'₽',
+  UAH:'₴',ZAR:'R',NGN:'₦',KES:'Ksh',EGP:'£',AED:'د.إ',SAR:'﷼',
+  ILS:'₪',PKR:'₨',BDT:'৳',SGD:'$',HKD:'$',MYR:'RM',IDR:'Rp',
+  PHP:'₱',THB:'฿',VND:'₫',KRW:'₩',TWD:'$',NZD:'$'
+};
+function sym() { return SYMBOLS[document.getElementById('currency').value] || '$'; }
+function fmtMoney(n) {
+  return sym() + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+
+/* ─── TOGGLE FEE TYPE ──────────────────────────────────── */
+function toggleFeeType() {
+  const type = document.querySelector('input[name=feeType]:checked').value;
+  document.getElementById('flatFeeField').style.display    = type === 'flat'     ? '' : 'none';
+  document.getElementById('interestField').style.display   = type !== 'flat'     ? '' : 'none';
+  document.getElementById('compoundField').style.display   = type === 'compound' ? '' : 'none';
+  recalc();
+}
+
+/* ─── UPDATE CURRENCY PREFIXES ─────────────────────────── */
+function updatePrefixes() {
+  const s = sym();
+  ['amtPrefix','flatPrefix','capPrefix'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = s;
+  });
+}
+
+document.getElementById('currency').addEventListener('change', () => {
+  updatePrefixes();
+  recalc();
+});
+
+/* ─── DEFAULTS ─────────────────────────────────────────── */
+function setDefaults() {
+  const today = new Date();
+  const due   = new Date(today); due.setDate(due.getDate() - 14);
+  const inv   = new Date(due);   inv.setDate(inv.getDate() - 30);
+  document.getElementById('invoiceDate').value = fmt8(inv);
+  document.getElementById('dueDate').value     = fmt8(due);
+  document.getElementById('paymentDate').value = fmt8(today);
+}
+function fmt8(d) {
+  return d.toISOString().slice(0,10);
+}
+
+/* ─── CORE CALC ────────────────────────────────────────── */
+let lastResult = null;
+
+function recalc() {
+  updatePrefixes();
+  const amount    = parseFloat(document.getElementById('invoiceAmount').value);
+  const invDate   = document.getElementById('invoiceDate').value;
+  const dueDate   = document.getElementById('dueDate').value;
+  const payDate   = document.getElementById('paymentDate').value;
+  const graceDays = parseInt(document.getElementById('graceDays').value) || 0;
+  const feeCap    = parseFloat(document.getElementById('feeCap').value)  || Infinity;
+  const feeType   = document.querySelector('input[name=feeType]:checked').value;
+
+  if (!amount || !dueDate || !payDate) return;
+
+  const due  = new Date(dueDate);
+  const pay  = new Date(payDate);
+  const totalOverdue = Math.max(0, Math.floor((pay - due) / 86400000));
+  const billableDays = Math.max(0, totalOverdue - graceDays);
+
+  let fee = 0;
+  let schedule = [];
+
+  if (feeType === 'flat') {
+    const flatAmt = parseFloat(document.getElementById('flatFeeAmount').value) || 0;
+    fee = billableDays > 0 ? flatAmt : 0;
+    if (billableDays > 0) {
+      schedule = [{
+        period: 'One-time',
+        date: fmt8(pay),
+        days: billableDays,
+        periodFee: flatAmt,
+        cumFee: Math.min(flatAmt, feeCap)
+      }];
+    }
+
+  } else if (feeType === 'simple') {
+    const rate = parseFloat(document.getElementById('interestRate').value) || 0;
+    const dailyRate = rate / 100 / 365;
+    fee = amount * dailyRate * billableDays;
+    // Build weekly schedule
+    schedule = buildSchedule(amount, billableDays, due, graceDays, (days) => {
+      return amount * dailyRate * days;
+    });
+
+  } else { // compound
+    const rate   = parseFloat(document.getElementById('interestRate').value) || 0;
+    const n      = parseInt(document.getElementById('compoundPeriod').value) || 12;
+    const years  = billableDays / 365;
+    fee = amount * (Math.pow(1 + (rate/100)/n, n * years) - 1);
+    schedule = buildSchedule(amount, billableDays, due, graceDays, (days) => {
+      const y = days / 365;
+      return amount * (Math.pow(1 + (rate/100)/n, n * y) - 1);
+    });
+  }
+
+  // Apply cap
+  const capped = feeCap !== Infinity && fee > feeCap;
+  if (capped) fee = feeCap;
+
+  const total = amount + fee;
+
+  lastResult = { amount, fee, total, billableDays, totalOverdue, graceDays, feeType, schedule, capped };
+  renderResults(lastResult);
+}
+
+function buildSchedule(amount, billableDays, dueDate, graceDays, feeFn) {
+  if (billableDays <= 0) return [];
+  const rows = [];
+  const step = billableDays <= 14 ? 1 : billableDays <= 60 ? 7 : 30;
+  const label = step === 1 ? 'Day' : step === 7 ? 'Week' : 'Month';
+  let d = 0;
+  let period = 1;
+  while (d < billableDays) {
+    const end = Math.min(d + step, billableDays);
+    const rowDate = new Date(dueDate);
+    rowDate.setDate(rowDate.getDate() + graceDays + end);
+    const cumFee  = feeFn(end);
+    const prevFee = d > 0 ? feeFn(d) : 0;
+    rows.push({
+      period: `${label} ${period}`,
+      date: fmt8(rowDate),
+      days: end,
+      periodFee: cumFee - prevFee,
+      cumFee
+    });
+    d = end; period++;
+  }
+  return rows;
+}
+
+function renderResults(r) {
+  const section = document.getElementById('results');
+  section.classList.add('visible');
+
+  const feeStr   = fmtMoney(r.fee);
+  const totalStr = fmtMoney(r.total);
+  const amtStr   = fmtMoney(r.amount);
+
+  document.getElementById('heroFee').textContent  = feeStr;
+  document.getElementById('resFee').textContent   = feeStr;
+  document.getElementById('resSub').textContent   =
+    `${r.billableDays} billable day${r.billableDays !== 1 ? 's' : ''} · Total to collect: ${totalStr}` +
+    (r.capped ? ' (cap applied)' : '');
+
+  document.getElementById('bdInvoice').textContent  = amtStr;
+  document.getElementById('bdDays').textContent     = r.totalOverdue + 'd';
+  document.getElementById('bdGrace').textContent    = r.graceDays + 'd';
+  document.getElementById('bdBillable').textContent = r.billableDays + 'd';
+  document.getElementById('bdFee').textContent      = feeStr;
+  document.getElementById('bdTotal').textContent    = totalStr;
+
+  // Schedule
+  const body = document.getElementById('scheduleBody');
+  if (!r.schedule.length) {
+    document.getElementById('scheduleCard').style.display = 'none';
+    return;
+  }
+  document.getElementById('scheduleCard').style.display = '';
+  document.getElementById('scheduleNote').textContent =
+    `${r.schedule.length} row${r.schedule.length !== 1 ? 's' : ''}`;
+
+  const capVal = parseFloat(document.getElementById('feeCap').value) || Infinity;
+  body.innerHTML = r.schedule.map(row => {
+    const capped = capVal !== Infinity && row.cumFee >= capVal;
+    const status = capped
+      ? `<span class="badge badge-red">Capped</span>`
+      : row.days <= 7
+        ? `<span class="badge badge-amber">Overdue</span>`
+        : `<span class="badge badge-red">Late</span>`;
+    return `<tr>
+      <td style="font-family:var(--mono);font-size:.78rem;color:var(--muted)">${esc(row.period)}</td>
+      <td style="font-family:var(--mono);font-size:.8rem">${row.date}</td>
+      <td style="font-family:var(--mono)">${row.days}</td>
+      <td style="font-family:var(--mono);color:var(--accent)">${fmtMoney(row.periodFee)}</td>
+      <td style="font-family:var(--mono);font-weight:500">${fmtMoney(Math.min(row.cumFee, capVal === Infinity ? Infinity : capVal))}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ─── EXPORT CSV ───────────────────────────────────────── */
+function exportCSV() {
+  if (!lastResult) return;
+  const r = lastResult;
+  const currency = document.getElementById('currency').value;
+  const rows = [
+    ['Late Payment Fee Report'],
+    ['Currency', currency],
+    ['Invoice Amount', r.amount.toFixed(2)],
+    ['Total Overdue Days', r.totalOverdue],
+    ['Grace Period Days', r.graceDays],
+    ['Billable Days', r.billableDays],
+    ['Late Fee', r.fee.toFixed(2)],
+    ['Total to Collect', r.total.toFixed(2)],
+    [],
+    ['Period','Date','Days Late','Fee This Period','Cumulative Fee'],
+    ...r.schedule.map(s => [s.period, s.date, s.days, s.periodFee.toFixed(2), s.cumFee.toFixed(2)])
+  ];
+  const csv  = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'late-payment-fee.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+/* ─── PRINT ────────────────────────────────────────────── */
+function printResult() {
+  document.fonts.ready.then(() => window.print());
+}
+
+/* ─── RESET ────────────────────────────────────────────── */
+function resetAll() {
+  document.getElementById('invoiceAmount').value = '';
+  document.getElementById('flatFeeAmount').value = '';
+  document.getElementById('interestRate').value  = '';
+  document.getElementById('feeCap').value        = '';
+  document.getElementById('graceDays').value     = '0';
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('heroFee').textContent = '—';
+  lastResult = null;
+  setDefaults();
+}
+
+/* ─── HELPERS ──────────────────────────────────────────── */
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ─── INIT ─────────────────────────────────────────────── */
+setDefaults();
+updatePrefixes();
+</script>
+</body>
+</html>
