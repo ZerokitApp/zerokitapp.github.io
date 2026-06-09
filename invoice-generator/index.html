@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Generator — ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Epilogue:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ───────────────────────────────────────────── */
+:root {
+  --bg:        #f0ede8;
+  --surface:   #faf9f7;
+  --panel:     #f5f3ef;
+  --border:    #e0dbd3;
+  --border2:   #ccc6bc;
+  --text:      #1c1a17;
+  --muted:     #7c7468;
+  --accent:    #1a1a2e;
+  --accent2:   #2d2d4e;
+  --highlight: #e8a020;
+  --sans:      'Epilogue', system-ui, sans-serif;
+  --display:   'Syne', sans-serif;
+  --mono:      'DM Mono', monospace;
+}
+
+/* ─── RESET ────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--sans);min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── NAV ──────────────────────────────────────────────── */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(240,237,232,.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:52px;
+}
+.nav-logo{
+  font-family:var(--display);font-weight:800;font-size:1rem;
+  letter-spacing:.04em;color:var(--accent);text-decoration:none;
+}
+.nav-links{display:flex;gap:1.5rem;align-items:center}
+.nav-links a{
+  font-size:.75rem;font-weight:500;letter-spacing:.06em;
+  color:var(--muted);text-decoration:none;text-transform:uppercase;
+  transition:color .2s;
+}
+.nav-links a:hover{color:var(--text)}
+.tool-badge{
+  font-family:var(--mono);font-size:.68rem;
+  background:var(--surface);border:1px solid var(--border2);
+  color:var(--accent);padding:.22rem .6rem;border-radius:3px;
+}
+
+/* ─── HERO ─────────────────────────────────────────────── */
+header{
+  max-width:1100px;margin:0 auto;
+  padding:2.75rem 2rem 1.75rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;
+}
+.hero-eyebrow{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.14em;
+  color:var(--muted);text-transform:uppercase;margin-bottom:.5rem;
+}
+header h1{
+  font-family:var(--display);font-weight:800;
+  font-size:clamp(1.8rem,4vw,2.5rem);
+  letter-spacing:-.02em;line-height:1.1;color:var(--text);
+}
+header p{
+  margin-top:.6rem;color:var(--muted);font-size:.88rem;
+  max-width:360px;line-height:1.6;
+}
+.header-actions{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center}
+
+/* ─── LAYOUT ───────────────────────────────────────────── */
+.workspace{
+  max-width:1100px;margin:0 auto;
+  padding:1.75rem 2rem 5rem;
+  display:grid;
+  grid-template-columns:380px 1fr;
+  gap:1.75rem;
+  align-items:start;
+}
+@media(max-width:820px){
+  .workspace{grid-template-columns:1fr}
+  .preview-col{order:-1}
+}
+
+/* ─── FORM PANEL ───────────────────────────────────────── */
+.form-panel{
+  display:flex;flex-direction:column;gap:1.25rem;
+}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;overflow:hidden;
+}
+.card-header{
+  padding:.85rem 1.25rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-title{
+  font-family:var(--display);font-weight:700;font-size:.88rem;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--text);
+}
+.card-body{padding:1.25rem;display:flex;flex-direction:column;gap:.9rem}
+
+/* ─── FIELDS ───────────────────────────────────────────── */
+.field{display:flex;flex-direction:column;gap:.35rem}
+.field label{
+  font-size:.67rem;font-weight:600;letter-spacing:.09em;
+  color:var(--muted);text-transform:uppercase;
+}
+.field input,.field select,.field textarea{
+  background:var(--panel);border:1px solid var(--border2);
+  color:var(--text);font-family:var(--sans);font-size:.87rem;
+  padding:.5rem .8rem;border-radius:5px;outline:none;width:100%;
+  transition:border-color .2s,box-shadow .2s;
+  resize:vertical;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(26,26,46,.1);
+}
+.field input::placeholder,.field textarea::placeholder{color:#b0a89e}
+.field select option{background:#fff}
+.field-row2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+
+/* ─── BUTTONS ──────────────────────────────────────────── */
+.btn{
+  font-family:var(--display);font-weight:700;font-size:.82rem;
+  letter-spacing:.05em;text-transform:uppercase;
+  border:none;border-radius:5px;cursor:pointer;
+  padding:.6rem 1.4rem;transition:all .15s;white-space:nowrap;
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-highlight{background:var(--highlight);color:#fff}
+.btn-highlight:hover{background:#f0b030}
+.btn-ghost{
+  background:transparent;color:var(--muted);
+  border:1px solid var(--border2);
+}
+.btn-ghost:hover{background:var(--panel);color:var(--text)}
+.btn-sm{padding:.38rem .9rem;font-size:.72rem}
+.btn-icon{
+  background:none;border:none;cursor:pointer;
+  color:var(--muted);font-size:.8rem;padding:.2rem .4rem;
+  border-radius:4px;transition:color .15s;
+}
+.btn-icon:hover{color:#e53e3e}
+
+/* ─── LINE ITEMS ───────────────────────────────────────── */
+.line-item{
+  display:grid;
+  grid-template-columns:1fr 60px 80px 80px 28px;
+  gap:.5rem;align-items:center;
+}
+.line-item input{
+  background:var(--panel);border:1px solid var(--border2);
+  color:var(--text);font-family:var(--sans);font-size:.82rem;
+  padding:.4rem .6rem;border-radius:4px;outline:none;width:100%;
+  transition:border-color .2s;
+}
+.line-item input:focus{border-color:var(--accent)}
+.line-item input::placeholder{color:#b0a89e}
+.line-item .line-total{
+  font-family:var(--mono);font-size:.78rem;
+  color:var(--muted);text-align:right;white-space:nowrap;
+}
+.line-header{
+  display:grid;
+  grid-template-columns:1fr 60px 80px 80px 28px;
+  gap:.5rem;margin-bottom:.35rem;
+}
+.line-header span{
+  font-size:.62rem;font-weight:600;letter-spacing:.09em;
+  color:var(--muted);text-transform:uppercase;
+}
+
+/* ─── COLOR PICKER ─────────────────────────────────────── */
+.color-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.color-swatch{
+  width:26px;height:26px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:transform .15s,border-color .15s;
+}
+.color-swatch:hover,.color-swatch.active{
+  transform:scale(1.15);border-color:var(--text);
+}
+
+/* ─── PREVIEW COLUMN ───────────────────────────────────── */
+.preview-col{}
+.preview-actions{
+  display:flex;gap:.75rem;justify-content:flex-end;
+  margin-bottom:.85rem;flex-wrap:wrap;
+}
+
+/* ─── INVOICE PREVIEW ──────────────────────────────────── */
+.invoice-preview{
+  background:#fff;
+  box-shadow:0 4px 24px rgba(0,0,0,.1),0 1px 4px rgba(0,0,0,.06);
+  border-radius:6px;overflow:hidden;
+  font-family:var(--sans);
+}
+.inv-accent-bar{
+  height:6px;background:var(--accent);
+  transition:background .3s;
+}
+.inv-body{padding:2.5rem 2.5rem 2rem}
+.inv-top{
+  display:flex;justify-content:space-between;
+  align-items:flex-start;flex-wrap:wrap;gap:1rem;
+  margin-bottom:2rem;
+}
+.inv-brand-name{
+  font-family:var(--display);font-weight:800;
+  font-size:1.4rem;letter-spacing:-.01em;
+  color:var(--text);line-height:1;
+}
+.inv-brand-detail{
+  font-size:.75rem;color:var(--muted);margin-top:.25rem;
+  line-height:1.5;white-space:pre-line;
+}
+.inv-meta{text-align:right}
+.inv-label{
+  font-size:.62rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);
+}
+.inv-number{
+  font-family:var(--display);font-weight:800;
+  font-size:1.3rem;letter-spacing:-.01em;
+  margin-top:.15rem;
+}
+.inv-dates{margin-top:.5rem;font-size:.78rem;color:var(--muted);line-height:1.6}
+.inv-parties{
+  display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;
+  margin-bottom:1.75rem;
+  padding-bottom:1.5rem;
+  border-bottom:1px solid #eee;
+}
+.inv-party-label{
+  font-size:.6rem;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;
+}
+.inv-party-name{font-weight:600;font-size:.92rem;color:var(--text)}
+.inv-party-detail{font-size:.75rem;color:var(--muted);margin-top:.2rem;line-height:1.5;white-space:pre-line}
+
+/* invoice table */
+.inv-table{width:100%;border-collapse:collapse;font-size:.8rem;margin-bottom:1.5rem}
+.inv-table thead tr{border-bottom:2px solid var(--text)}
+.inv-table th{
+  padding:.4rem .5rem;text-align:left;
+  font-size:.6rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);
+}
+.inv-table th:last-child,.inv-table td:last-child{text-align:right}
+.inv-table tbody tr{border-bottom:1px solid #f0f0f0}
+.inv-table td{padding:.55rem .5rem;vertical-align:middle}
+.inv-table tfoot tr{border-top:1px solid #eee}
+.inv-table tfoot td{padding:.45rem .5rem;font-size:.78rem}
+.inv-table .total-row td{
+  padding-top:.65rem;
+  font-family:var(--display);font-weight:800;font-size:.95rem;
+}
+.inv-notes{
+  font-size:.75rem;color:var(--muted);
+  border-top:1px solid #eee;padding-top:1rem;
+  line-height:1.6;
+}
+.inv-notes strong{color:var(--text)}
+.inv-footer-bar{
+  padding:.75rem 2.5rem;
+  font-size:.65rem;letter-spacing:.06em;
+  text-align:center;color:#aaa;
+  border-top:1px solid #f0f0f0;
+}
+
+/* ─── FOOTER ───────────────────────────────────────────── */
+footer{
+  text-align:center;padding:2rem 1rem 3rem;
+  font-size:.73rem;color:var(--muted);
+  border-top:1px solid var(--border);letter-spacing:.04em;
+}
+
+/* ─── PRINT ────────────────────────────────────────────── */
+@media print{
+  @page{size:A4;margin:0}
+  nav,header,.form-panel,.preview-actions,footer{display:none!important}
+  body{background:#fff}
+  .workspace{display:block;padding:0;max-width:100%}
+  .preview-col{position:static}
+  .invoice-preview{
+    box-shadow:none;border-radius:0;
+    width:100%;min-height:100vh;
+  }
+  .inv-body{padding:20mm 18mm 16mm}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="https://zerokitapp.github.io">ZeroKit</a>
+  <div class="nav-links">
+    <a href="https://zerokitapp.github.io">All Tools</a>
+    <span class="tool-badge">Tool 07 / 50</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header>
+  <div>
+    <p class="hero-eyebrow">Freelancer Tools · Tool 07</p>
+    <h1>Invoice Generator</h1>
+    <p>Build a professional invoice in under a minute. Customise, preview live, and print to PDF.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost btn-sm" onclick="resetAll()">Reset</button>
+    <button class="btn btn-highlight" onclick="printInvoice()">⎙ Save as PDF</button>
+  </div>
+</header>
+
+<!-- WORKSPACE -->
+<div class="workspace">
+
+  <!-- ─── FORM PANEL ─── -->
+  <div class="form-panel">
+
+    <!-- Your Details -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Your Details</span></div>
+      <div class="card-body">
+        <div class="field">
+          <label>Business / Your Name</label>
+          <input type="text" id="fromName" placeholder="Acme Studio" oninput="render()">
+        </div>
+        <div class="field">
+          <label>Address / Contact</label>
+          <textarea id="fromDetail" rows="3" placeholder="123 Main St&#10;hello@acme.com&#10;+1 555 0100" oninput="render()"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client Details -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Bill To</span></div>
+      <div class="card-body">
+        <div class="field">
+          <label>Client Name</label>
+          <input type="text" id="toName" placeholder="Client Inc." oninput="render()">
+        </div>
+        <div class="field">
+          <label>Client Address / Contact</label>
+          <textarea id="toDetail" rows="3" placeholder="456 Client Ave&#10;accounts@client.com" oninput="render()"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoice Info -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Invoice Info</span></div>
+      <div class="card-body">
+        <div class="field-row2">
+          <div class="field">
+            <label>Invoice #</label>
+            <input type="text" id="invNumber" placeholder="INV-001" oninput="render()">
+          </div>
+          <div class="field">
+            <label>Currency</label>
+            <select id="currency" onchange="render()">
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+              <option value="GBP">£ GBP</option>
+              <option value="CAD">$ CAD</option>
+              <option value="AUD">$ AUD</option>
+              <option value="CHF">Fr CHF</option>
+              <option value="JPY">¥ JPY</option>
+              <option value="CNY">¥ CNY</option>
+              <option value="INR">₹ INR</option>
+              <option value="BRL">R$ BRL</option>
+              <option value="MXN">$ MXN</option>
+              <option value="ARS">$ ARS</option>
+              <option value="SEK">kr SEK</option>
+              <option value="NOK">kr NOK</option>
+              <option value="DKK">kr DKK</option>
+              <option value="PLN">zł PLN</option>
+              <option value="TRY">₺ TRY</option>
+              <option value="ZAR">R ZAR</option>
+              <option value="NGN">₦ NGN</option>
+              <option value="AED">د.إ AED</option>
+              <option value="SGD">$ SGD</option>
+              <option value="HKD">$ HKD</option>
+              <option value="MYR">RM MYR</option>
+              <option value="IDR">Rp IDR</option>
+              <option value="PHP">₱ PHP</option>
+              <option value="THB">฿ THB</option>
+              <option value="KRW">₩ KRW</option>
+              <option value="NZD">$ NZD</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row2">
+          <div class="field">
+            <label>Issue Date</label>
+            <input type="date" id="issueDate" oninput="render()">
+          </div>
+          <div class="field">
+            <label>Due Date</label>
+            <input type="date" id="dueDate" oninput="render()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Line Items -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Line Items</span>
+        <button class="btn btn-ghost btn-sm" onclick="addLine()">+ Add Line</button>
+      </div>
+      <div class="card-body">
+        <div class="line-header">
+          <span>Description</span>
+          <span>Qty</span>
+          <span>Rate</span>
+          <span style="text-align:right">Total</span>
+          <span></span>
+        </div>
+        <div id="lineItems"></div>
+      </div>
+    </div>
+
+    <!-- Tax & Discount -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Tax & Discount</span></div>
+      <div class="card-body">
+        <div class="field-row2">
+          <div class="field">
+            <label>Tax Rate (%)</label>
+            <input type="number" id="taxRate" placeholder="0" min="0" max="100" step="0.1" oninput="render()">
+          </div>
+          <div class="field">
+            <label>Discount (%)</label>
+            <input type="number" id="discountRate" placeholder="0" min="0" max="100" step="0.1" oninput="render()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes & Style -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Notes & Style</span></div>
+      <div class="card-body">
+        <div class="field">
+          <label>Notes / Payment Terms</label>
+          <textarea id="notes" rows="3" placeholder="Payment due within 30 days. Bank transfer preferred.&#10;Thank you for your business!" oninput="render()"></textarea>
+        </div>
+        <div class="field">
+          <label>Accent Colour</label>
+          <div class="color-row" id="colorPicker">
+            <div class="color-swatch active" data-color="#1a1a2e" style="background:#1a1a2e" onclick="setColor(this)"></div>
+            <div class="color-swatch" data-color="#b5341c" style="background:#b5341c" onclick="setColor(this)"></div>
+            <div class="color-swatch" data-color="#1a6b3a" style="background:#1a6b3a" onclick="setColor(this)"></div>
+            <div class="color-swatch" data-color="#1a5a8a" style="background:#1a5a8a" onclick="setColor(this)"></div>
+            <div class="color-swatch" data-color="#7c3aed" style="background:#7c3aed" onclick="setColor(this)"></div>
+            <div class="color-swatch" data-color="#c47d00" style="background:#c47d00" onclick="setColor(this)"></div>
+            <div class="color-swatch" data-color="#374151" style="background:#374151" onclick="setColor(this)"></div>
+            <input type="color" id="customColor" value="#1a1a2e" oninput="setCustomColor(this.value)"
+              style="width:26px;height:26px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;padding:0;background:none">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── PREVIEW ─── -->
+  <div class="preview-col">
+    <div class="preview-actions">
+      <button class="btn btn-ghost btn-sm" onclick="printInvoice()">⎙ Save as PDF</button>
+    </div>
+    <div class="invoice-preview" id="invoicePreview">
+      <div class="inv-accent-bar" id="invBar"></div>
+      <div class="inv-body">
+        <div class="inv-top">
+          <div>
+            <div class="inv-brand-name" id="pFromName">Your Business</div>
+            <div class="inv-brand-detail" id="pFromDetail"></div>
+          </div>
+          <div class="inv-meta">
+            <div class="inv-label">Invoice</div>
+            <div class="inv-number" id="pInvNumber">#INV-001</div>
+            <div class="inv-dates" id="pDates"></div>
+          </div>
+        </div>
+        <div class="inv-parties">
+          <div>
+            <div class="inv-party-label">From</div>
+            <div class="inv-party-name" id="pFromName2">Your Business</div>
+            <div class="inv-party-detail" id="pFromDetail2"></div>
+          </div>
+          <div>
+            <div class="inv-party-label">Bill To</div>
+            <div class="inv-party-name" id="pToName">Client Name</div>
+            <div class="inv-party-detail" id="pToDetail"></div>
+          </div>
+        </div>
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th style="width:45%">Description</th>
+              <th style="width:12%">Qty</th>
+              <th style="width:20%">Rate</th>
+              <th style="width:23%">Amount</th>
+            </tr>
+          </thead>
+          <tbody id="pLineItems"></tbody>
+          <tfoot id="pTotals"></tfoot>
+        </table>
+        <div class="inv-notes" id="pNotes" style="display:none">
+          <strong>Notes</strong><br>
+          <span id="pNotesText"></span>
+        </div>
+      </div>
+      <div class="inv-footer-bar">Generated with ZeroKit · zerokitapp.github.io · Free business tools</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>ZeroKit · Free Business Tools · No signup · No limits</footer>
+
+<script>
+/* ─── CURRENCY ─────────────────────────────────────────── */
+const SYM={
+  USD:'$',EUR:'€',GBP:'£',CAD:'$',AUD:'$',CHF:'Fr ',JPY:'¥',CNY:'¥',
+  INR:'₹',BRL:'R$',MXN:'$',ARS:'$',SEK:'kr ',NOK:'kr ',DKK:'kr ',PLN:'zł',
+  TRY:'₺',ZAR:'R',NGN:'₦',AED:'د.إ ',SGD:'$',HKD:'$',MYR:'RM ',IDR:'Rp',
+  PHP:'₱',THB:'฿',KRW:'₩',NZD:'$'
+};
+function sym(){return SYM[document.getElementById('currency').value]||'$'}
+function fmt(n){
+  return sym()+parseFloat(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+/* ─── ACCENT COLOR ─────────────────────────────────────── */
+let accentColor='#1a1a2e';
+function setColor(el){
+  accentColor=el.dataset.color;
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('customColor').value=accentColor;
+  applyAccent();
+}
+function setCustomColor(val){
+  accentColor=val;
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));
+  applyAccent();
+}
+function applyAccent(){
+  document.getElementById('invBar').style.background=accentColor;
+  document.getElementById('pInvNumber').style.color=accentColor;
+  render();
+}
+
+/* ─── LINE ITEMS ───────────────────────────────────────── */
+let lines=[];
+let lineId=0;
+function addLine(desc='',qty=1,rate=''){
+  const id=lineId++;
+  lines.push({id,desc,qty,rate});
+  const wrap=document.getElementById('lineItems');
+  const row=document.createElement('div');
+  row.className='line-item';
+  row.id='line-'+id;
+  row.innerHTML=`
+    <input type="text" placeholder="Service or item" value="${esc(desc)}"
+      oninput="updateLine(${id},'desc',this.value)">
+    <input type="number" placeholder="1" value="${qty}" min="0" step="any"
+      oninput="updateLine(${id},'qty',this.value)" style="text-align:center">
+    <input type="number" placeholder="0.00" value="${rate}" min="0" step="0.01"
+      oninput="updateLine(${id},'rate',this.value)">
+    <div class="line-total" id="lt-${id}">—</div>
+    <button class="btn-icon" onclick="removeLine(${id})">✕</button>
+  `;
+  wrap.appendChild(row);
+  render();
+}
+function updateLine(id,field,val){
+  const l=lines.find(l=>l.id===id);
+  if(!l) return;
+  l[field]=val;
+  render();
+}
+function removeLine(id){
+  lines=lines.filter(l=>l.id!==id);
+  const el=document.getElementById('line-'+id);
+  if(el) el.remove();
+  render();
+}
+function lineTotal(l){
+  return parseFloat(l.qty||0)*parseFloat(l.rate||0);
+}
+
+/* ─── RENDER ───────────────────────────────────────────── */
+function render(){
+  const fromName   = document.getElementById('fromName').value||'Your Business';
+  const fromDetail = document.getElementById('fromDetail').value||'';
+  const toName     = document.getElementById('toName').value||'Client Name';
+  const toDetail   = document.getElementById('toDetail').value||'';
+  const invNum     = document.getElementById('invNumber').value||'INV-001';
+  const issueDate  = document.getElementById('issueDate').value;
+  const dueDate    = document.getElementById('dueDate').value;
+  const taxRate    = parseFloat(document.getElementById('taxRate').value)||0;
+  const discount   = parseFloat(document.getElementById('discountRate').value)||0;
+  const notes      = document.getElementById('notes').value;
+
+  // header
+  setText('pFromName',  fromName);
+  setText('pFromName2', fromName);
+  setText('pFromDetail',  fromDetail);
+  setText('pFromDetail2', fromDetail);
+  setText('pToName',    toName);
+  setText('pToDetail',  toDetail);
+  setText('pInvNumber', '#'+invNum);
+  document.getElementById('pInvNumber').style.color=accentColor;
+
+  const datesHtml=[
+    issueDate ? `Issued: ${issueDate}`:'',
+    dueDate   ? `Due: ${dueDate}`:''
+  ].filter(Boolean).join('<br>');
+  document.getElementById('pDates').innerHTML=datesHtml;
+
+  // lines
+  let subtotal=0;
+  const tbody=document.getElementById('pLineItems');
+  tbody.innerHTML='';
+  lines.forEach(l=>{
+    const t=lineTotal(l);
+    subtotal+=t;
+    const ltEl=document.getElementById('lt-'+l.id);
+    if(ltEl) ltEl.textContent=l.rate?fmt(t):'—';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${esc(l.desc)||'<span style="color:#bbb">—</span>'}</td>
+      <td style="text-align:center;color:var(--muted)">${l.qty||'—'}</td>
+      <td style="text-align:right;color:var(--muted)">${l.rate?fmt(l.rate):'—'}</td>
+      <td style="text-align:right;font-weight:500">${l.rate?fmt(t):'—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  if(!lines.length){
+    tbody.innerHTML='<tr><td colspan="4" style="color:#bbb;font-style:italic;text-align:center;padding:.75rem">Add line items above</td></tr>';
+  }
+
+  // totals
+  const discountAmt = subtotal*(discount/100);
+  const taxable     = subtotal-discountAmt;
+  const taxAmt      = taxable*(taxRate/100);
+  const total       = taxable+taxAmt;
+  const tfoot=document.getElementById('pTotals');
+  let rows=`<tr><td colspan="3" style="text-align:right;color:var(--muted)">Subtotal</td><td style="text-align:right">${fmt(subtotal)}</td></tr>`;
+  if(discount>0) rows+=`<tr><td colspan="3" style="text-align:right;color:var(--muted)">Discount (${discount}%)</td><td style="text-align:right;color:#c00">−${fmt(discountAmt)}</td></tr>`;
+  if(taxRate>0)  rows+=`<tr><td colspan="3" style="text-align:right;color:var(--muted)">Tax (${taxRate}%)</td><td style="text-align:right">${fmt(taxAmt)}</td></tr>`;
+  rows+=`<tr class="total-row"><td colspan="3" style="text-align:right">Total Due</td><td style="text-align:right;color:${accentColor}">${fmt(total)}</td></tr>`;
+  tfoot.innerHTML=rows;
+
+  // notes
+  const notesEl=document.getElementById('pNotes');
+  if(notes.trim()){
+    notesEl.style.display='';
+    setText('pNotesText',notes);
+  } else {
+    notesEl.style.display='none';
+  }
+}
+
+/* ─── PRINT ────────────────────────────────────────────── */
+function printInvoice(){
+  document.fonts.ready.then(()=>window.print());
+}
+
+/* ─── RESET ────────────────────────────────────────────── */
+function resetAll(){
+  if(!confirm('Reset the invoice?')) return;
+  ['fromName','fromDetail','toName','toDetail','notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('invNumber').value='';
+  document.getElementById('taxRate').value='';
+  document.getElementById('discountRate').value='';
+  setDefaults();
+  lines=[];
+  document.getElementById('lineItems').innerHTML='';
+  addLine('',1,'');
+  accentColor='#1a1a2e';
+  document.querySelectorAll('.color-swatch').forEach((s,i)=>s.classList.toggle('active',i===0));
+  applyAccent();
+}
+
+/* ─── HELPERS ──────────────────────────────────────────── */
+function setText(id,val){
+  const el=document.getElementById(id);
+  if(!el) return;
+  // plain text — use textContent for most, innerText for pre-line
+  el.textContent=val;
+}
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function setDefaults(){
+  const today=new Date();
+  const due=new Date(today); due.setDate(due.getDate()+30);
+  document.getElementById('issueDate').value=today.toISOString().slice(0,10);
+  document.getElementById('dueDate').value  =due.toISOString().slice(0,10);
+  const num=Math.floor(Math.random()*900)+100;
+  document.getElementById('invNumber').value='INV-'+num;
+}
+
+/* ─── INIT ─────────────────────────────────────────────── */
+setDefaults();
+applyAccent();
+addLine('',1,'');
+render();
+</script>
+</body>
+</html>
