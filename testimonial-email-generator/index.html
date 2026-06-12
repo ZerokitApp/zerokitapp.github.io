@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Testimonial Request Email Generator — ZeroKit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;--border2:#333;--text:#f0f0f0;--muted:#888;--accent:#c8f135;--accent-dk:#a8cc1a;--danger:#ff5c5c;--radius:10px;--font:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,15,.92);backdrop-filter:blur(8px);z-index:100}
+.nav-logo{font-weight:700;font-size:15px;color:var(--text);text-decoration:none}
+.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px}
+.hero{max-width:900px;margin:0 auto;padding:56px 24px 32px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:15px;max-width:520px}
+.layout{max-width:900px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+@media(max-width:720px){.layout{grid-template-columns:1fr}}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{resize:vertical;min-height:60px}
+.btn{padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;font-family:var(--font)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#0f0f0f;width:100%}
+.btn-primary:hover{background:var(--accent-dk)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
+/* tabs */
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--surface2);border-radius:8px;padding:4px}
+.tab{flex:1;padding:8px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--muted);background:transparent;transition:.15s}
+.tab.active{background:var(--surface);color:var(--text);border:1px solid var(--border2)}
+/* email output */
+.email-preview{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;position:sticky;top:80px}
+.email-subject{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.email-subject-val{font-size:14px;font-weight:600;color:var(--accent);margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.email-body{background:var(--surface2);border-radius:8px;padding:18px;font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap;min-height:300px;font-family:Georgia,serif}
+.action-row{display:flex;gap:8px;margin-top:12px}
+.action-row button{flex:1}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="https://zerokitapp.github.io" class="nav-logo">Zero<span>Kit</span></a>
+  <span class="nav-tag">Tool 13 / 50</span>
+</nav>
+<div class="hero">
+  <div class="hero-eyebrow">Freelance Tools · Tool 13</div>
+  <h1>Ask for reviews<br><em>without the awkward.</em></h1>
+  <p>Pick a template, fill in the details, and get a polished email asking your client for a testimonial — ready to copy and send.</p>
+</div>
+<div class="layout">
+  <div>
+    <div class="section">
+      <div class="section-title">Your Details</div>
+      <div class="field"><label>Your Name</label><input type="text" id="yourName" placeholder="Jane Smith" oninput="render()"/></div>
+      <div class="field"><label>Your Service / Role</label><input type="text" id="yourService" placeholder="e.g. web designer, copywriter" oninput="render()"/></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Client Details</div>
+      <div class="field"><label>Client First Name</label><input type="text" id="clientName" placeholder="Alex" oninput="render()"/></div>
+      <div class="field"><label>Project / Work Done</label><input type="text" id="projectDesc" placeholder="e.g. their new e-commerce website" oninput="render()"/></div>
+      <div class="field"><label>Outcome / Result (optional)</label><input type="text" id="outcome" placeholder="e.g. launched on time and 20% faster" oninput="render()"/></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Options</div>
+      <div class="field"><label>Where to Leave Review</label>
+        <select id="platform" onchange="render()">
+          <option value="your website">Your website</option>
+          <option value="Google">Google</option>
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="Clutch">Clutch</option>
+          <option value="Trustpilot">Trustpilot</option>
+          <option value="a platform of your choice">Anywhere they like</option>
+        </select>
+      </div>
+      <div class="field"><label>Tone</label>
+        <select id="tone" onchange="switchTab(currentTab)">
+          <option value="warm">Warm & personal</option>
+          <option value="brief">Short & direct</option>
+          <option value="formal">Professional & formal</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="email-preview">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(0)" id="tab0">Template A</button>
+      <button class="tab" onclick="switchTab(1)" id="tab1">Template B</button>
+      <button class="tab" onclick="switchTab(2)" id="tab2">Follow-up</button>
+    </div>
+    <div class="email-subject">Subject line</div>
+    <div class="email-subject-val" id="emailSubject"></div>
+    <div class="email-body" id="emailBody"></div>
+    <div class="action-row">
+      <button class="btn btn-secondary" onclick="copyEmail()">⎘ Copy Email</button>
+      <button class="btn btn-primary" onclick="copyAll()">⎘ Copy All</button>
+    </div>
+  </div>
+</div>
+<footer><a href="https://zerokitapp.github.io">ZeroKit</a> · Free Business Tools · No signup · No limits</footer>
+
+<script>
+let currentTab = 0;
+
+function g(id){return document.getElementById(id).value.trim()}
+function val(id,fb){return g(id)||fb}
+
+function getVars(){
+  return {
+    you: val('yourName','[Your Name]'),
+    service: val('yourService','freelancer'),
+    client: val('clientName','[Client Name]'),
+    project: val('projectDesc','the project'),
+    outcome: g('outcome'),
+    platform: g('platform')||'your website',
+    tone: g('tone')||'warm'
+  }
+}
+
+const templates = [
+  // Template A
+  v => ({
+    subject: `Quick favour — would you share a few words?`,
+    body: v.tone==='formal'
+      ? `Dear ${v.client},\n\nI hope this message finds you well.\n\nNow that we have completed work on ${v.project}, I wanted to reach out to ask whether you would be willing to provide a brief testimonial about your experience working with me.\n\nA short paragraph about the results we achieved${v.outcome?' — including '+v.outcome+' —':''} and what it was like collaborating together would be greatly appreciated. If you're willing, you could share it on ${v.platform}.\n\nThank you very much for your time and continued support.\n\nKind regards,\n${v.you}`
+      : v.tone==='brief'
+      ? `Hi ${v.client},\n\nWould you be open to leaving a quick review about working together on ${v.project}? Even a sentence or two on ${v.platform} would mean a lot.\n\nThank you!\n${v.you}`
+      : `Hi ${v.client},\n\nIt was such a pleasure working together on ${v.project}${v.outcome?' — especially seeing '+v.outcome:''}.\n\nI'm building up my portfolio and testimonials make a huge difference for freelancers like me. Would you be willing to share a few words about working together on ${v.platform}? It doesn't have to be long — even two or three sentences would mean the world.\n\nThank you so much, ${v.client}. I really appreciate it.\n\nWarm regards,\n${v.you}`
+  }),
+  // Template B — story-focused
+  v => ({
+    subject: `${v.client}, could I feature our work together?`,
+    body: v.tone==='formal'
+      ? `Dear ${v.client},\n\nI am reaching out to enquire whether you would permit me to feature ${v.project} as a case study, and whether you would be willing to provide a brief testimonial to accompany it.\n\nYour feedback on our collaboration${v.outcome?', specifically regarding '+v.outcome+',':''} would be invaluable to prospective clients evaluating my services.\n\nPlease do let me know if this is something you'd be comfortable with. I am happy to share a draft with you before publishing anything.\n\nWith thanks,\n${v.you}`
+      : v.tone==='brief'
+      ? `Hi ${v.client},\n\nI'd love to feature ${v.project} in my portfolio. Would you be happy to provide a short testimonial${v.outcome?' — maybe mentioning '+v.outcome:''}? Totally fine to keep it brief.\n\nThanks,\n${v.you}`
+      : `Hi ${v.client},\n\nI've been thinking about the work we did on ${v.project} and I'm really proud of how it turned out${v.outcome?' — '+v.outcome+' was a great result':''}.\n\nI'd love to feature it as a case study and include a quote from you, if you're open to it. Just a couple of sentences about the experience and the outcome would be perfect.\n\nNo pressure at all — if it's easier I can send you two or three questions to answer!\n\nThanks so much,\n${v.you}`
+  }),
+  // Follow-up
+  v => ({
+    subject: `Following up — testimonial for ${v.project}`,
+    body: v.tone==='formal'
+      ? `Dear ${v.client},\n\nI hope you are doing well. I wanted to follow up on my previous message regarding a potential testimonial for the work completed on ${v.project}.\n\nI fully appreciate how busy things can get. If you have a moment, even a brief comment on ${v.platform} would be enormously helpful.\n\nThank you again for your time.\n\nKind regards,\n${v.you}`
+      : v.tone==='brief'
+      ? `Hi ${v.client},\n\nJust a quick follow-up on my last message — did you get a chance to leave a review? No worries if not, just checking in!\n\nThanks,\n${v.you}`
+      : `Hi ${v.client},\n\nI just wanted to gently follow up on my earlier message about a testimonial for ${v.project}. I completely understand if things have been busy!\n\nIf it helps, here are a couple of prompts you could answer in a few sentences:\n• What was the project like before we worked together?\n• What results or changes did you notice?\n• Would you recommend me to others, and why?\n\nEven a few sentences makes a big difference. Thank you again, ${v.client}!\n\n${v.you}`
+  })
+];
+
+function switchTab(idx){
+  currentTab=idx;
+  [0,1,2].forEach(i=>{document.getElementById('tab'+i).className='tab'+(i===idx?' active':'')});
+  render();
+}
+
+function render(){
+  const v=getVars();
+  const t=templates[currentTab](v);
+  document.getElementById('emailSubject').textContent=t.subject;
+  document.getElementById('emailBody').textContent=t.body;
+}
+
+function copyEmail(){navigator.clipboard.writeText(document.getElementById('emailBody').textContent).then(()=>alert('Email body copied!'))}
+function copyAll(){
+  const subj=document.getElementById('emailSubject').textContent;
+  const body=document.getElementById('emailBody').textContent;
+  navigator.clipboard.writeText('Subject: '+subj+'\n\n'+body).then(()=>alert('Subject + body copied!'));
+}
+
+render();
+</script>
+</body>
+</html>
