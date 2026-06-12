@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Client Onboarding Checklist — ZeroKit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;--border2:#333;--text:#f0f0f0;--muted:#888;--accent:#c8f135;--accent-dk:#a8cc1a;--danger:#ff5c5c;--warning:#f5a623;--green:#4caf7d;--radius:10px;--font:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,15,.92);backdrop-filter:blur(8px);z-index:100}
+.nav-logo{font-weight:700;font-size:15px;color:var(--text);text-decoration:none;letter-spacing:-.3px}
+.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px}
+.hero{max-width:720px;margin:0 auto;padding:56px 24px 32px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:15px;max-width:520px}
+.main{max-width:720px;margin:0 auto;padding:0 24px 80px}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus{border-color:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.grid2{grid-template-columns:1fr}}
+.btn{padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;font-family:var(--font)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#0f0f0f}
+.btn-primary:hover{background:var(--accent-dk)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
+/* progress */
+.progress-wrap{margin-bottom:20px}
+.progress-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
+.progress-bar-bg{background:var(--surface2);border-radius:4px;height:8px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:4px;background:var(--accent);transition:width .4s}
+/* category */
+.cat-block{margin-bottom:20px}
+.cat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cat-name{font-size:13px;font-weight:700;color:var(--text)}
+.cat-count{font-size:11px;color:var(--muted)}
+/* checklist item */
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border-radius:8px;transition:background .15s;cursor:pointer;border:1px solid transparent;margin-bottom:4px}
+.check-item:hover{background:var(--surface2)}
+.check-item.done{opacity:.6}
+.check-item.done .check-label{text-decoration:line-through;color:var(--muted)}
+.custom-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s}
+.check-item.done .custom-check{background:var(--accent);border-color:var(--accent)}
+.check-label{flex:1;font-size:13px}
+.check-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.add-item-row{display:flex;gap:8px;margin-top:8px}
+.add-item-row input{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:8px 12px;outline:none;flex:1}
+.add-item-row input:focus{border-color:var(--accent)}
+.add-item-row button{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--muted);font-size:18px;width:36px;cursor:pointer;transition:color .15s,border-color .15s}
+.add-item-row button:hover{color:var(--accent);border-color:var(--accent)}
+/* actions */
+.action-row{display:flex;gap:10px;flex-wrap:wrap}
+@media print{nav,footer,.action-row,.add-item-row{display:none}body{background:#fff;color:#000}.section{border:1px solid #ddd;background:#fff}}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="https://zerokitapp.github.io" class="nav-logo">Zero<span>Kit</span></a>
+  <span class="nav-tag">Tool 11 / 50</span>
+</nav>
+<div class="hero">
+  <div class="hero-eyebrow">Freelance Tools · Tool 11</div>
+  <h1>Onboard every client<br><em>without missing a step.</em></h1>
+  <p>A customisable checklist to guide new clients through every stage — from first contact to project kickoff. Print it or share the link.</p>
+</div>
+<div class="main">
+  <div class="section">
+    <div class="section-title">Project Info</div>
+    <div class="grid2">
+      <div class="field"><label>Client Name</label><input type="text" id="clientName" placeholder="e.g. Acme Co." oninput="saveState()"/></div>
+      <div class="field"><label>Project</label><input type="text" id="projectName" placeholder="e.g. Brand Redesign" oninput="saveState()"/></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Onboarding Progress</div>
+    <div class="progress-wrap">
+      <div class="progress-top"><span id="progressLabel">0 of 0 complete</span><span id="progressPct">0%</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+    </div>
+    <div id="checklistContainer"></div>
+  </div>
+
+  <div class="action-row" style="margin-bottom:24px">
+    <button class="btn btn-secondary" onclick="resetAll()">↺ Reset All</button>
+    <button class="btn btn-primary" onclick="window.print()">⎙ Print Checklist</button>
+  </div>
+</div>
+
+<footer><a href="https://zerokitapp.github.io">ZeroKit</a> · Free Business Tools · No signup · No limits</footer>
+
+<script>
+const DEFAULT_CATS = [
+  {id:'discovery',name:'Discovery & Qualification',items:[
+    {id:1,label:'Initial enquiry call / discovery call completed',sub:'Understand their goals, timeline, budget'},
+    {id:2,label:'Sent pricing / service overview',sub:''},
+    {id:3,label:'Confirmed project fit & scope',sub:''},
+    {id:4,label:'Sent project proposal',sub:'Link to your proposal doc'},
+  ]},
+  {id:'legal',name:'Contracts & Legal',items:[
+    {id:5,label:'Contract sent & signed',sub:'Both parties'},
+    {id:6,label:'NDA signed (if required)',sub:''},
+    {id:7,label:'Deposit / first payment received',sub:''},
+    {id:8,label:'Payment schedule confirmed',sub:''},
+  ]},
+  {id:'setup',name:'Project Setup',items:[
+    {id:9,label:'Project folder / workspace created',sub:'Drive, Notion, Basecamp etc.'},
+    {id:10,label:'Project management tool set up',sub:'Invite client if needed'},
+    {id:11,label:'Communication channel established',sub:'Email, Slack, WhatsApp'},
+    {id:12,label:'Kick-off meeting scheduled',sub:''},
+  ]},
+  {id:'assets',name:'Assets & Access',items:[
+    {id:13,label:'Brand assets received',sub:'Logos, fonts, colours, brand guide'},
+    {id:14,label:'Login credentials / access granted',sub:'CMS, hosting, social, etc.'},
+    {id:15,label:'Existing content / copy received',sub:'If applicable'},
+    {id:16,label:'Technical requirements documented',sub:''},
+  ]},
+  {id:'kickoff',name:'Kick-off',items:[
+    {id:17,label:'Kick-off meeting held',sub:''},
+    {id:18,label:'Project timeline shared & approved',sub:''},
+    {id:19,label:'Milestone & review dates agreed',sub:''},
+    {id:20,label:'Revision rounds & process explained',sub:''},
+    {id:21,label:'Emergency / out-of-hours contact confirmed',sub:''},
+  ]},
+];
+
+let state = JSON.parse(localStorage.getItem('zk_onboarding')||'null') || {
+  checked: {},
+  custom: {} // catId -> [{id,label}]
+};
+
+function saveState(){
+  localStorage.setItem('zk_onboarding', JSON.stringify(state));
+  const proj = {name:document.getElementById('clientName').value,project:document.getElementById('projectName').value};
+  localStorage.setItem('zk_onboarding_proj',JSON.stringify(proj));
+}
+
+function toggle(itemId){
+  state.checked[itemId] = !state.checked[itemId];
+  saveState(); render();
+}
+
+function addCustom(catId){
+  const inp = document.getElementById('custom_input_'+catId);
+  const val = inp.value.trim();
+  if(!val) return;
+  if(!state.custom[catId]) state.custom[catId]=[];
+  state.custom[catId].push({id:'c_'+Date.now(),label:val});
+  inp.value='';
+  saveState(); render();
+}
+
+function removeCustom(catId, itemId){
+  state.custom[catId] = (state.custom[catId]||[]).filter(i=>i.id!==itemId);
+  saveState(); render();
+}
+
+function render(){
+  const container = document.getElementById('checklistContainer');
+  let totalItems=0, totalDone=0;
+  container.innerHTML = DEFAULT_CATS.map(cat=>{
+    const customItems = state.custom[cat.id]||[];
+    const allItems = [...cat.items, ...customItems];
+    const done = allItems.filter(i=>state.checked[i.id]).length;
+    totalItems+=allItems.length; totalDone+=done;
+    return `<div class="cat-block">
+      <div class="cat-header">
+        <span class="cat-name">${cat.name}</span>
+        <span class="cat-count">${done}/${allItems.length}</span>
+      </div>
+      ${allItems.map(item=>`
+        <div class="check-item ${state.checked[item.id]?'done':''}" onclick="toggle('${item.id}')">
+          <div class="custom-check">${state.checked[item.id]?'<svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 3.5,6.5 9,1" fill="none" stroke="#0f0f0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
+          <div>
+            <div class="check-label">${escHtml(item.label)}</div>
+            ${item.sub?`<div class="check-sub">${escHtml(item.sub)}</div>`:''}
+            ${customItems.includes(item)?`<button onclick="event.stopPropagation();removeCustom('${cat.id}','${item.id}')" style="background:none;border:none;color:var(--danger);font-size:11px;cursor:pointer;margin-top:2px">Remove</button>`:''}
+          </div>
+        </div>
+      `).join('')}
+      <div class="add-item-row">
+        <input type="text" id="custom_input_${cat.id}" placeholder="Add custom step…" onkeydown="if(event.key==='Enter')addCustom('${cat.id}')"/>
+        <button onclick="addCustom('${cat.id}')">+</button>
+      </div>
+    </div>`;
+  }).join('');
+  const pct = totalItems>0?Math.round(totalDone/totalItems*100):0;
+  document.getElementById('progressLabel').textContent=`${totalDone} of ${totalItems} complete`;
+  document.getElementById('progressPct').textContent=pct+'%';
+  document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function resetAll(){if(!confirm('Reset all checkboxes?'))return; state.checked={}; saveState(); render();}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+const proj=JSON.parse(localStorage.getItem('zk_onboarding_proj')||'{}');
+if(proj.name)document.getElementById('clientName').value=proj.name;
+if(proj.project)document.getElementById('projectName').value=proj.project;
+render();
+</script>
+</body>
+</html>
