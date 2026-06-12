@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NDA Generator — ZeroKit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;--border2:#333;--text:#f0f0f0;--muted:#888;--accent:#c8f135;--accent-dk:#a8cc1a;--danger:#ff5c5c;--radius:10px;--font:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,15,.92);backdrop-filter:blur(8px);z-index:100}
+.nav-logo{font-weight:700;font-size:15px;color:var(--text);text-decoration:none;letter-spacing:-.3px}
+.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px}
+.hero{max-width:900px;margin:0 auto;padding:56px 24px 32px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:15px;max-width:520px}
+.layout{max-width:900px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+@media(max-width:720px){.layout{grid-template-columns:1fr}}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{resize:vertical;min-height:70px}
+.btn{padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;font-family:var(--font);width:100%;margin-bottom:8px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#0f0f0f}
+.btn-primary:hover{background:var(--accent-dk)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
+/* preview */
+.preview-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;position:sticky;top:80px}
+.nda-doc{background:#fff;color:#111;border-radius:6px;padding:32px;font-family:Georgia,serif;font-size:13px;line-height:1.8;max-height:75vh;overflow-y:auto}
+.nda-doc h2{font-size:16px;text-align:center;margin-bottom:20px;letter-spacing:.06em;text-transform:uppercase}
+.nda-doc h3{font-size:13px;font-weight:700;margin:18px 0 6px;text-transform:uppercase;letter-spacing:.04em}
+.nda-doc p{margin-bottom:10px}
+.nda-doc .sig-block{margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.nda-doc .sig-line{border-top:1px solid #111;padding-top:4px;margin-top:32px;font-size:12px}
+.disclaimer{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:8px;padding:12px 14px;font-size:12px;color:#ccc;margin-top:12px}
+.action-row{display:flex;gap:8px;margin-top:12px}
+.action-row button{flex:1}
+@media print{nav,.preview-card>*:not(.nda-doc),.section,.hero,footer,.action-row{display:none}body{background:#fff}.nda-doc{max-height:none;overflow:visible;box-shadow:none;padding:0}}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="https://zerokitapp.github.io" class="nav-logo">Zero<span>Kit</span></a>
+  <span class="nav-tag">Tool 12 / 50</span>
+</nav>
+<div class="hero">
+  <div class="hero-eyebrow">Freelance Tools · Tool 12</div>
+  <h1>NDA in minutes,<br><em>not hours.</em></h1>
+  <p>Fill in the details, generate a clean Non-Disclosure Agreement, and print or copy it. No law degree required.</p>
+</div>
+<div class="layout">
+  <!-- FORM -->
+  <div>
+    <div class="section">
+      <div class="section-title">Your Details</div>
+      <div class="field"><label>Your Full Name / Business</label><input type="text" id="partyA" placeholder="Jane Smith / Smith Design LLC" oninput="render()"/></div>
+      <div class="field"><label>Your Address</label><input type="text" id="addrA" placeholder="City, Country" oninput="render()"/></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Other Party</div>
+      <div class="field"><label>Their Full Name / Business</label><input type="text" id="partyB" placeholder="Acme Corp." oninput="render()"/></div>
+      <div class="field"><label>Their Address</label><input type="text" id="addrB" placeholder="City, Country" oninput="render()"/></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Agreement Details</div>
+      <div class="field"><label>Purpose of Disclosure</label><input type="text" id="purpose" placeholder="e.g. Evaluating a potential freelance engagement" oninput="render()"/></div>
+      <div class="field"><label>NDA Type</label>
+        <select id="ndaType" onchange="render()">
+          <option value="one">One-way (you disclose to them)</option>
+          <option value="mutual">Mutual (both parties)</option>
+        </select>
+      </div>
+      <div class="field"><label>Duration (years)</label>
+        <select id="duration" onchange="render()">
+          <option value="1">1 year</option>
+          <option value="2" selected>2 years</option>
+          <option value="3">3 years</option>
+          <option value="5">5 years</option>
+          <option value="indefinitely">Indefinitely</option>
+        </select>
+      </div>
+      <div class="field"><label>Governing Law (jurisdiction)</label><input type="text" id="jurisdiction" placeholder="e.g. England and Wales" oninput="render()"/></div>
+      <div class="field"><label>Date</label><input type="date" id="ndaDate" oninput="render()"/></div>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-card">
+    <div class="section-title" style="margin-bottom:16px">Preview</div>
+    <div class="nda-doc" id="ndaDoc"></div>
+    <div class="disclaimer">⚠️ This is a template for informational purposes. Have a qualified lawyer review any binding agreement.</div>
+    <div class="action-row">
+      <button class="btn btn-secondary" onclick="copyText()">⎘ Copy Text</button>
+      <button class="btn btn-primary" onclick="window.print()">⎙ Print / PDF</button>
+    </div>
+  </div>
+</div>
+
+<footer><a href="https://zerokitapp.github.io">ZeroKit</a> · Free Business Tools · No signup · No limits</footer>
+
+<script>
+// set today
+document.getElementById('ndaDate').value = new Date().toISOString().split('T')[0];
+
+function v(id){return document.getElementById(id).value.trim()||'[___]'}
+
+function render(){
+  const a=v('partyA'), addrA=v('addrA'), b=v('partyB'), addrB=v('addrB');
+  const purpose=v('purpose'), dur=v('duration'), juris=v('jurisdiction');
+  const dateVal=document.getElementById('ndaDate').value;
+  const dateStr=dateVal?new Date(dateVal).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'[Date]';
+  const mutual=document.getElementById('ndaType').value==='mutual';
+  const disclosing = mutual ? 'either party' : a;
+  const receiving = mutual ? 'the other party' : b;
+  const durStr = dur==='indefinitely'?'indefinitely':`${dur} year${dur==='1'?'':'s'} from the date of this Agreement`;
+
+  document.getElementById('ndaDoc').innerHTML=`
+    <h2>Non-Disclosure Agreement</h2>
+    <p>This Non-Disclosure Agreement ("Agreement") is entered into as of <strong>${dateStr}</strong> between:</p>
+    <p><strong>${a}</strong>, ${addrA} ("Party A")</p>
+    <p>and</p>
+    <p><strong>${b}</strong>, ${addrB} ("Party B")</p>
+    <p>collectively referred to as the "Parties."</p>
+
+    <h3>1. Purpose</h3>
+    <p>The Parties wish to explore ${escHtml(purpose)}. In connection with this purpose, ${mutual?'each party':'Party A'} may disclose certain confidential and proprietary information to ${mutual?'the other party':'Party B'}.</p>
+
+    <h3>2. Definition of Confidential Information</h3>
+    <p>"Confidential Information" means any non-public information disclosed by ${disclosing} to ${receiving}, either directly or indirectly, in writing, orally, or by inspection of tangible objects, that is designated as confidential or that reasonably should be understood to be confidential given the nature of the information and circumstances of disclosure.</p>
+
+    <h3>3. Obligations</h3>
+    <p>The receiving party agrees to: (a) hold the Confidential Information in strict confidence; (b) not disclose it to any third party without prior written consent; (c) use it solely for the Purpose stated above; (d) protect it with at least the same degree of care used to protect its own confidential information.</p>
+
+    <h3>4. Exclusions</h3>
+    <p>This Agreement does not apply to information that: (a) is or becomes publicly known through no breach of this Agreement; (b) was rightfully known before disclosure; (c) is independently developed without use of Confidential Information; (d) is required to be disclosed by law or court order.</p>
+
+    <h3>5. Term</h3>
+    <p>This Agreement shall remain in effect ${durStr}.</p>
+
+    <h3>6. Return of Information</h3>
+    <p>Upon request, the receiving party shall promptly return or destroy all materials containing Confidential Information.</p>
+
+    <h3>7. Governing Law</h3>
+    <p>This Agreement shall be governed by the laws of ${escHtml(juris)}.</p>
+
+    <h3>8. Entire Agreement</h3>
+    <p>This Agreement constitutes the entire agreement between the Parties concerning confidentiality and supersedes all prior discussions.</p>
+
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">Signature</div>
+        <div class="sig-line" style="margin-top:16px">${escHtml(a)}</div>
+        <div class="sig-line" style="margin-top:16px">Date</div>
+      </div>
+      <div>
+        <div class="sig-line">Signature</div>
+        <div class="sig-line" style="margin-top:16px">${escHtml(b)}</div>
+        <div class="sig-line" style="margin-top:16px">Date</div>
+      </div>
+    </div>
+  `;
+}
+
+function copyText(){
+  const text = document.getElementById('ndaDoc').innerText;
+  navigator.clipboard.writeText(text).then(()=>alert('NDA text copied to clipboard.'));
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+render();
+</script>
+</body>
+</html>
