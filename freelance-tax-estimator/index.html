@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Freelance Tax Estimator — ZeroKit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;--border2:#333;--text:#f0f0f0;--muted:#888;--accent:#c8f135;--accent-dk:#a8cc1a;--danger:#ff5c5c;--warning:#f5a623;--green:#4caf7d;--radius:10px;--font:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,15,.92);backdrop-filter:blur(8px);z-index:100}
+.nav-logo{font-weight:700;font-size:15px;color:var(--text);text-decoration:none}
+.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px}
+.hero{max-width:720px;margin:0 auto;padding:56px 24px 32px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:15px;max-width:520px}
+.main{max-width:720px;margin:0 auto;padding:0 24px 80px}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus{border-color:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.grid2{grid-template-columns:1fr}}
+/* results */
+.results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:560px){.results-grid{grid-template-columns:1fr 1fr}}
+.result-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.result-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.result-value{font-size:20px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.result-value.accent{color:var(--accent)}
+.result-value.danger{color:var(--danger)}
+.result-value.warning{color:var(--warning)}
+.result-value.green{color:var(--green)}
+/* breakdown table */
+.breakdown-table{width:100%;border-collapse:collapse;font-size:13px}
+.breakdown-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:1px solid var(--border)}
+.breakdown-table td{padding:10px 8px;border-bottom:1px solid var(--border)}
+.breakdown-table tr:last-child td{border-bottom:none;font-weight:700}
+.breakdown-table .amount{text-align:right;font-variant-numeric:tabular-nums}
+/* quarterly */
+.qtr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:480px){.qtr-grid{grid-template-columns:1fr 1fr}}
+.qtr-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.qtr-label{font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.qtr-value{font-size:16px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.qtr-date{font-size:10px;color:var(--muted);margin-top:2px}
+.disclaimer{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:8px;padding:12px 14px;font-size:12px;color:#ccc;margin-top:0}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="https://zerokitapp.github.io" class="nav-logo">Zero<span>Kit</span></a>
+  <span class="nav-tag">Tool 14 / 50</span>
+</nav>
+<div class="hero">
+  <div class="hero-eyebrow">Freelance Tools · Tool 14</div>
+  <h1>Know your tax bill<br><em>before it arrives.</em></h1>
+  <p>Estimate your annual and quarterly tax liability as a freelancer. Set aside the right amount every month so you're never caught short.</p>
+</div>
+<div class="main">
+  <div class="section">
+    <div class="section-title">Income</div>
+    <div class="grid2">
+      <div class="field"><label>Annual Gross Revenue</label><input type="number" id="revenue" placeholder="0" min="0" oninput="calc()"/></div>
+      <div class="field"><label>Currency</label>
+        <select id="currency" onchange="calc()">
+          <option value="$" data-symbol="$">$ USD</option>
+          <option value="€">€ EUR</option>
+          <option value="£">£ GBP</option>
+          <option value="$c">$ CAD</option>
+          <option value="$a">$ AUD</option>
+        </select>
+      </div>
+      <div class="field"><label>Business Expenses (deductible)</label><input type="number" id="expenses" placeholder="0" min="0" oninput="calc()"/></div>
+      <div class="field"><label>Other Income (employment etc.)</label><input type="number" id="otherIncome" placeholder="0" min="0" oninput="calc()"/></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Tax Profile</div>
+    <div class="grid2">
+      <div class="field"><label>Country / System</label>
+        <select id="country" onchange="populateRates()">
+          <option value="us">🇺🇸 United States</option>
+          <option value="uk">🇬🇧 United Kingdom</option>
+          <option value="de">🇩🇪 Germany</option>
+          <option value="au">🇦🇺 Australia</option>
+          <option value="ca">🇨🇦 Canada</option>
+          <option value="fr">🇫🇷 France</option>
+          <option value="custom">Custom rates</option>
+        </select>
+      </div>
+      <div class="field"><label>Filing Status</label>
+        <select id="filingStatus" onchange="calc()">
+          <option value="single">Single / Individual</option>
+          <option value="married">Married / Joint</option>
+        </select>
+      </div>
+      <div class="field"><label>Income Tax Rate (%)</label><input type="number" id="incomeTaxRate" placeholder="25" min="0" max="80" step="0.5" oninput="calc()"/></div>
+      <div class="field"><label>Self-Employment / NI Rate (%)</label><input type="number" id="seRate" placeholder="15.3" min="0" max="40" step="0.5" oninput="calc()"/></div>
+    </div>
+    <div class="field"><label>Personal Allowance / Standard Deduction</label><input type="number" id="allowance" placeholder="0" min="0" oninput="calc()"/></div>
+  </div>
+
+  <!-- Results -->
+  <div class="section">
+    <div class="section-title">Tax Estimate</div>
+    <div class="results-grid">
+      <div class="result-card"><div class="result-label">Net Profit (taxable)</div><div class="result-value accent" id="rProfit">$0</div></div>
+      <div class="result-card"><div class="result-label">Income Tax</div><div class="result-value warning" id="rIncomeTax">$0</div></div>
+      <div class="result-card"><div class="result-label">SE / NI Tax</div><div class="result-value warning" id="rSETax">$0</div></div>
+      <div class="result-card"><div class="result-label">Total Tax</div><div class="result-value danger" id="rTotal">$0</div></div>
+      <div class="result-card"><div class="result-label">Effective Rate</div><div class="result-value" id="rEffective">0%</div></div>
+      <div class="result-card"><div class="result-label">Take-home</div><div class="result-value green" id="rTakeHome">$0</div></div>
+    </div>
+
+    <div style="margin-bottom:16px">
+      <div class="section-title" style="margin-bottom:12px">Breakdown</div>
+      <table class="breakdown-table">
+        <thead><tr><th>Item</th><th class="amount">Amount</th></tr></thead>
+        <tbody id="breakdownBody"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title" style="margin-bottom:12px">Set Aside Monthly</div>
+    <div style="background:rgba(200,241,53,.06);border:1px solid rgba(200,241,53,.18);border-radius:8px;padding:16px;text-align:center">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Save this every month</div>
+      <div style="font-size:40px;font-weight:900;color:var(--accent);letter-spacing:-.03em;font-variant-numeric:tabular-nums" id="rMonthly">$0</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">to cover your annual tax bill</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Quarterly Payment Schedule</div>
+    <div class="qtr-grid" id="qtrGrid"></div>
+  </div>
+
+  <div class="disclaimer">⚠️ This is an estimate only. Tax laws vary and change frequently. Consult a qualified tax professional for advice specific to your situation.</div>
+</div>
+<footer><a href="https://zerokitapp.github.io">ZeroKit</a> · Free Business Tools · No signup · No limits</footer>
+
+<script>
+const PRESETS = {
+  us:{income:22,se:15.3,allowance:13850},
+  uk:{income:20,se:9,allowance:12570},
+  de:{income:25,se:18.6,allowance:10908},
+  au:{income:32.5,se:0,allowance:18200},
+  ca:{income:26,se:11.4,allowance:15000},
+  fr:{income:30,se:22,allowance:10777},
+  custom:{income:25,se:15,allowance:0}
+};
+const QTR_LABELS=['Q1','Q2','Q3','Q4'];
+const QTR_DATES=['Apr 15','Jun 15','Sep 15','Jan 15'];
+
+function populateRates(){
+  const p=PRESETS[document.getElementById('country').value];
+  document.getElementById('incomeTaxRate').value=p.income;
+  document.getElementById('seRate').value=p.se;
+  document.getElementById('allowance').value=p.allowance;
+  calc();
+}
+
+function cur(){
+  const sel=document.getElementById('currency');
+  const v=sel.options[sel.selectedIndex].value;
+  if(v==='$c'||v==='$a') return '$';
+  return v;
+}
+function fmt(n){return cur()+(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}
+
+function calc(){
+  const rev=parseFloat(document.getElementById('revenue').value)||0;
+  const exp=parseFloat(document.getElementById('expenses').value)||0;
+  const other=parseFloat(document.getElementById('otherIncome').value)||0;
+  const itRate=(parseFloat(document.getElementById('incomeTaxRate').value)||0)/100;
+  const seRate=(parseFloat(document.getElementById('seRate').value)||0)/100;
+  const allowance=parseFloat(document.getElementById('allowance').value)||0;
+
+  const netProfit = Math.max(0, rev - exp);
+  const totalIncome = netProfit + other;
+  const taxableIncome = Math.max(0, totalIncome - allowance);
+  const seTax = netProfit * seRate;
+  const incomeTax = taxableIncome * itRate;
+  const totalTax = incomeTax + seTax;
+  const effective = totalIncome > 0 ? totalTax/totalIncome*100 : 0;
+  const takeHome = totalIncome - totalTax;
+  const monthly = totalTax / 12;
+  const qtrly = totalTax / 4;
+
+  document.getElementById('rProfit').textContent=fmt(netProfit);
+  document.getElementById('rIncomeTax').textContent=fmt(incomeTax);
+  document.getElementById('rSETax').textContent=fmt(seTax);
+  document.getElementById('rTotal').textContent=fmt(totalTax);
+  document.getElementById('rEffective').textContent=effective.toFixed(1)+'%';
+  document.getElementById('rTakeHome').textContent=fmt(takeHome);
+  document.getElementById('rMonthly').textContent=fmt(monthly);
+
+  document.getElementById('breakdownBody').innerHTML=`
+    <tr><td>Gross Revenue</td><td class="amount">${fmt(rev)}</td></tr>
+    <tr><td>Business Expenses</td><td class="amount">− ${fmt(exp)}</td></tr>
+    <tr><td>Net Profit</td><td class="amount">${fmt(netProfit)}</td></tr>
+    <tr><td>Other Income</td><td class="amount">+ ${fmt(other)}</td></tr>
+    <tr><td>Personal Allowance</td><td class="amount">− ${fmt(allowance)}</td></tr>
+    <tr><td>Taxable Income</td><td class="amount">${fmt(taxableIncome)}</td></tr>
+    <tr><td>Income Tax</td><td class="amount">− ${fmt(incomeTax)}</td></tr>
+    <tr><td>SE / NI Tax</td><td class="amount">− ${fmt(seTax)}</td></tr>
+    <tr><td><strong>Take-home</strong></td><td class="amount"><strong>${fmt(takeHome)}</strong></td></tr>
+  `;
+
+  document.getElementById('qtrGrid').innerHTML=QTR_LABELS.map((q,i)=>`
+    <div class="qtr-card">
+      <div class="qtr-label">${q}</div>
+      <div class="qtr-value">${fmt(qtrly)}</div>
+      <div class="qtr-date">Due ~${QTR_DATES[i]}</div>
+    </div>
+  `).join('');
+}
+
+populateRates();
+</script>
+</body>
+</html>
