@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Client Portal Checklist — ZeroKit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;--border2:#333;--text:#f0f0f0;--muted:#888;--accent:#c8f135;--accent-dk:#a8cc1a;--danger:#ff5c5c;--warning:#f5a623;--green:#4caf7d;--radius:10px;--font:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,15,.92);backdrop-filter:blur(8px);z-index:100}
+.nav-logo{font-weight:700;font-size:15px;color:var(--text);text-decoration:none;letter-spacing:-.3px}
+.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px}
+.hero{max-width:720px;margin:0 auto;padding:56px 24px 32px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:15px;max-width:520px}
+.main{max-width:720px;margin:0 auto;padding:0 24px 80px}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus{border-color:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.grid2{grid-template-columns:1fr}}
+/* tabs for portal type */
+.portal-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.portal-tab{padding:7px 16px;border-radius:20px;border:1px solid var(--border2);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--muted);background:transparent;transition:.15s}
+.portal-tab.active{background:var(--accent);color:#0f0f0f;border-color:var(--accent)}
+/* progress */
+.progress-wrap{margin-bottom:20px}
+.progress-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
+.progress-bar-bg{background:var(--surface2);border-radius:4px;height:10px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:4px;background:var(--accent);transition:width .4s}
+/* score badge */
+.score-wrap{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.score-card{flex:1;min-width:120px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center}
+.score-card-val{font-size:28px;font-weight:900;letter-spacing:-.02em}
+.score-card-label{font-size:11px;color:var(--muted);margin-top:2px}
+/* category blocks */
+.cat-block{margin-bottom:24px}
+.cat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.cat-name{font-size:13px;font-weight:700}
+.cat-progress{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.cat-bar-bg{width:60px;height:4px;background:var(--border2);border-radius:2px;display:inline-block}
+.cat-bar-fill{height:100%;border-radius:2px;background:var(--accent);display:block;transition:width .3s}
+/* check items */
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border-radius:8px;cursor:pointer;border:1px solid transparent;margin-bottom:4px;transition:background .12s}
+.check-item:hover{background:var(--surface2)}
+.check-item.done{opacity:.55}
+.check-item.done .check-label{text-decoration:line-through;color:var(--muted)}
+.custom-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s}
+.check-item.done .custom-check{background:var(--accent);border-color:var(--accent)}
+.check-label{font-size:13px;flex:1}
+.check-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.priority-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:7px}
+.priority-high{background:var(--danger)}
+.priority-med{background:var(--warning)}
+.priority-low{background:var(--green)}
+/* add custom */
+.add-item-row{display:flex;gap:8px;margin-top:8px}
+.add-item-row input{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:8px 12px;outline:none;flex:1;transition:border-color .15s}
+.add-item-row input:focus{border-color:var(--accent)}
+.add-item-row button{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--muted);font-size:18px;width:36px;cursor:pointer;transition:.15s}
+.add-item-row button:hover{color:var(--accent);border-color:var(--accent)}
+/* actions */
+.action-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.btn{padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;font-family:var(--font)}
+.btn-primary{background:var(--accent);color:#0f0f0f}
+.btn-primary:hover{background:var(--accent-dk)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
+/* insight */
+.insight{background:rgba(200,241,53,.06);border:1px solid rgba(200,241,53,.18);border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.6;margin-top:4px}
+.insight strong{color:var(--accent)}
+@media print{nav,footer,.action-row,.portal-tabs,.add-item-row{display:none}body{background:#fff;color:#000}.section{border:1px solid #ddd;background:#fff}.check-item{border:none}}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="https://zerokitapp.github.io" class="nav-logo">Zero<span>Kit</span></a>
+  <span class="nav-tag">Tool 19 / 50</span>
+</nav>
+<div class="hero">
+  <div class="hero-eyebrow">Freelance Tools · Tool 19</div>
+  <h1>Set up your client portal<br><em>the right way.</em></h1>
+  <p>A comprehensive checklist to ensure your client-facing workspace — whether Notion, Google Drive, or any other tool — is properly set up before you share it.</p>
+</div>
+
+<div class="main">
+  <!-- Project Info -->
+  <div class="section">
+    <div class="section-title">Project Info</div>
+    <div class="grid2">
+      <div class="field"><label>Client Name</label><input type="text" id="clientName" placeholder="e.g. Acme Corp." oninput="saveProj()"/></div>
+      <div class="field"><label>Project Name</label><input type="text" id="projectName" placeholder="e.g. Website Redesign" oninput="saveProj()"/></div>
+    </div>
+  </div>
+
+  <!-- Portal Type -->
+  <div class="section">
+    <div class="section-title">Portal Type</div>
+    <div class="portal-tabs" id="portalTabs">
+      <button class="portal-tab active" onclick="setPortal('notion')">Notion</button>
+      <button class="portal-tab" onclick="setPortal('gdrive')">Google Drive</button>
+      <button class="portal-tab" onclick="setPortal('clickup')">ClickUp / Asana</button>
+      <button class="portal-tab" onclick="setPortal('generic')">Generic / Any</button>
+    </div>
+    <div id="portalHint" style="font-size:12px;color:var(--muted)"></div>
+  </div>
+
+  <!-- Score -->
+  <div class="score-wrap">
+    <div class="score-card"><div class="score-card-val accent" id="scorePct" style="color:var(--accent)">0%</div><div class="score-card-label">Complete</div></div>
+    <div class="score-card"><div class="score-card-val" id="scoreDone" style="color:var(--green)">0</div><div class="score-card-label">Done</div></div>
+    <div class="score-card"><div class="score-card-val" id="scoreLeft" style="color:var(--warning)">0</div><div class="score-card-label">Remaining</div></div>
+    <div class="score-card"><div class="score-card-val" id="scoreHigh" style="color:var(--danger)">0</div><div class="score-card-label">High Priority Left</div></div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="section" style="padding:18px 24px">
+    <div class="progress-top"><span>Overall Progress</span><span id="progressLabel">0 of 0</span></div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+  </div>
+
+  <!-- Checklist -->
+  <div class="section">
+    <div class="section-title">Checklist</div>
+    <div id="checklistContainer"></div>
+  </div>
+
+  <!-- Insight -->
+  <div class="insight" id="insightBox">Fill in your project details and start checking off items to see personalised tips.</div>
+
+  <!-- Actions -->
+  <div class="action-row">
+    <button class="btn btn-secondary" onclick="resetAll()">↺ Reset</button>
+    <button class="btn btn-primary" onclick="window.print()">⎙ Print Checklist</button>
+  </div>
+</div>
+
+<footer><a href="https://zerokitapp.github.io">ZeroKit</a> · Free Business Tools · No signup · No limits</footer>
+
+<script>
+// ── DATA ──
+const PORTAL_HINTS = {
+  notion: 'Tips: Use a template page, toggle blocks for sections, and set sharing to "Can view" for clients.',
+  gdrive: 'Tips: Use a shared folder structure, set permissions per folder, and use Google Docs for live docs.',
+  clickup: 'Tips: Create a dedicated Space or Project, invite client as Guest, restrict access to relevant lists only.',
+  generic: 'Tips applicable to any client-facing workspace or shared folder setup.'
+};
+
+const CATS = [
+  {
+    id: 'structure',
+    name: '📁 Structure & Organisation',
+    items: [
+      { id: 's1', label: 'Top-level folder / workspace named clearly', sub: 'Use client name + project name', priority: 'high' },
+      { id: 's2', label: 'Logical folder structure created', sub: 'e.g. /Briefs, /Deliverables, /Feedback, /Assets', priority: 'high' },
+      { id: 's3', label: 'Archive or completed folder set up', sub: 'For old versions and completed tasks', priority: 'low' },
+      { id: 's4', label: 'Naming conventions documented', sub: 'So client uploads files correctly too', priority: 'med' },
+      { id: 's5', label: 'Version control method decided', sub: 'v1, v2 suffixes or date-based', priority: 'med' },
+    ]
+  },
+  {
+    id: 'access',
+    name: '🔐 Access & Permissions',
+    items: [
+      { id: 'a1', label: 'Client invited with correct email address', sub: 'Double-check spelling before sending', priority: 'high' },
+      { id: 'a2', label: 'Permissions set to view-only for sensitive areas', sub: 'Prevent accidental deletions or edits', priority: 'high' },
+      { id: 'a3', label: 'Edit access granted only where needed', sub: 'e.g. feedback doc, content input sheet', priority: 'high' },
+      { id: 'a4', label: 'Test access from a different account', sub: 'Confirm client sees what you intended', priority: 'high' },
+      { id: 'a5', label: 'Link sharing settings reviewed', sub: 'Public link vs. invite-only', priority: 'med' },
+      { id: 'a6', label: 'Notification settings configured', sub: 'So client isn\'t spammed with every update', priority: 'low' },
+    ]
+  },
+  {
+    id: 'content',
+    name: '📄 Content & Documentation',
+    items: [
+      { id: 'c1', label: 'Project brief uploaded', sub: 'The agreed scope and objectives', priority: 'high' },
+      { id: 'c2', label: 'Timeline / milestone doc shared', sub: 'Key dates and delivery schedule', priority: 'high' },
+      { id: 'c3', label: 'Contact & communication guide added', sub: 'How to reach you, response times', priority: 'med' },
+      { id: 'c4', label: 'Revision process explained', sub: 'How many rounds, how to submit feedback', priority: 'high' },
+      { id: 'c5', label: 'Placeholder / example files added', sub: 'Show client where to upload their assets', priority: 'med' },
+      { id: 'c6', label: 'FAQ or "how to use this portal" doc included', sub: 'Reduces back-and-forth questions', priority: 'med' },
+    ]
+  },
+  {
+    id: 'comms',
+    name: '💬 Communication & Feedback',
+    items: [
+      { id: 'm1', label: 'Feedback template or form created', sub: 'Structured feedback = fewer revision rounds', priority: 'high' },
+      { id: 'm2', label: 'Approval sign-off process defined', sub: 'How does the client approve a deliverable?', priority: 'high' },
+      { id: 'm3', label: 'Comment / annotation method agreed', sub: 'In-doc comments, email, Loom, etc.', priority: 'med' },
+      { id: 'm4', label: 'Meeting notes section created', sub: 'Running log of decisions made', priority: 'med' },
+      { id: 'm5', label: 'Action item tracker set up', sub: 'Who owns what and by when', priority: 'med' },
+    ]
+  },
+  {
+    id: 'branding',
+    name: '✨ Professionalism & Branding',
+    items: [
+      { id: 'b1', label: 'Portal has a professional, consistent look', sub: 'Matches your brand where possible', priority: 'med' },
+      { id: 'b2', label: 'Welcome message or intro written', sub: 'Makes the client feel oriented', priority: 'high' },
+      { id: 'b3', label: 'Your logo or branding applied', sub: 'Even a small touch builds trust', priority: 'low' },
+      { id: 'b4', label: 'Empty / placeholder pages removed or hidden', sub: 'Tidy portals = confident impression', priority: 'med' },
+      { id: 'b5', label: 'Mobile view tested', sub: 'Many clients check on their phone first', priority: 'med' },
+    ]
+  },
+  {
+    id: 'handoff',
+    name: '🚀 Pre-Share Checklist',
+    items: [
+      { id: 'h1', label: 'Full portal reviewed top-to-bottom', sub: 'Fresh eyes before sharing', priority: 'high' },
+      { id: 'h2', label: 'All links tested and working', sub: 'Broken links = bad first impression', priority: 'high' },
+      { id: 'h3', label: 'Placeholder text replaced with real content', sub: 'No [TBD] or Lorem Ipsum visible to client', priority: 'high' },
+      { id: 'h4', label: 'Welcome email drafted with portal link', sub: 'Brief walkthrough of where things are', priority: 'high' },
+      { id: 'h5', label: 'Kickoff call or walkthrough scheduled', sub: 'Walk the client through it live if possible', priority: 'med' },
+    ]
+  }
+];
+
+let portalType = 'notion';
+let state = JSON.parse(localStorage.getItem('zk_portal_state') || '{}');
+// state = { checked: {}, custom: { catId: [{id, label}] } }
+if (!state.checked) state.checked = {};
+if (!state.custom) state.custom = {};
+
+function saveState() {
+  localStorage.setItem('zk_portal_state', JSON.stringify(state));
+}
+function saveProj() {
+  localStorage.setItem('zk_portal_proj', JSON.stringify({
+    client: document.getElementById('clientName').value,
+    project: document.getElementById('projectName').value
+  }));
+}
+
+function setPortal(type) {
+  portalType = type;
+  document.querySelectorAll('.portal-tab').forEach((btn, i) => {
+    btn.classList.toggle('active', ['notion','gdrive','clickup','generic'][i] === type);
+  });
+  document.getElementById('portalHint').textContent = PORTAL_HINTS[type];
+  render();
+}
+
+function toggle(itemId) {
+  state.checked[itemId] = !state.checked[itemId];
+  saveState();
+  render();
+}
+
+function addCustom(catId) {
+  const inp = document.getElementById('ci_' + catId);
+  const val = inp.value.trim();
+  if (!val) return;
+  if (!state.custom[catId]) state.custom[catId] = [];
+  state.custom[catId].push({ id: 'cx_' + Date.now(), label: val });
+  inp.value = '';
+  saveState();
+  render();
+}
+
+function removeCustom(catId, itemId) {
+  state.custom[catId] = (state.custom[catId] || []).filter(i => i.id !== itemId);
+  saveState();
+  render();
+}
+
+function checkmark(checked) {
+  if (!checked) return '';
+  return `<svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 3.5,6.5 9,1" fill="none" stroke="#0f0f0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+function render() {
+  let totalItems = 0, totalDone = 0, highLeft = 0;
+  const container = document.getElementById('checklistContainer');
+
+  container.innerHTML = CATS.map(cat => {
+    const customItems = (state.custom[cat.id] || []).map(i => ({ ...i, priority: 'low', sub: '' }));
+    const allItems = [...cat.items, ...customItems];
+    const done = allItems.filter(i => state.checked[i.id]).length;
+    totalItems += allItems.length;
+    totalDone += done;
+    allItems.forEach(i => { if (!state.checked[i.id] && i.priority === 'high') highLeft++; });
+    const catPct = allItems.length > 0 ? Math.round(done / allItems.length * 100) : 0;
+
+    return `<div class="cat-block">
+      <div class="cat-header">
+        <span class="cat-name">${cat.name}</span>
+        <span class="cat-progress">
+          ${done}/${allItems.length}
+          <span class="cat-bar-bg"><span class="cat-bar-fill" style="width:${catPct}%"></span></span>
+        </span>
+      </div>
+      ${allItems.map(item => `
+        <div class="check-item ${state.checked[item.id] ? 'done' : ''}" onclick="toggle('${item.id}')">
+          <div class="priority-dot priority-${item.priority}"></div>
+          <div class="custom-check">${checkmark(state.checked[item.id])}</div>
+          <div style="flex:1">
+            <div class="check-label">${escHtml(item.label)}</div>
+            ${item.sub ? `<div class="check-sub">${escHtml(item.sub)}</div>` : ''}
+            ${customItems.some(c => c.id === item.id) ? `<button onclick="event.stopPropagation();removeCustom('${cat.id}','${item.id}')" style="background:none;border:none;color:var(--danger);font-size:11px;cursor:pointer;margin-top:2px;padding:0">Remove</button>` : ''}
+          </div>
+        </div>
+      `).join('')}
+      <div class="add-item-row">
+        <input type="text" id="ci_${cat.id}" placeholder="Add custom item…" onkeydown="if(event.key==='Enter')addCustom('${cat.id}')"/>
+        <button onclick="addCustom('${cat.id}')">+</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  // stats
+  const pct = totalItems > 0 ? Math.round(totalDone / totalItems * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('scoreDone').textContent = totalDone;
+  document.getElementById('scoreLeft').textContent = totalItems - totalDone;
+  document.getElementById('scoreHigh').textContent = highLeft;
+  document.getElementById('progressLabel').textContent = `${totalDone} of ${totalItems}`;
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  // insight
+  const client = document.getElementById('clientName').value || 'your client';
+  let insight = '';
+  if (pct === 100) {
+    insight = `🎉 <strong>Portal is ready!</strong> Everything is checked off for ${escHtml(client)}. Time to send that welcome email.`;
+  } else if (highLeft > 0) {
+    insight = `⚠️ You have <strong>${highLeft} high-priority item${highLeft > 1 ? 's' : ''}</strong> left. Complete those before sharing the portal with ${escHtml(client)}.`;
+  } else if (pct >= 75) {
+    insight = `Almost there! You're <strong>${pct}% complete</strong>. A few finishing touches and the portal will be ready to share.`;
+  } else if (pct >= 40) {
+    insight = `Good progress — <strong>${pct}% done</strong>. Focus on the Access & Permissions and Pre-Share sections next.`;
+  } else {
+    insight = `Start with the <strong>Structure</strong> and <strong>Access</strong> sections — getting those right first saves headaches later.`;
+  }
+  document.getElementById('insightBox').innerHTML = insight;
+
+  // priority legend
+  if (!document.getElementById('priorityLegend')) {
+    const legend = document.createElement('div');
+    legend.id = 'priorityLegend';
+    legend.style.cssText = 'display:flex;gap:16px;font-size:11px;color:var(--muted);margin-bottom:16px;flex-wrap:wrap';
+    legend.innerHTML = `
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--danger);margin-right:5px"></span>High priority</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warning);margin-right:5px"></span>Medium</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:5px"></span>Low</span>
+    `;
+    container.insertBefore(legend, container.firstChild);
+  }
+}
+
+function resetAll() {
+  if (!confirm('Reset all checkboxes?')) return;
+  state.checked = {};
+  saveState();
+  render();
+}
+
+function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+// restore
+const proj = JSON.parse(localStorage.getItem('zk_portal_proj') || '{}');
+if (proj.client) document.getElementById('clientName').value = proj.client;
+if (proj.project) document.getElementById('projectName').value = proj.project;
+document.getElementById('portalHint').textContent = PORTAL_HINTS[portalType];
+render();
+</script>
+</body>
+</html>
