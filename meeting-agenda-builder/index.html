@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Meeting Agenda Builder — ZeroKit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;--border2:#333;--text:#f0f0f0;--muted:#888;--accent:#c8f135;--accent-dk:#a8cc1a;--danger:#ff5c5c;--radius:10px;--font:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,15,.92);backdrop-filter:blur(8px);z-index:100}
+.nav-logo{font-weight:700;font-size:15px;color:var(--text);text-decoration:none}
+.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px}
+.hero{max-width:900px;margin:0 auto;padding:56px 24px 32px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:15px;max-width:520px}
+.layout{max-width:900px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start}
+@media(max-width:720px){.layout{grid-template-columns:1fr}}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{padding:9px 18px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;font-family:var(--font)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#0f0f0f}
+.btn-primary:hover{background:var(--accent-dk)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
+/* agenda items */
+.agenda-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:grid;grid-template-columns:auto 1fr auto auto auto;gap:8px;align-items:center}
+.item-num{font-size:11px;font-weight:700;color:var(--muted);min-width:20px}
+.item-inputs{display:flex;gap:8px;flex:1}
+.item-inputs input{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font);font-size:13px;padding:7px 10px;outline:none}
+.item-inputs input:focus{border-color:var(--accent)}
+.item-topic{flex:1}
+.item-mins{width:70px}
+.item-owner{width:110px}
+.drag-handle{color:var(--muted);cursor:grab;font-size:16px;padding:0 4px;user-select:none}
+.remove-btn{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px 6px;border-radius:4px}
+.remove-btn:hover{color:var(--danger)}
+.add-item-btn{background:transparent;border:1px dashed var(--border2);border-radius:8px;color:var(--muted);font-size:13px;font-family:var(--font);padding:9px;width:100%;cursor:pointer;transition:.15s;margin-top:4px}
+.add-item-btn:hover{color:var(--accent);border-color:var(--accent)}
+/* time counter */
+.time-pill{background:rgba(200,241,53,.1);border:1px solid rgba(200,241,53,.25);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;color:var(--accent);display:inline-block;margin-bottom:16px}
+/* preview */
+.preview-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;position:sticky;top:80px}
+.agenda-doc{background:#fff;color:#111;border-radius:6px;padding:28px;font-family:Georgia,serif;font-size:13px;line-height:1.7;max-height:75vh;overflow-y:auto}
+.agenda-doc h2{font-size:16px;font-weight:700;margin-bottom:4px}
+.agenda-doc .meta{font-size:12px;color:#555;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #ddd}
+.agenda-doc table{width:100%;border-collapse:collapse}
+.agenda-doc th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#777;padding:8px;border-bottom:2px solid #ddd}
+.agenda-doc td{padding:10px 8px;border-bottom:1px solid #eee;vertical-align:top}
+.agenda-doc tr:last-child td{border-bottom:none}
+.agenda-doc .time-col{white-space:nowrap;font-size:12px;color:#555;font-family:monospace}
+.agenda-doc .notes-row td{font-size:12px;color:#555;padding:4px 8px 10px;font-style:italic}
+.action-row{display:flex;gap:8px;margin-top:14px}
+.action-row button{flex:1;padding:10px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)}
+@media print{nav,footer,.layout>div:first-child,.action-row{display:none}.agenda-doc{max-height:none;overflow:visible;padding:0}body{background:#fff}}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="https://zerokitapp.github.io" class="nav-logo">Zero<span>Kit</span></a>
+  <span class="nav-tag">Tool 17 / 50</span>
+</nav>
+<div class="hero">
+  <div class="hero-eyebrow">Freelance Tools · Tool 17</div>
+  <h1>Meetings that<br><em>stay on track.</em></h1>
+  <p>Build a timed agenda with owners for each item. Share it before the meeting, print it, or send it as plain text.</p>
+</div>
+<div class="layout">
+  <div>
+    <div class="section">
+      <div class="section-title">Meeting Details</div>
+      <div class="field"><label>Meeting Title</label><input type="text" id="title" placeholder="e.g. Project Kickoff" oninput="render()"/></div>
+      <div class="grid2">
+        <div class="field"><label>Date</label><input type="date" id="meetDate" oninput="render()"/></div>
+        <div class="field"><label>Start Time</label><input type="time" id="startTime" oninput="render()"/></div>
+      </div>
+      <div class="field"><label>Location / Link</label><input type="text" id="location" placeholder="Zoom link, room, or address" oninput="render()"/></div>
+      <div class="field"><label>Attendees</label><input type="text" id="attendees" placeholder="Jane, Alex, Sam…" oninput="render()"/></div>
+      <div class="field"><label>Objective</label><input type="text" id="objective" placeholder="e.g. Align on Q3 roadmap and assign owners" oninput="render()"/></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Agenda Items</div>
+      <div class="time-pill" id="totalTime">Total: 0 min</div>
+      <div id="agendaList"></div>
+      <button class="add-item-btn" onclick="addItem()">+ Add Agenda Item</button>
+    </div>
+  </div>
+
+  <div class="preview-card">
+    <div class="section-title" style="margin-bottom:16px">Preview</div>
+    <div class="agenda-doc" id="agendaDoc"></div>
+    <div class="action-row">
+      <button class="btn-secondary" onclick="copyText()">⎘ Copy Plain Text</button>
+      <button class="btn-primary" onclick="window.print()">⎙ Print / PDF</button>
+    </div>
+  </div>
+</div>
+<footer><a href="https://zerokitapp.github.io">ZeroKit</a> · Free Business Tools · No signup · No limits</footer>
+<script>
+let items = [
+  {id:1,topic:'Welcome & introductions',mins:5,owner:'Host',notes:''},
+  {id:2,topic:'Review previous action items',mins:10,owner:'Host',notes:''},
+  {id:3,topic:'Main discussion',mins:20,owner:'',notes:''},
+  {id:4,topic:'Next steps & action items',mins:10,owner:'',notes:''},
+  {id:5,topic:'AOB / close',mins:5,owner:'',notes:''},
+];
+
+document.getElementById('meetDate').value=new Date().toISOString().split('T')[0];
+document.getElementById('startTime').value='10:00';
+
+function addItem(){
+  items.push({id:Date.now(),topic:'',mins:10,owner:'',notes:''});
+  renderList(); render();
+}
+function removeItem(id){items=items.filter(i=>i.id!==id); renderList(); render();}
+function updateItem(id,key,val){const i=items.find(x=>x.id===id);if(i){i[key]=key==='mins'?parseInt(val)||0:val;} render();}
+
+function renderList(){
+  document.getElementById('agendaList').innerHTML=items.map((item,idx)=>`
+    <div class="agenda-item" id="item_${item.id}">
+      <span class="drag-handle">⠿</span>
+      <span class="item-num">${idx+1}</span>
+      <div class="item-inputs" style="flex-wrap:wrap">
+        <input class="item-topic" type="text" placeholder="Topic" value="${escHtml(item.topic)}" oninput="updateItem(${item.id},'topic',this.value)"/>
+        <input class="item-owner" type="text" placeholder="Owner" value="${escHtml(item.owner)}" oninput="updateItem(${item.id},'owner',this.value)"/>
+        <input class="item-mins" type="number" min="1" max="120" placeholder="min" value="${item.mins}" oninput="updateItem(${item.id},'mins',this.value)" style="width:65px"/>
+      </div>
+      <button class="remove-btn" onclick="removeItem(${item.id})">✕</button>
+    </div>
+  `).join('');
+}
+
+function addMinutes(timeStr,mins){
+  if(!timeStr)return'';
+  const [h,m]=timeStr.split(':').map(Number);
+  const total=h*60+m+mins;
+  return String(Math.floor(total/60)%24).padStart(2,'0')+':'+String(total%60).padStart(2,'0');
+}
+
+function render(){
+  const title=document.getElementById('title').value||'Meeting Agenda';
+  const dateVal=document.getElementById('meetDate').value;
+  const dateStr=dateVal?new Date(dateVal).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
+  const start=document.getElementById('startTime').value||'';
+  const loc=document.getElementById('location').value;
+  const att=document.getElementById('attendees').value;
+  const obj=document.getElementById('objective').value;
+  const total=items.reduce((s,i)=>s+i.mins,0);
+  document.getElementById('totalTime').textContent=`Total: ${total} min`;
+
+  let currentTime=start;
+  let tableRows=items.map((item,idx)=>{
+    const from=currentTime;
+    const to=addMinutes(from,item.mins);
+    const timeLabel=from&&to?`${from}–${to}`:`${item.mins} min`;
+    currentTime=to;
+    return`<tr>
+      <td class="time-col">${timeLabel}</td>
+      <td><strong>${idx+1}. ${escHtml(item.topic||'—')}</strong></td>
+      <td style="color:#555;font-size:12px">${escHtml(item.owner||'')}</td>
+      <td style="text-align:right;font-size:12px;color:#777">${item.mins} min</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('agendaDoc').innerHTML=`
+    <h2>${escHtml(title)}</h2>
+    <div class="meta">
+      ${dateStr?`📅 ${dateStr}${start?' · '+start:''}`:''}<br/>
+      ${loc?`📍 ${escHtml(loc)}<br/>`:''}
+      ${att?`👥 ${escHtml(att)}<br/>`:''}
+      ${obj?`🎯 ${escHtml(obj)}<br/>`:''}
+      ⏱ Total: ${total} minutes
+    </div>
+    <table>
+      <thead><tr><th>Time</th><th>Topic</th><th>Owner</th><th style="text-align:right">Duration</th></tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    <p style="margin-top:24px;font-size:11px;color:#999;text-align:center">Generated with ZeroKit · zerokitapp.github.io</p>
+  `;
+}
+
+function copyText(){
+  const title=document.getElementById('title').value||'Meeting Agenda';
+  const dateVal=document.getElementById('meetDate').value;
+  const dateStr=dateVal?new Date(dateVal).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
+  const start=document.getElementById('startTime').value||'';
+  const loc=document.getElementById('location').value;
+  const att=document.getElementById('attendees').value;
+  const obj=document.getElementById('objective').value;
+  let text=`${title}\n${'='.repeat(title.length)}\n`;
+  if(dateStr) text+=`Date: ${dateStr}${start?' at '+start:''}\n`;
+  if(loc) text+=`Location: ${loc}\n`;
+  if(att) text+=`Attendees: ${att}\n`;
+  if(obj) text+=`Objective: ${obj}\n`;
+  text+='\nAGENDA\n------\n';
+  let cur=start;
+  items.forEach((item,i)=>{
+    const to=addMinutes(cur,item.mins);
+    const timeStr=cur&&to?`[${cur}–${to}] `:'';
+    text+=`${i+1}. ${timeStr}${item.topic||'—'}${item.owner?' ('+item.owner+')':''} — ${item.mins} min\n`;
+    cur=to;
+  });
+  text+=`\nTotal: ${items.reduce((s,i)=>s+i.mins,0)} minutes\n\nGenerated with ZeroKit · zerokitapp.github.io`;
+  navigator.clipboard.writeText(text).then(()=>alert('Agenda copied to clipboard!'));
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+renderList(); render();
+</script>
+</body>
+</html>
