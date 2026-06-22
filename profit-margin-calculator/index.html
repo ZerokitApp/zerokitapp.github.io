@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Profit Margin Calculator — ZeroKit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;--border2:#333;--text:#f0f0f0;--muted:#888;--accent:#c8f135;--accent-dk:#a8cc1a;--danger:#ff5c5c;--warning:#f5a623;--green:#4caf7d;--radius:10px;--font:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,15,.92);backdrop-filter:blur(8px);z-index:100}
+.nav-logo{font-weight:700;font-size:15px;color:var(--text);text-decoration:none}.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px}
+.hero{max-width:720px;margin:0 auto;padding:56px 24px 32px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:15px;max-width:520px}
+.main{max-width:720px;margin:0 auto;padding:0 24px 80px}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.input-wrap{position:relative;display:flex;align-items:center}
+.input-prefix{background:var(--border);border:1px solid var(--border2);border-right:none;border-radius:7px 0 0 7px;padding:9px 10px;font-size:12px;color:var(--muted);white-space:nowrap}
+.input-wrap input{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.input-wrap.has-prefix input{border-radius:0 7px 7px 0}
+.input-wrap input:focus{border-color:var(--accent)}
+.field select{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;width:100%}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:560px){.grid3{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+/* tabs */
+.mode-tabs{display:flex;gap:4px;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:20px}
+.mode-tab{flex:1;padding:8px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--muted);background:transparent;transition:.15s}
+.mode-tab.active{background:var(--surface);color:var(--text);border:1px solid var(--border2)}
+/* gauge */
+.gauge-wrap{text-align:center;padding:24px 0 8px}
+.gauge-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.gauge-value{font-size:56px;font-weight:900;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.gauge-bar-bg{background:var(--surface2);border-radius:4px;height:12px;margin:12px 24px 0;overflow:hidden}
+.gauge-bar{height:100%;border-radius:4px;transition:width .4s,background .4s}
+.gauge-hint{font-size:12px;color:var(--muted);margin-top:8px}
+/* result cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:560px){.cards{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.card-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.card-value{font-size:18px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.card-value.accent{color:var(--accent)}.card-value.green{color:var(--green)}.card-value.warning{color:var(--warning)}.card-value.danger{color:var(--danger)}
+/* margin scale */
+.scale{margin-top:16px}
+.scale-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.scale-row:last-child{border-bottom:none}
+.scale-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.scale-label{font-size:12px;flex:1}
+.scale-range{font-size:11px;color:var(--muted)}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav><a href="https://zerokitapp.github.io" class="nav-logo">Zero<span>Kit</span></a><span class="nav-tag">Tool 22 / 50</span></nav>
+<div class="hero">
+  <div class="hero-eyebrow">Business & Finance · Tool 22</div>
+  <h1>Gross, net, operating —<br><em>all your margins, instantly.</em></h1>
+  <p>Calculate all three profit margins, reverse-calculate prices from target margins, and benchmark against industry standards.</p>
+</div>
+<div class="main">
+  <div class="section">
+    <div class="section-title">Mode</div>
+    <div class="mode-tabs">
+      <button class="mode-tab active" onclick="setMode('calc',this)">Calculate Margins</button>
+      <button class="mode-tab" onclick="setMode('reverse',this)">Reverse (target margin)</button>
+    </div>
+
+    <div id="modeCalc">
+      <div class="grid2">
+        <div class="field"><label>Currency</label>
+          <select id="currency" onchange="calc()">
+            <option value="$">$ USD</option><option value="€">€ EUR</option><option value="£">£ GBP</option>
+          </select>
+        </div>
+        <div class="field"><label>Revenue / Sales</label>
+          <div class="input-wrap has-prefix"><span class="input-prefix" id="pfxRev">$</span><input type="number" id="revenue" placeholder="0" min="0" oninput="calc()"/></div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Cost of Goods Sold (COGS)</label>
+          <div class="input-wrap has-prefix"><span class="input-prefix" id="pfxCOGS">$</span><input type="number" id="cogs" placeholder="0" min="0" oninput="calc()"/></div>
+        </div>
+        <div class="field"><label>Operating Expenses</label>
+          <div class="input-wrap has-prefix"><span class="input-prefix" id="pfxOp">$</span><input type="number" id="opex" placeholder="0" min="0" oninput="calc()"/></div>
+        </div>
+      </div>
+      <div class="field"><label>Taxes & Interest (optional)</label>
+        <div class="input-wrap has-prefix"><span class="input-prefix" id="pfxTax">$</span><input type="number" id="taxes" placeholder="0" min="0" oninput="calc()"/></div>
+      </div>
+    </div>
+
+    <div id="modeReverse" style="display:none">
+      <div class="grid2">
+        <div class="field"><label>Cost Price</label>
+          <div class="input-wrap has-prefix"><span class="input-prefix" id="pfxCost">$</span><input type="number" id="costPrice" placeholder="0" min="0" oninput="calcReverse()"/></div>
+        </div>
+        <div class="field"><label>Target Margin %</label>
+          <div class="input-wrap has-prefix"><span class="input-prefix">%</span><input type="number" id="targetMargin" placeholder="30" min="0" max="99" oninput="calcReverse()"/></div>
+        </div>
+      </div>
+      <div class="section" style="padding:18px;margin-top:4px;margin-bottom:0">
+        <div class="grid3">
+          <div><div class="card-label">Selling Price</div><div class="card-value accent" id="revSellPrice">$0</div></div>
+          <div><div class="card-label">Profit Amount</div><div class="card-value green" id="revProfit">$0</div></div>
+          <div><div class="card-label">Markup %</div><div class="card-value" id="revMarkup">0%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="calcResults">
+    <div class="section">
+      <div class="gauge-wrap">
+        <div class="gauge-label">Gross Profit Margin</div>
+        <div class="gauge-value" id="grossPct" style="color:var(--accent)">0%</div>
+        <div class="gauge-bar-bg"><div class="gauge-bar" id="grossBar" style="width:0%;background:var(--accent)"></div></div>
+        <div class="gauge-hint" id="grossHint">Enter revenue and COGS above</div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card"><div class="card-label">Gross Profit</div><div class="card-value accent" id="grossProfit">$0</div></div>
+      <div class="card"><div class="card-label">Operating Margin</div><div class="card-value green" id="opMarginPct">0%</div></div>
+      <div class="card"><div class="card-label">Net Profit Margin</div><div class="card-value" id="netMarginPct">0%</div></div>
+      <div class="card"><div class="card-label">Operating Profit</div><div class="card-value" id="opProfit">$0</div></div>
+      <div class="card"><div class="card-label">Net Profit</div><div class="card-value" id="netProfit">$0</div></div>
+      <div class="card"><div class="card-label">Markup</div><div class="card-value" id="markup">0%</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Industry Benchmarks</div>
+      <div class="scale">
+        <div class="scale-row"><span class="scale-dot" style="background:var(--danger)"></span><span class="scale-label">Struggling</span><span class="scale-range">Below 10%</span></div>
+        <div class="scale-row"><span class="scale-dot" style="background:var(--warning)"></span><span class="scale-label">Average / acceptable</span><span class="scale-range">10% – 20%</span></div>
+        <div class="scale-row"><span class="scale-dot" style="background:var(--green)"></span><span class="scale-label">Healthy</span><span class="scale-range">20% – 40%</span></div>
+        <div class="scale-row"><span class="scale-dot" style="background:var(--accent)"></span><span class="scale-label">Excellent (SaaS / services)</span><span class="scale-range">40%+</span></div>
+      </div>
+      <div style="background:rgba(200,241,53,.06);border:1px solid rgba(200,241,53,.15);border-radius:8px;padding:14px 16px;font-size:13px;margin-top:14px" id="benchmarkInsight">Enter your numbers to see how you compare.</div>
+    </div>
+  </div>
+</div>
+<footer><a href="https://zerokitapp.github.io">ZeroKit</a> · Free Business Tools · No signup · No limits</footer>
+<script>
+let mode='calc';
+function setMode(m,btn){
+  mode=m;
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('modeCalc').style.display=m==='calc'?'block':'none';
+  document.getElementById('modeReverse').style.display=m==='reverse'?'block':'none';
+  document.getElementById('calcResults').style.display=m==='calc'?'block':'none';
+}
+function cur(){const s=document.getElementById('currency');return s.options[s.selectedIndex].value}
+function fmt(n){return cur()+(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}
+function pct(n){return(n||0).toFixed(1)+'%'}
+
+function calc(){
+  const rev=parseFloat(document.getElementById('revenue').value)||0;
+  const cogs=parseFloat(document.getElementById('cogs').value)||0;
+  const opex=parseFloat(document.getElementById('opex').value)||0;
+  const taxes=parseFloat(document.getElementById('taxes').value)||0;
+  const gross=rev-cogs;
+  const op=gross-opex;
+  const net=op-taxes;
+  const grossPct=rev>0?gross/rev*100:0;
+  const opPct=rev>0?op/rev*100:0;
+  const netPct=rev>0?net/rev*100:0;
+  const markupPct=cogs>0?gross/cogs*100:0;
+
+  document.getElementById('grossPct').textContent=pct(grossPct);
+  document.getElementById('grossProfit').textContent=fmt(gross);
+  document.getElementById('opMarginPct').textContent=pct(opPct);
+  document.getElementById('netMarginPct').textContent=pct(netPct);
+  document.getElementById('opProfit').textContent=fmt(op);
+  document.getElementById('netProfit').textContent=fmt(net);
+  document.getElementById('markup').textContent=pct(markupPct);
+
+  const barColor=grossPct>=40?'var(--accent)':grossPct>=20?'var(--green)':grossPct>=10?'var(--warning)':'var(--danger)';
+  document.getElementById('grossBar').style.cssText=`width:${Math.min(grossPct,100)}%;background:${barColor}`;
+  document.getElementById('grossPct').style.color=barColor;
+  document.getElementById('grossHint').textContent=grossPct>=40?'Excellent gross margin — well above average'
+    :grossPct>=20?'Healthy gross margin'
+    :grossPct>=10?'Average — room to improve pricing or reduce COGS'
+    :grossPct>0?'Below average — review your pricing and costs'
+    :'Enter revenue and costs to see your margin';
+
+  const insight=grossPct>=40?`Your gross margin of <strong>${pct(grossPct)}</strong> is excellent. Focus on keeping operating costs lean to maximise net profit.`
+    :grossPct>=20?`Your gross margin of <strong>${pct(grossPct)}</strong> is healthy. Net margin of <strong>${pct(netPct)}</strong> shows overall profitability.`
+    :grossPct>0?`Gross margin of <strong>${pct(grossPct)}</strong> is below the healthy threshold. Consider raising prices or negotiating lower COGS.`
+    :'Enter your numbers above to see a benchmarked analysis.';
+  document.getElementById('benchmarkInsight').innerHTML=insight;
+}
+
+function calcReverse(){
+  const cost=parseFloat(document.getElementById('costPrice').value)||0;
+  const target=parseFloat(document.getElementById('targetMargin').value)||0;
+  if(target>=100||target<0){return}
+  const sellPrice=target>0?cost/(1-target/100):cost;
+  const profit=sellPrice-cost;
+  const markup=cost>0?profit/cost*100:0;
+  document.getElementById('revSellPrice').textContent=fmt(sellPrice);
+  document.getElementById('revProfit').textContent=fmt(profit);
+  document.getElementById('revMarkup').textContent=pct(markup);
+}
+calc();
+</script>
+</body>
+</html>
