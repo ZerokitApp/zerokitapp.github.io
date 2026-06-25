@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cash Flow Forecast — ZeroKit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;--border2:#333;--text:#f0f0f0;--muted:#888;--accent:#c8f135;--accent-dk:#a8cc1a;--danger:#ff5c5c;--warning:#f5a623;--green:#4caf7d;--radius:10px;--font:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,15,.92);backdrop-filter:blur(8px);z-index:100}
+.nav-logo{font-weight:700;font-size:15px;color:var(--text);text-decoration:none}.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px}
+.hero{max-width:960px;margin:0 auto;padding:56px 24px 32px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:15px;max-width:520px}
+.main{max-width:960px;margin:0 auto;padding:0 24px 80px}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus{border-color:var(--accent)}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:600px){.grid3{grid-template-columns:1fr}}
+/* summary cards */
+.sum-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:600px){.sum-row{grid-template-columns:1fr 1fr}}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.sum-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.sum-value{font-size:20px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sum-value.accent{color:var(--accent)}.sum-value.green{color:var(--green)}.sum-value.danger{color:var(--danger)}.sum-value.warning{color:var(--warning)}
+/* table */
+.cf-table-wrap{overflow-x:auto}
+.cf-table{border-collapse:collapse;font-size:12px;min-width:600px;width:100%}
+.cf-table th{text-align:right;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+.cf-table th:first-child{text-align:left}
+.cf-table td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums}
+.cf-table td:first-child{text-align:left;font-weight:600;white-space:nowrap}
+.cf-table tr.income td{color:var(--green)}
+.cf-table tr.expense td{color:var(--danger)}
+.cf-table tr.net td{font-weight:800;font-size:13px}
+.cf-table tr.balance td{color:var(--accent);font-weight:800}
+.cf-table tr.section-head td{background:var(--surface2);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 10px}
+.cf-table tr.negative td.net-val{color:var(--danger)}
+.cf-table tr.positive td.net-val{color:var(--green)}
+/* row editor */
+.row-editor{display:grid;grid-template-columns:1fr 1fr 28px;gap:8px;align-items:center;margin-bottom:6px}
+.row-editor input{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:8px 12px;outline:none;width:100%}
+.row-editor input:focus{border-color:var(--accent)}
+.rm-btn{background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-size:12px;width:28px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.rm-btn:hover{color:var(--danger);border-color:var(--danger)}
+.add-row{background:transparent;border:1px dashed var(--border2);border-radius:7px;color:var(--muted);font-size:12px;font-family:var(--font);padding:7px;width:100%;cursor:pointer;transition:.15s;margin-top:4px}
+.add-row:hover{color:var(--accent);border-color:var(--accent)}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav><a href="https://zerokitapp.github.io" class="nav-logo">Zero<span>Kit</span></a><span class="nav-tag">Tool 23 / 50</span></nav>
+<div class="hero">
+  <div class="hero-eyebrow">Business & Finance · Tool 23</div>
+  <h1>See your cash flow<br><em>12 months ahead.</em></h1>
+  <p>Add recurring income and expense streams. Get a month-by-month cash flow table with running balance — so you never get caught short.</p>
+</div>
+<div class="main">
+  <div class="section">
+    <div class="section-title">Settings</div>
+    <div class="grid3">
+      <div class="field"><label>Opening Balance</label><input type="number" id="openBal" placeholder="0" oninput="calc()"/></div>
+      <div class="field"><label>Currency</label>
+        <select id="currency" onchange="calc()">
+          <option value="$">$ USD</option><option value="€">€ EUR</option><option value="£">£ GBP</option>
+          <option value="$">$ CAD</option><option value="$">$ AUD</option>
+        </select>
+      </div>
+      <div class="field"><label>Forecast Months</label>
+        <select id="months" onchange="calc()">
+          <option value="6">6 months</option><option value="12" selected>12 months</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Income Streams</div>
+    <div id="incomeList"></div>
+    <button class="add-row" onclick="addRow('income')">+ Add Income Stream</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Expense Streams</div>
+    <div id="expenseList"></div>
+    <button class="add-row" onclick="addRow('expense')">+ Add Expense</button>
+  </div>
+
+  <div class="sum-row">
+    <div class="sum-card"><div class="sum-label">Total Income (12mo)</div><div class="sum-value accent" id="sumIncome">$0</div></div>
+    <div class="sum-card"><div class="sum-label">Total Expenses (12mo)</div><div class="sum-value danger" id="sumExpense">$0</div></div>
+    <div class="sum-card"><div class="sum-label">Net Cash Flow</div><div class="sum-value green" id="sumNet">$0</div></div>
+    <div class="sum-card"><div class="sum-label">Closing Balance</div><div class="sum-value warning" id="sumClose">$0</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Month-by-Month Forecast</div>
+    <div class="cf-table-wrap"><table class="cf-table" id="cfTable"></table></div>
+  </div>
+</div>
+<footer><a href="https://zerokitapp.github.io">ZeroKit</a> · Free Business Tools · No signup · No limits</footer>
+<script>
+let income=[{id:1,name:'Client retainers',amount:4000},{id:2,name:'Project revenue',amount:2000}];
+let expenses=[{id:1,name:'Rent / office',amount:1000},{id:2,name:'Software',amount:300},{id:3,name:'Salaries',amount:2500}];
+
+function cur(){const s=document.getElementById('currency');return s.options[s.selectedIndex].value}
+function fmt(n){return cur()+(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}
+
+const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function getMonthLabels(){
+  const now=new Date();const labels=[];
+  const m=parseInt(document.getElementById('months').value)||12;
+  for(let i=0;i<m;i++){const d=new Date(now.getFullYear(),now.getMonth()+i,1);labels.push(MONTH_NAMES[d.getMonth()]+' '+d.getFullYear());}
+  return labels;
+}
+
+function addRow(type){
+  const arr=type==='income'?income:expenses;
+  arr.push({id:Date.now(),name:'',amount:0});
+  renderRows();calc();
+}
+function removeRow(type,id){
+  if(type==='income')income=income.filter(r=>r.id!==id);
+  else expenses=expenses.filter(r=>r.id!==id);
+  renderRows();calc();
+}
+function updateRow(type,id,key,val){
+  const arr=type==='income'?income:expenses;
+  const r=arr.find(x=>x.id===id);
+  if(r){r[key]=key==='amount'?parseFloat(val)||0:val;}
+  calc();
+}
+
+function renderRows(){
+  ['income','expense'].forEach(type=>{
+    const arr=type==='income'?income:expenses;
+    document.getElementById(type+'List').innerHTML=arr.map(r=>`
+      <div class="row-editor">
+        <input type="text" placeholder="Name" value="${escHtml(r.name)}" oninput="updateRow('${type}',${r.id},'name',this.value)"/>
+        <input type="number" placeholder="${cur()}0/month" value="${r.amount||''}" oninput="updateRow('${type}',${r.id},'amount',this.value)"/>
+        <button class="rm-btn" onclick="removeRow('${type}',${r.id})">✕</button>
+      </div>
+    `).join('');
+  });
+}
+
+function calc(){
+  const months=parseInt(document.getElementById('months').value)||12;
+  const labels=getMonthLabels();
+  const openBal=parseFloat(document.getElementById('openBal').value)||0;
+  const totIncome=income.reduce((s,r)=>s+r.amount,0);
+  const totExpense=expenses.reduce((s,r)=>s+r.amount,0);
+  const netMo=totIncome-totExpense;
+  document.getElementById('sumIncome').textContent=fmt(totIncome*months);
+  document.getElementById('sumExpense').textContent=fmt(totExpense*months);
+  document.getElementById('sumNet').textContent=fmt(netMo*months);
+  document.getElementById('sumNet').style.color=netMo>=0?'var(--green)':'var(--danger)';
+  document.getElementById('sumClose').textContent=fmt(openBal+netMo*months);
+
+  // Build table
+  let html=`<thead><tr><th>Category</th>${labels.map(l=>`<th>${l}</th>`).join('')}</tr></thead><tbody>`;
+  // income rows
+  html+=`<tr class="section-head"><td colspan="${months+1}">INCOME</td></tr>`;
+  income.forEach(r=>{
+    html+=`<tr class="income"><td>${escHtml(r.name||'—')}</td>${Array(months).fill('').map(()=>`<td>${fmt(r.amount)}</td>`).join('')}</tr>`;
+  });
+  html+=`<tr class="income"><td><strong>Total Income</strong></td>${Array(months).fill('').map(()=>`<td><strong>${fmt(totIncome)}</strong></td>`).join('')}</tr>`;
+  // expense rows
+  html+=`<tr class="section-head"><td colspan="${months+1}">EXPENSES</td></tr>`;
+  expenses.forEach(r=>{
+    html+=`<tr class="expense"><td>${escHtml(r.name||'—')}</td>${Array(months).fill('').map(()=>`<td>${fmt(r.amount)}</td>`).join('')}</tr>`;
+  });
+  html+=`<tr class="expense"><td><strong>Total Expenses</strong></td>${Array(months).fill('').map(()=>`<td><strong>${fmt(totExpense)}</strong></td>`).join('')}</tr>`;
+  // net & balance
+  html+=`<tr class="section-head"><td colspan="${months+1}">NET & BALANCE</td></tr>`;
+  html+=`<tr class="${netMo>=0?'positive':'negative'}"><td><strong>Net Cash Flow</strong></td>${Array(months).fill('').map(()=>`<td class="net-val"><strong>${fmt(netMo)}</strong></td>`).join('')}</tr>`;
+  let bal=openBal;
+  html+=`<tr class="balance"><td>Closing Balance</td>${Array(months).fill('').map(()=>{bal+=netMo;return`<td>${fmt(bal)}</td>`}).join('')}</tr>`;
+  html+='</tbody>';
+  document.getElementById('cfTable').innerHTML=html;
+  renderRows();
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+renderRows();calc();
+</script>
+</body>
+</html>
