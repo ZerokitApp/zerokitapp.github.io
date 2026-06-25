@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Currency Converter — ZeroKit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;--border2:#333;--text:#f0f0f0;--muted:#888;--accent:#c8f135;--accent-dk:#a8cc1a;--danger:#ff5c5c;--warning:#f5a623;--green:#4caf7d;--radius:10px;--font:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,15,.92);backdrop-filter:blur(8px);z-index:100}
+.nav-logo{font-weight:700;font-size:15px;color:var(--text);text-decoration:none}.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px}
+.hero{max-width:720px;margin:0 auto;padding:56px 24px 32px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:15px;max-width:520px}
+.main{max-width:720px;margin:0 auto;padding:0 24px 80px}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus{border-color:var(--accent)}
+/* converter */
+.conv-wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.conv-side{flex:1;min-width:180px}
+.conv-input{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:22px;font-weight:800;padding:14px 16px;outline:none;width:100%;transition:border-color .15s}
+.conv-input:focus{border-color:var(--accent)}
+.conv-select{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:14px;font-weight:700;padding:10px 12px;outline:none;width:100%;margin-top:8px}
+.swap-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;color:var(--muted);transition:.15s;flex-shrink:0}
+.swap-btn:hover{color:var(--accent);border-color:var(--accent)}
+.rate-display{text-align:center;padding:16px;background:rgba(200,241,53,.06);border:1px solid rgba(200,241,53,.18);border-radius:8px;margin-top:16px}
+.rate-main{font-size:18px;font-weight:700;color:var(--accent)}
+.rate-inverse{font-size:12px;color:var(--muted);margin-top:4px}
+.rate-note{font-size:11px;color:var(--muted);margin-top:8px}
+/* quick amounts */
+.quick-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.quick-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-size:12px;font-weight:600;padding:6px 14px;cursor:pointer;font-family:var(--font);transition:.15s}
+.quick-btn:hover{color:var(--accent);border-color:var(--accent)}
+/* multi table */
+.multi-table{width:100%;border-collapse:collapse;font-size:13px}
+.multi-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:1px solid var(--border)}
+.multi-table td{padding:10px 8px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}
+.multi-table tr:last-child td{border-bottom:none}
+.flag{font-size:16px}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav><a href="https://zerokitapp.github.io" class="nav-logo">Zero<span>Kit</span></a><span class="nav-tag">Tool 28 / 50</span></nav>
+<div class="hero">
+  <div class="hero-eyebrow">Business & Finance · Tool 28</div>
+  <h1>Convert currencies<br><em>with reference rates.</em></h1>
+  <p>A fast currency converter using commonly referenced exchange rates. Perfect for invoicing, quoting, and financial planning across borders.</p>
+</div>
+<div class="main">
+  <div class="section">
+    <div class="section-title">Converter</div>
+    <div class="conv-wrap">
+      <div class="conv-side">
+        <input class="conv-input" type="number" id="fromAmt" value="1000" oninput="convert('from')"/>
+        <select class="conv-select" id="fromCur" onchange="convert('from')">
+        </select>
+      </div>
+      <button class="swap-btn" onclick="swapCurrencies()">⇄</button>
+      <div class="conv-side">
+        <input class="conv-input" type="number" id="toAmt" oninput="convert('to')"/>
+        <select class="conv-select" id="toCur" onchange="convert('from')">
+        </select>
+      </div>
+    </div>
+    <div class="rate-display">
+      <div class="rate-main" id="rateMain">—</div>
+      <div class="rate-inverse" id="rateInverse">—</div>
+      <div class="rate-note">⚠️ Reference rates — for actual transactions use your bank or broker</div>
+    </div>
+    <div style="margin-top:16px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Quick amounts</div>
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="setAmt(100)">100</button>
+        <button class="quick-btn" onclick="setAmt(500)">500</button>
+        <button class="quick-btn" onclick="setAmt(1000)">1,000</button>
+        <button class="quick-btn" onclick="setAmt(5000)">5,000</button>
+        <button class="quick-btn" onclick="setAmt(10000)">10,000</button>
+        <button class="quick-btn" onclick="setAmt(50000)">50,000</button>
+        <button class="quick-btn" onclick="setAmt(100000)">100,000</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Convert to Multiple Currencies</div>
+    <table class="multi-table">
+      <thead><tr><th>Currency</th><th>Rate (vs USD)</th><th>Converted Amount</th></tr></thead>
+      <tbody id="multiBody"></tbody>
+    </table>
+  </div>
+</div>
+<footer><a href="https://zerokitapp.github.io">ZeroKit</a> · Free Business Tools · No signup · No limits</footer>
+<script>
+// Reference rates vs USD (approximate mid-market)
+const CURRENCIES = [
+  {code:'USD',name:'US Dollar',symbol:'$',flag:'🇺🇸',rate:1},
+  {code:'EUR',name:'Euro',symbol:'€',flag:'🇪🇺',rate:0.92},
+  {code:'GBP',name:'British Pound',symbol:'£',flag:'🇬🇧',rate:0.79},
+  {code:'CAD',name:'Canadian Dollar',symbol:'$',flag:'🇨🇦',rate:1.36},
+  {code:'AUD',name:'Australian Dollar',symbol:'$',flag:'🇦🇺',rate:1.53},
+  {code:'CHF',name:'Swiss Franc',symbol:'Fr',flag:'🇨🇭',rate:0.90},
+  {code:'JPY',name:'Japanese Yen',symbol:'¥',flag:'🇯🇵',rate:149.5},
+  {code:'CNY',name:'Chinese Yuan',symbol:'¥',flag:'🇨🇳',rate:7.24},
+  {code:'INR',name:'Indian Rupee',symbol:'₹',flag:'🇮🇳',rate:83.1},
+  {code:'MXN',name:'Mexican Peso',symbol:'$',flag:'🇲🇽',rate:17.2},
+  {code:'BRL',name:'Brazilian Real',symbol:'R$',flag:'🇧🇷',rate:4.97},
+  {code:'SGD',name:'Singapore Dollar',symbol:'$',flag:'🇸🇬',rate:1.34},
+  {code:'HKD',name:'Hong Kong Dollar',symbol:'$',flag:'🇭🇰',rate:7.82},
+  {code:'NOK',name:'Norwegian Krone',symbol:'kr',flag:'🇳🇴',rate:10.6},
+  {code:'SEK',name:'Swedish Krona',symbol:'kr',flag:'🇸🇪',rate:10.4},
+  {code:'DKK',name:'Danish Krone',symbol:'kr',flag:'🇩🇰',rate:6.88},
+  {code:'NZD',name:'New Zealand Dollar',symbol:'$',flag:'🇳🇿',rate:1.63},
+  {code:'ZAR',name:'South African Rand',symbol:'R',flag:'🇿🇦',rate:18.6},
+  {code:'AED',name:'UAE Dirham',symbol:'د.إ',flag:'🇦🇪',rate:3.67},
+  {code:'SAR',name:'Saudi Riyal',symbol:'﷼',flag:'🇸🇦',rate:3.75},
+];
+
+// Populate selects
+['fromCur','toCur'].forEach(id=>{
+  const sel=document.getElementById(id);
+  CURRENCIES.forEach(c=>{
+    const opt=document.createElement('option');
+    opt.value=c.code;
+    opt.textContent=`${c.flag} ${c.code} — ${c.name}`;
+    sel.appendChild(opt);
+  });
+});
+document.getElementById('fromCur').value='USD';
+document.getElementById('toCur').value='EUR';
+
+function getRate(code){return CURRENCIES.find(c=>c.code===code)?.rate||1}
+function getSymbol(code){return CURRENCIES.find(c=>c.code===code)?.symbol||''}
+
+function convert(dir){
+  const fromCode=document.getElementById('fromCur').value;
+  const toCode=document.getElementById('toCur').value;
+  const fromRate=getRate(fromCode);
+  const toRate=getRate(toCode);
+  const crossRate=toRate/fromRate;
+
+  if(dir==='from'){
+    const amt=parseFloat(document.getElementById('fromAmt').value)||0;
+    document.getElementById('toAmt').value=(amt*crossRate).toFixed(4);
+  } else {
+    const amt=parseFloat(document.getElementById('toAmt').value)||0;
+    document.getElementById('fromAmt').value=(amt/crossRate).toFixed(4);
+  }
+
+  const fromSym=getSymbol(fromCode);const toSym=getSymbol(toCode);
+  document.getElementById('rateMain').textContent=`1 ${fromCode} = ${toSym}${crossRate.toFixed(4)} ${toCode}`;
+  document.getElementById('rateInverse').textContent=`1 ${toCode} = ${fromSym}${(1/crossRate).toFixed(4)} ${fromCode}`;
+  renderMulti();
+}
+
+function swapCurrencies(){
+  const f=document.getElementById('fromCur').value;
+  document.getElementById('fromCur').value=document.getElementById('toCur').value;
+  document.getElementById('toCur').value=f;
+  convert('from');
+}
+
+function setAmt(n){document.getElementById('fromAmt').value=n;convert('from');}
+
+function renderMulti(){
+  const fromCode=document.getElementById('fromCur').value;
+  const fromRate=getRate(fromCode);
+  const amt=parseFloat(document.getElementById('fromAmt').value)||0;
+  document.getElementById('multiBody').innerHTML=CURRENCIES.filter(c=>c.code!==fromCode).map(c=>{
+    const crossRate=c.rate/fromRate;
+    const converted=amt*crossRate;
+    return`<tr>
+      <td><span class="flag">${c.flag}</span> <strong>${c.code}</strong> <span style="color:var(--muted);font-size:12px">${c.name}</span></td>
+      <td style="color:var(--muted)">${crossRate.toFixed(4)}</td>
+      <td style="font-weight:700">${c.symbol}${converted.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+    </tr>`;
+  }).join('');
+}
+
+convert('from');
+</script>
+</body>
+</html>
