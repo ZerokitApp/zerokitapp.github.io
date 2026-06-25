@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Startup Cost Estimator — ZeroKit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;--border2:#333;--text:#f0f0f0;--muted:#888;--accent:#c8f135;--accent-dk:#a8cc1a;--danger:#ff5c5c;--warning:#f5a623;--green:#4caf7d;--radius:10px;--font:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,15,.92);backdrop-filter:blur(8px);z-index:100}
+.nav-logo{font-weight:700;font-size:15px;color:var(--text);text-decoration:none}.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px}
+.hero{max-width:720px;margin:0 auto;padding:56px 24px 32px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:15px;max-width:520px}
+.main{max-width:720px;margin:0 auto;padding:0 24px 80px}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus{border-color:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.grid2{grid-template-columns:1fr}}
+/* hero total */
+.total-hero{text-align:center;padding:32px 24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;position:relative;overflow:hidden}
+.total-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(200,241,53,.07) 0%,transparent 70%);pointer-events:none}
+.total-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.total-big{font-size:clamp(40px,8vw,64px);font-weight:900;letter-spacing:-.04em;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1}
+.total-sub{font-size:13px;color:var(--muted);margin-top:8px}
+.mini-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:480px){.mini-cards{grid-template-columns:1fr}}
+.mini-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.mini-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.mini-value{font-size:18px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.mini-value.accent{color:var(--accent)}.mini-value.warning{color:var(--warning)}.mini-value.green{color:var(--green)}
+/* cost item rows */
+.cost-row{display:grid;grid-template-columns:auto 1fr 110px 110px 28px;gap:8px;align-items:center;margin-bottom:6px}
+@media(max-width:520px){.cost-row{grid-template-columns:auto 1fr 80px 80px 28px}}
+.cost-row input{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:12px;padding:7px 10px;outline:none;width:100%}
+.cost-row input:focus{border-color:var(--accent)}
+.cost-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
+.rm-btn{background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-size:12px;width:28px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.rm-btn:hover{color:var(--danger);border-color:var(--danger)}
+.add-row{background:transparent;border:1px dashed var(--border2);border-radius:7px;color:var(--muted);font-size:12px;font-family:var(--font);padding:7px;width:100%;cursor:pointer;transition:.15s;margin-top:4px}
+.add-row:hover{color:var(--accent);border-color:var(--accent)}
+.cat-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.cat-name{font-size:13px;font-weight:700}
+.cat-total{font-size:12px;color:var(--muted)}
+.col-hdr-row{display:grid;grid-template-columns:auto 1fr 110px 110px 28px;gap:8px;margin-bottom:4px}
+@media(max-width:520px){.col-hdr-row{grid-template-columns:auto 1fr 80px 80px 28px}}
+.col-hdr{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav><a href="https://zerokitapp.github.io" class="nav-logo">Zero<span>Kit</span></a><span class="nav-tag">Tool 25 / 50</span></nav>
+<div class="hero">
+  <div class="hero-eyebrow">Business & Finance · Tool 25</div>
+  <h1>Know your startup costs<br><em>before day one.</em></h1>
+  <p>List every one-time and recurring cost to launch your business. Check off what you've already funded and see exactly what's left to raise.</p>
+</div>
+<div class="main">
+  <div class="section">
+    <div class="section-title">Settings</div>
+    <div class="grid2">
+      <div class="field"><label>Business Name</label><input type="text" id="bizName" placeholder="My Startup"/></div>
+      <div class="field"><label>Currency</label>
+        <select id="currency" onchange="calc()">
+          <option value="$">$ USD</option><option value="€">€ EUR</option><option value="£">£ GBP</option><option value="$">$ CAD</option>
+        </select>
+      </div>
+      <div class="field"><label>Months of Runway to Fund</label><input type="number" id="runway" placeholder="6" min="1" max="60" oninput="calc()"/></div>
+      <div class="field"><label>Contingency Buffer %</label><input type="number" id="buffer" placeholder="20" min="0" max="100" oninput="calc()"/></div>
+    </div>
+  </div>
+
+  <div class="total-hero">
+    <div class="total-label">Total Capital Needed</div>
+    <div class="total-big" id="totalNeeded">$0</div>
+    <div class="total-sub" id="totalSub">incl. runway & contingency buffer</div>
+  </div>
+
+  <div class="mini-cards">
+    <div class="mini-card"><div class="mini-label">One-Time Costs</div><div class="mini-value accent" id="oneTime">$0</div></div>
+    <div class="mini-card"><div class="mini-label">Monthly Recurring</div><div class="mini-value warning" id="monthly">$0</div></div>
+    <div class="mini-card"><div class="mini-label">Already Funded</div><div class="mini-value green" id="funded">$0</div></div>
+  </div>
+
+  <div id="catContainer"></div>
+</div>
+<footer><a href="https://zerokitapp.github.io">ZeroKit</a> · Free Business Tools · No signup · No limits</footer>
+<script>
+const CATS=[
+  {id:'legal',name:'⚖️ Legal & Admin',rows:[
+    {id:1,name:'Business registration',oneTime:500,monthly:0,funded:false},
+    {id:2,name:'Trademark / IP filing',oneTime:1000,monthly:0,funded:false},
+    {id:3,name:'Accountant / bookkeeper setup',oneTime:500,monthly:200,funded:false},
+  ]},
+  {id:'tech',name:'💻 Technology & Equipment',rows:[
+    {id:1,name:'Laptop / hardware',oneTime:2000,monthly:0,funded:true},
+    {id:2,name:'Software subscriptions',oneTime:0,monthly:300,funded:false},
+    {id:3,name:'Website / hosting',oneTime:500,monthly:50,funded:false},
+  ]},
+  {id:'office',name:'🏢 Office & Operations',rows:[
+    {id:1,name:'Office rent deposit',oneTime:3000,monthly:1000,funded:false},
+    {id:2,name:'Furniture & fitout',oneTime:2000,monthly:0,funded:false},
+  ]},
+  {id:'marketing',name:'📣 Marketing & Sales',rows:[
+    {id:1,name:'Brand design / logo',oneTime:1500,monthly:0,funded:false},
+    {id:2,name:'Launch marketing',oneTime:2000,monthly:500,funded:false},
+    {id:3,name:'CRM software',oneTime:0,monthly:100,funded:false},
+  ]},
+  {id:'people',name:'👥 People',rows:[
+    {id:1,name:'First hire salary (mo.)',oneTime:0,monthly:4000,funded:false},
+    {id:2,name:'Recruitment / HR',oneTime:500,monthly:0,funded:false},
+  ]},
+  {id:'other',name:'📦 Other',rows:[]},
+];
+
+function cur(){const s=document.getElementById('currency');return s.options[s.selectedIndex].value}
+function fmt(n){return cur()+(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function addRow(catId){CATS.find(c=>c.id===catId).rows.push({id:Date.now(),name:'',oneTime:0,monthly:0,funded:false});render();}
+function removeRow(catId,rowId){const c=CATS.find(c=>c.id===catId);c.rows=c.rows.filter(r=>r.id!==rowId);render();}
+function update(catId,rowId,key,val){
+  const row=CATS.find(c=>c.id===catId).rows.find(r=>r.id===rowId);
+  if(row) row[key]=key==='name'?val:key==='funded'?val:parseFloat(val)||0;
+  calc();
+}
+
+function calc(){
+  const runway=parseInt(document.getElementById('runway').value)||6;
+  const bufferPct=(parseFloat(document.getElementById('buffer').value)||20)/100;
+  let totalOneTime=0,totalMonthly=0,totalFunded=0;
+  CATS.forEach(cat=>cat.rows.forEach(r=>{
+    totalOneTime+=r.oneTime;totalMonthly+=r.monthly;
+    if(r.funded){totalFunded+=r.oneTime+r.monthly*runway;}
+  }));
+  const runwayCost=totalMonthly*runway;
+  const subtotal=totalOneTime+runwayCost;
+  const withBuffer=subtotal*(1+bufferPct);
+  document.getElementById('oneTime').textContent=fmt(totalOneTime);
+  document.getElementById('monthly').textContent=fmt(totalMonthly);
+  document.getElementById('funded').textContent=fmt(totalFunded);
+  document.getElementById('totalNeeded').textContent=fmt(withBuffer-totalFunded);
+  document.getElementById('totalSub').textContent=`${runway} months runway · ${Math.round(bufferPct*100)}% buffer · ${fmt(withBuffer)} total before funding`;
+}
+
+function render(){
+  document.getElementById('catContainer').innerHTML=CATS.map(cat=>{
+    const catTotal=cat.rows.reduce((s,r)=>s+r.oneTime+r.monthly,0);
+    return`<div class="section">
+      <div class="cat-header"><span class="cat-name">${cat.name}</span><span class="cat-total">${fmt(catTotal)}/mo base</span></div>
+      <div class="col-hdr-row">
+        <span class="col-hdr">✓</span><span class="col-hdr">Item</span>
+        <span class="col-hdr">One-time</span><span class="col-hdr">Monthly</span><span></span>
+      </div>
+      ${cat.rows.map(row=>`
+        <div class="cost-row">
+          <input type="checkbox" ${row.funded?'checked':''} onchange="update('${cat.id}',${row.id},'funded',this.checked)" title="Already funded"/>
+          <input type="text" placeholder="Cost name" value="${escHtml(row.name)}" oninput="update('${cat.id}',${row.id},'name',this.value)"/>
+          <input type="number" placeholder="0" value="${row.oneTime||''}" oninput="update('${cat.id}',${row.id},'oneTime',this.value)"/>
+          <input type="number" placeholder="0" value="${row.monthly||''}" oninput="update('${cat.id}',${row.id},'monthly',this.value)"/>
+          <button class="rm-btn" onclick="removeRow('${cat.id}',${row.id})">✕</button>
+        </div>
+      `).join('')}
+      <button class="add-row" onclick="addRow('${cat.id}')">+ Add item</button>
+    </div>`;
+  }).join('');
+  calc();
+}
+render();
+</script>
+</body>
+</html>
