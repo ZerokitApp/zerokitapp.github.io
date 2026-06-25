@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ROI Calculator — ZeroKit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;--border2:#333;--text:#f0f0f0;--muted:#888;--accent:#c8f135;--accent-dk:#a8cc1a;--danger:#ff5c5c;--warning:#f5a623;--green:#4caf7d;--radius:10px;--font:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,15,.92);backdrop-filter:blur(8px);z-index:100}
+.nav-logo{font-weight:700;font-size:15px;color:var(--text);text-decoration:none}.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px}
+.hero{max-width:720px;margin:0 auto;padding:56px 24px 32px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:15px;max-width:520px}
+.main{max-width:720px;margin:0 auto;padding:0 24px 80px}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus{border-color:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:560px){.grid2,.grid3{grid-template-columns:1fr}}
+/* ROI hero */
+.roi-hero{text-align:center;padding:36px 24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;position:relative;overflow:hidden}
+.roi-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(200,241,53,.08) 0%,transparent 70%);pointer-events:none}
+.roi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.roi-big{font-size:clamp(48px,10vw,80px);font-weight:900;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.roi-verdict{display:inline-block;margin-top:10px;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700}
+.verdict-great{background:rgba(200,241,53,.15);color:var(--accent)}
+.verdict-ok{background:rgba(76,175,125,.15);color:var(--green)}
+.verdict-poor{background:rgba(255,92,92,.15);color:var(--danger)}
+.card-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:560px){.card-row{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.card-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.card-value{font-size:17px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.card-value.accent{color:var(--accent)}.card-value.green{color:var(--green)}.card-value.danger{color:var(--danger)}.card-value.warning{color:var(--warning)}
+/* comparison table */
+.compare-table{width:100%;border-collapse:collapse;font-size:13px}
+.compare-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:1px solid var(--border)}
+.compare-table td{padding:10px 8px;border-bottom:1px solid var(--border)}
+.compare-table tr:last-child td{border-bottom:none}
+.bar-cell{display:flex;align-items:center;gap:8px}
+.bar-bg{flex:1;background:var(--surface2);border-radius:3px;height:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+/* multi tab */
+.tabs{display:flex;gap:4px;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:20px}
+.tab{flex:1;padding:8px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--muted);background:transparent;transition:.15s}
+.tab.active{background:var(--surface);color:var(--text);border:1px solid var(--border2)}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav><a href="https://zerokitapp.github.io" class="nav-logo">Zero<span>Kit</span></a><span class="nav-tag">Tool 26 / 50</span></nav>
+<div class="hero">
+  <div class="hero-eyebrow">Business & Finance · Tool 26</div>
+  <h1>Is this investment<br><em>actually worth it?</em></h1>
+  <p>Calculate ROI, payback period, and annualised return for any investment — ad spend, equipment, hiring, tools, or campaigns.</p>
+</div>
+<div class="main">
+  <div class="section">
+    <div class="section-title">Mode</div>
+    <div class="tabs">
+      <button class="tab active" onclick="setTab(0,this)">Simple ROI</button>
+      <button class="tab" onclick="setTab(1,this)">Compare Investments</button>
+    </div>
+
+    <div id="tab0">
+      <div class="field"><label>Investment Name</label><input type="text" id="invName" placeholder="e.g. Google Ads Campaign" oninput="calc()"/></div>
+      <div class="grid2">
+        <div class="field"><label>Currency</label>
+          <select id="currency" onchange="calc()">
+            <option value="$">$ USD</option><option value="€">€ EUR</option><option value="£">£ GBP</option>
+          </select>
+        </div>
+        <div class="field"><label>Time Period</label>
+          <select id="period" onchange="calc()">
+            <option value="1">1 month</option><option value="3">3 months</option><option value="6">6 months</option>
+            <option value="12" selected>1 year</option><option value="24">2 years</option><option value="36">3 years</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Total Cost / Investment</label><input type="number" id="cost" placeholder="0" min="0" oninput="calc()"/></div>
+        <div class="field"><label>Total Return / Revenue</label><input type="number" id="returns" placeholder="0" min="0" oninput="calc()"/></div>
+      </div>
+    </div>
+
+    <div id="tab1" style="display:none">
+      <div id="compareList"></div>
+      <button style="background:transparent;border:1px dashed var(--border2);border-radius:8px;color:var(--muted);font-size:13px;font-family:var(--font);padding:9px;width:100%;cursor:pointer;transition:.15s;margin-top:4px" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'" onclick="addCompare()">+ Add Investment</button>
+    </div>
+  </div>
+
+  <div id="simpleResults">
+    <div class="roi-hero">
+      <div class="roi-label">Return on Investment</div>
+      <div class="roi-big" id="roiPct" style="color:var(--accent)">0%</div>
+      <div><span class="roi-verdict verdict-ok" id="roiVerdict">Enter your numbers</span></div>
+    </div>
+    <div class="card-row">
+      <div class="card"><div class="card-label">Net Profit</div><div class="card-value green" id="netProfit">$0</div></div>
+      <div class="card"><div class="card-label">Payback Period</div><div class="card-value warning" id="payback">—</div></div>
+      <div class="card"><div class="card-label">Annualised ROI</div><div class="card-value accent" id="annualisedRoi">0%</div></div>
+      <div class="card"><div class="card-label">Return Multiple</div><div class="card-value" id="multiple">0×</div></div>
+    </div>
+    <div class="section" style="padding:18px 24px">
+      <div style="font-size:13px;color:var(--muted);line-height:1.7" id="roiInsight">Enter a cost and return above to see your ROI analysis.</div>
+    </div>
+  </div>
+
+  <div id="compareResults" style="display:none">
+    <div class="section">
+      <div class="section-title">Comparison</div>
+      <table class="compare-table" id="compareTable"></table>
+    </div>
+  </div>
+</div>
+<footer><a href="https://zerokitapp.github.io">ZeroKit</a> · Free Business Tools · No signup · No limits</footer>
+<script>
+let activeTab=0;
+let compareItems=[
+  {id:1,name:'Google Ads',cost:2000,returns:6000,months:12},
+  {id:2,name:'New hire',cost:48000,returns:80000,months:12},
+  {id:3,name:'Equipment',cost:5000,returns:12000,months:24},
+];
+
+function cur(){const s=document.getElementById('currency');return s.options[s.selectedIndex].value}
+function fmt(n){return cur()+(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}
+function pct(n){return(n||0).toFixed(1)+'%'}
+
+function setTab(idx,btn){
+  activeTab=idx;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab0').style.display=idx===0?'block':'none';
+  document.getElementById('tab1').style.display=idx===1?'block':'none';
+  document.getElementById('simpleResults').style.display=idx===0?'block':'none';
+  document.getElementById('compareResults').style.display=idx===1?'block':'none';
+  if(idx===1) renderCompare();
+}
+
+function calc(){
+  const cost=parseFloat(document.getElementById('cost').value)||0;
+  const ret=parseFloat(document.getElementById('returns').value)||0;
+  const months=parseInt(document.getElementById('period').value)||12;
+  const net=ret-cost;
+  const roi=cost>0?net/cost*100:0;
+  const multiple=cost>0?ret/cost:0;
+  const annualised=months>0?roi/months*12:0;
+  const paybackMonths=net>0&&cost>0?Math.ceil(cost/(net/months)):null;
+
+  document.getElementById('roiPct').textContent=pct(roi);
+  document.getElementById('roiPct').style.color=roi>=100?'var(--accent)':roi>=0?'var(--green)':'var(--danger)';
+  document.getElementById('netProfit').textContent=fmt(net);
+  document.getElementById('netProfit').style.color=net>=0?'var(--green)':'var(--danger)';
+  document.getElementById('payback').textContent=paybackMonths?paybackMonths+' months':'N/A';
+  document.getElementById('annualisedRoi').textContent=pct(annualised);
+  document.getElementById('multiple').textContent=multiple.toFixed(2)+'×';
+
+  const verdict=roi>=200?'🚀 Exceptional ROI':roi>=100?'✅ Strong ROI':roi>=50?'👍 Good ROI':roi>=0?'⚠️ Low ROI':'❌ Negative ROI';
+  const vClass=roi>=100?'verdict-great':roi>=0?'verdict-ok':'verdict-poor';
+  document.getElementById('roiVerdict').textContent=verdict;
+  document.getElementById('roiVerdict').className='roi-verdict '+vClass;
+
+  document.getElementById('roiInsight').innerHTML=cost>0?
+    `For every ${cur()}1 invested, you get back <strong>${cur()}${multiple.toFixed(2)}</strong>. Net profit of <strong>${fmt(net)}</strong> over ${months} months. Annualised that's <strong>${pct(annualised)}</strong> per year.${paybackMonths?` You break even in <strong>${paybackMonths} months</strong>.`:''}`
+    :'Enter a cost and return to see your analysis.';
+}
+
+function addCompare(){compareItems.push({id:Date.now(),name:'',cost:0,returns:0,months:12});renderCompare();}
+function updateCompare(id,key,val){const i=compareItems.find(x=>x.id===id);if(i)i[key]=key==='name'?val:parseFloat(val)||0;renderCompare();}
+function removeCompare(id){compareItems=compareItems.filter(i=>i.id!==id);renderCompare();}
+
+function renderCompare(){
+  document.getElementById('compareList').innerHTML=compareItems.map(item=>`
+    <div style="display:grid;grid-template-columns:1fr 100px 100px 80px 28px;gap:8px;margin-bottom:8px;align-items:center">
+      <input type="text" placeholder="Name" value="${escHtml(item.name)}" oninput="updateCompare(${item.id},'name',this.value)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:12px;padding:7px 10px;outline:none;width:100%"/>
+      <input type="number" placeholder="Cost" value="${item.cost||''}" oninput="updateCompare(${item.id},'cost',this.value)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:12px;padding:7px 10px;outline:none;width:100%"/>
+      <input type="number" placeholder="Return" value="${item.returns||''}" oninput="updateCompare(${item.id},'returns',this.value)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:12px;padding:7px 10px;outline:none;width:100%"/>
+      <input type="number" placeholder="Months" value="${item.months||''}" oninput="updateCompare(${item.id},'months',this.value)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:12px;padding:7px 10px;outline:none;width:100%"/>
+      <button style="background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-size:12px;width:28px;height:34px;cursor:pointer" onclick="removeCompare(${item.id})">✕</button>
+    </div>
+  `).join('');
+
+  const calced=compareItems.map(i=>{
+    const net=i.returns-i.cost;const roi=i.cost>0?net/i.cost*100:0;
+    const ann=i.months>0?roi/i.months*12:0;
+    return{...i,net,roi,ann};
+  }).sort((a,b)=>b.roi-a.roi);
+  const maxRoi=Math.max(...calced.map(i=>Math.abs(i.roi)),1);
+  document.getElementById('compareTable').innerHTML=`
+    <thead><tr>
+      <th>Investment</th><th>Cost</th><th>Return</th><th>Net</th><th>ROI</th><th>Ann. ROI</th>
+    </tr></thead>
+    <tbody>${calced.map((i,idx)=>`<tr>
+      <td><strong>${escHtml(i.name||'—')}</strong>${idx===0?` <span style="background:rgba(200,241,53,.15);color:var(--accent);font-size:10px;padding:1px 6px;border-radius:10px;font-weight:700">Best</span>`:''}</td>
+      <td>${fmt(i.cost)}</td><td>${fmt(i.returns)}</td>
+      <td style="color:${i.net>=0?'var(--green)':'var(--danger)'};font-weight:700">${fmt(i.net)}</td>
+      <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(Math.abs(i.roi)/maxRoi*100,100)}%;background:${i.roi>=0?'var(--accent)':'var(--danger)'}"></div></div>${pct(i.roi)}</div></td>
+      <td style="color:var(--muted)">${pct(i.ann)}</td>
+    </tr>`).join('')}</tbody>`;
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+calc();
+</script>
+</body>
+</html>
