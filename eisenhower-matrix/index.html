@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eisenhower Priority Matrix — ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root{
+      --bg:#0f0f0f; --surface:#1a1a1a; --surface2:#222222; --border:#2a2a2a;
+      --accent:#c8f135; --text:#f2f2f2; --text-dim:#9a9a9a; --danger:#ff5c5c;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
+    .nav{position:sticky;top:0;z-index:50;background:rgba(15,15,15,0.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:14px 24px;}
+    .badge{background:var(--accent);color:#0f0f0f;font-weight:700;font-size:13px;padding:4px 10px;border-radius:6px;}
+    .nav-title{font-weight:600;font-size:15px;}
+    .nav-back{margin-left:auto;font-size:13px;color:var(--text-dim);}
+    .wrap{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+    h1{font-size:28px;font-weight:700;margin:0 0 6px;}
+    .sub{color:var(--text-dim);font-size:14px;margin:0 0 28px;}
+    button{cursor:pointer;font-family:inherit;}
+    .btn{background:var(--accent);color:#0f0f0f;border:none;border-radius:8px;padding:10px 18px;font-weight:600;font-size:14px;}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 14px;font-size:13px;}
+    .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+    input,textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:14px;width:100%;}
+    input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+
+    .add-row{display:flex;gap:10px;margin-bottom:28px;}
+    .add-row input{flex:1;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .quad{border-radius:12px;padding:16px;min-height:220px;border:1px solid var(--border);}
+    .quad h3{margin:0 0 4px;font-size:15px;}
+    .quad .desc{font-size:12px;color:var(--text-dim);margin:0 0 14px;}
+    .q1{background:rgba(255,92,92,0.06);border-color:rgba(255,92,92,0.3);}
+    .q1 h3{color:#ff8787;}
+    .q2{background:rgba(200,241,53,0.06);border-color:rgba(200,241,53,0.3);}
+    .q2 h3{color:var(--accent);}
+    .q3{background:rgba(255,193,74,0.06);border-color:rgba(255,193,74,0.3);}
+    .q3 h3{color:#ffc14a;}
+    .q4{background:rgba(154,154,154,0.06);border-color:var(--border);}
+    .q4 h3{color:var(--text-dim);}
+    .task{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;font-size:14px;}
+    .task span{flex:1;}
+    .task button{background:none;border:none;color:var(--text-dim);font-size:14px;}
+    .task button:hover{color:var(--danger);}
+    .empty-hint{font-size:12px;color:var(--text-dim);font-style:italic;}
+    select{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:14px;}
+    @media(max-width:640px){.grid{grid-template-columns:1fr;}.add-row{flex-direction:column;}}
+</style>
+</head>
+<body>
+<div class="nav">
+  <span class="badge">33</span>
+  <span class="nav-title">Eisenhower Priority Matrix</span>
+  <span class="nav-back">ZeroKit</span>
+</div>
+<div class="wrap">
+  <h1>Eisenhower Priority Matrix</h1>
+  <p class="sub">Sort tasks by urgency and importance to decide what to do, schedule, delegate, or drop.</p>
+
+  <div class="add-row">
+    <input type="text" id="taskInput" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addTask()">
+    <select id="quadSelect">
+      <option value="q1">Urgent & Important</option>
+      <option value="q2">Not Urgent & Important</option>
+      <option value="q3">Urgent & Not Important</option>
+      <option value="q4">Not Urgent & Not Important</option>
+    </select>
+    <button class="btn" onclick="addTask()">Add</button>
+  </div>
+
+  <div class="grid">
+    <div class="quad q1">
+      <h3>Do First</h3>
+      <p class="desc">Urgent & Important</p>
+      <div id="list-q1"></div>
+    </div>
+    <div class="quad q2">
+      <h3>Schedule</h3>
+      <p class="desc">Not Urgent & Important</p>
+      <div id="list-q2"></div>
+    </div>
+    <div class="quad q3">
+      <h3>Delegate</h3>
+      <p class="desc">Urgent & Not Important</p>
+      <div id="list-q3"></div>
+    </div>
+    <div class="quad q4">
+      <h3>Eliminate</h3>
+      <p class="desc">Not Urgent & Not Important</p>
+      <div id="list-q4"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'zerokit_eisenhower';
+let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
+
+function addTask(){
+  const input = document.getElementById('taskInput');
+  const text = input.value.trim();
+  if(!text) return;
+  const quad = document.getElementById('quadSelect').value;
+  tasks.push({ id: Date.now(), text, quad });
+  input.value='';
+  save();
+  render();
+}
+
+function removeTask(id){
+  tasks = tasks.filter(t=>t.id!==id);
+  save();
+  render();
+}
+
+function render(){
+  ['q1','q2','q3','q4'].forEach(q=>{
+    const container = document.getElementById('list-'+q);
+    const items = tasks.filter(t=>t.quad===q);
+    if(items.length===0){
+      container.innerHTML = '<p class="empty-hint">No tasks here yet.</p>';
+      return;
+    }
+    container.innerHTML = items.map(t=>`
+      <div class="task">
+        <span>${escapeHtml(t.text)}</span>
+        <button onclick="removeTask(${t.id})" title="Remove">✕</button>
+      </div>
+    `).join('');
+  });
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+render();
+</script>
+</body>
+</html>
