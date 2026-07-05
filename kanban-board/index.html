@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kanban Board — ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root{
+      --bg:#0f0f0f; --surface:#1a1a1a; --surface2:#222222; --border:#2a2a2a;
+      --accent:#c8f135; --text:#f2f2f2; --text-dim:#9a9a9a; --danger:#ff5c5c;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
+    .nav{position:sticky;top:0;z-index:50;background:rgba(15,15,15,0.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:14px 24px;}
+    .badge{background:var(--accent);color:#0f0f0f;font-weight:700;font-size:13px;padding:4px 10px;border-radius:6px;}
+    .nav-title{font-weight:600;font-size:15px;}
+    .nav-back{margin-left:auto;font-size:13px;color:var(--text-dim);}
+    .wrap{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+    h1{font-size:28px;font-weight:700;margin:0 0 6px;}
+    .sub{color:var(--text-dim);font-size:14px;margin:0 0 28px;}
+    button{cursor:pointer;font-family:inherit;}
+    input{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-family:inherit;font-size:13px;width:100%;}
+    input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+    .board{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+    .column{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;min-height:400px;display:flex;flex-direction:column;}
+    .column-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+    .column-header h3{margin:0;font-size:14px;font-weight:700;}
+    .count-pill{background:var(--surface2);border-radius:10px;padding:2px 9px;font-size:11px;color:var(--text-dim);}
+    .col-todo .count-pill{color:#ff8787;}
+    .col-progress .count-pill{color:#ffc14a;}
+    .col-done .count-pill{color:var(--accent);}
+    .card-list{flex:1;display:flex;flex-direction:column;gap:8px;min-height:60px;}
+    .task-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;cursor:grab;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+    .task-card.dragging{opacity:0.4;}
+    .task-card button{background:none;border:none;color:var(--text-dim);font-size:13px;}
+    .task-card button:hover{color:var(--danger);}
+    .drop-zone-active{outline:2px dashed var(--accent);outline-offset:-4px;border-radius:8px;}
+    .add-item{margin-top:10px;display:flex;gap:6px;}
+    .add-item button{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:0 12px;font-size:16px;}
+    .move-btns{display:flex;gap:4px;margin-top:4px;}
+    .move-btns button{font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--text-dim);}
+    .move-btns button:hover{border-color:var(--accent);color:var(--accent);}
+    @media(max-width:800px){.board{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="nav">
+  <span class="badge">42</span>
+  <span class="nav-title">Kanban Board</span>
+  <span class="nav-back">ZeroKit</span>
+</div>
+<div class="wrap">
+  <h1>Kanban Board</h1>
+  <p class="sub">Drag cards between columns, or use the arrows on mobile. Saved automatically.</p>
+
+  <div class="board">
+    <div class="column col-todo" data-col="todo">
+      <div class="column-header"><h3>To Do</h3><span class="count-pill" id="count-todo">0</span></div>
+      <div class="card-list" id="list-todo" ondragover="allowDrop(event)" ondrop="drop(event,'todo')"></div>
+      <div class="add-item"><input type="text" id="input-todo" placeholder="Add card..." onkeydown="if(event.key==='Enter')addCard('todo')"><button onclick="addCard('todo')">+</button></div>
+    </div>
+    <div class="column col-progress" data-col="progress">
+      <div class="column-header"><h3>In Progress</h3><span class="count-pill" id="count-progress">0</span></div>
+      <div class="card-list" id="list-progress" ondragover="allowDrop(event)" ondrop="drop(event,'progress')"></div>
+      <div class="add-item"><input type="text" id="input-progress" placeholder="Add card..." onkeydown="if(event.key==='Enter')addCard('progress')"><button onclick="addCard('progress')">+</button></div>
+    </div>
+    <div class="column col-done" data-col="done">
+      <div class="column-header"><h3>Done</h3><span class="count-pill" id="count-done">0</span></div>
+      <div class="card-list" id="list-done" ondragover="allowDrop(event)" ondrop="drop(event,'done')"></div>
+      <div class="add-item"><input type="text" id="input-done" placeholder="Add card..." onkeydown="if(event.key==='Enter')addCard('done')"><button onclick="addCard('done')">+</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'zerokit_kanban';
+let cards = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+const COLS = ['todo','progress','done'];
+let draggedId = null;
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
+
+function addCard(col){
+  const input = document.getElementById('input-'+col);
+  const text = input.value.trim();
+  if(!text) return;
+  cards.push({ id: Date.now(), text, col });
+  input.value = '';
+  save();
+  render();
+}
+
+function removeCard(id){
+  cards = cards.filter(c=>c.id!==id);
+  save();
+  render();
+}
+
+function moveCard(id, dir){
+  const card = cards.find(c=>c.id===id);
+  if(!card) return;
+  const idx = COLS.indexOf(card.col);
+  const newIdx = idx + dir;
+  if(newIdx>=0 && newIdx<COLS.length){
+    card.col = COLS[newIdx];
+    save();
+    render();
+  }
+}
+
+function allowDrop(ev){ ev.preventDefault(); }
+
+function drop(ev, col){
+  ev.preventDefault();
+  if(draggedId!==null){
+    const card = cards.find(c=>c.id===draggedId);
+    if(card){ card.col = col; save(); render(); }
+  }
+}
+
+function render(){
+  COLS.forEach(col=>{
+    const list = cards.filter(c=>c.col===col);
+    document.getElementById('count-'+col).textContent = list.length;
+    const container = document.getElementById('list-'+col);
+    container.innerHTML = list.map(c=>{
+      const idx = COLS.indexOf(col);
+      return `
+      <div class="task-card" draggable="true" ondragstart="draggedId=${c.id}; this.classList.add('dragging')" ondragend="this.classList.remove('dragging')">
+        <div>
+          ${escapeHtml(c.text)}
+          <div class="move-btns">
+            ${idx>0 ? `<button onclick="moveCard(${c.id},-1)">←</button>` : ''}
+            ${idx<COLS.length-1 ? `<button onclick="moveCard(${c.id},1)">→</button>` : ''}
+          </div>
+        </div>
+        <button onclick="removeCard(${c.id})">✕</button>
+      </div>
+    `;
+    }).join('');
+  });
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+render();
+</script>
+</body>
+</html>
