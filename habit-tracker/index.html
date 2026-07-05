@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker — ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root{
+      --bg:#0f0f0f; --surface:#1a1a1a; --surface2:#222222; --border:#2a2a2a;
+      --accent:#c8f135; --text:#f2f2f2; --text-dim:#9a9a9a; --danger:#ff5c5c;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
+    .nav{position:sticky;top:0;z-index:50;background:rgba(15,15,15,0.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:14px 24px;}
+    .badge{background:var(--accent);color:#0f0f0f;font-weight:700;font-size:13px;padding:4px 10px;border-radius:6px;}
+    .nav-title{font-weight:600;font-size:15px;}
+    .nav-back{margin-left:auto;font-size:13px;color:var(--text-dim);}
+    .wrap{max-width:1000px;margin:0 auto;padding:32px 20px 80px;}
+    h1{font-size:28px;font-weight:700;margin:0 0 6px;}
+    .sub{color:var(--text-dim);font-size:14px;margin:0 0 28px;}
+    button{cursor:pointer;font-family:inherit;}
+    .btn{background:var(--accent);color:#0f0f0f;border:none;border-radius:8px;padding:10px 18px;font-weight:600;font-size:14px;}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 14px;font-size:13px;}
+    .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+    input{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:14px;}
+    input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+    .add-row{display:flex;gap:10px;margin-bottom:24px;}
+    .add-row input{flex:1;}
+    .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow-x:auto;padding:16px;}
+    table{border-collapse:collapse;width:100%;min-width:640px;}
+    th,td{padding:8px 6px;text-align:center;font-size:13px;}
+    th{color:var(--text-dim);font-weight:600;font-size:11px;text-transform:uppercase;}
+    td.habit-name{text-align:left;font-weight:500;font-size:14px;min-width:140px;}
+    .day-cell{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);display:inline-flex;align-items:center;justify-content:center;}
+    .day-cell.done{background:var(--accent);border-color:var(--accent);}
+    .day-cell.today{box-shadow:0 0 0 2px var(--accent);}
+    .remove-btn{background:none;border:none;color:var(--text-dim);font-size:14px;}
+    .remove-btn:hover{color:var(--danger);}
+    .streak-badge{font-size:11px;color:var(--accent);font-weight:600;}
+    .week-nav{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+    .week-label{font-size:13px;color:var(--text-dim);}
+    .empty-state{text-align:center;color:var(--text-dim);padding:40px 0;font-size:14px;}
+</style>
+</head>
+<body>
+<div class="nav">
+  <span class="badge">34</span>
+  <span class="nav-title">Habit Tracker</span>
+  <span class="nav-back">ZeroKit</span>
+</div>
+<div class="wrap">
+  <h1>Habit Tracker</h1>
+  <p class="sub">Track daily habits across the week and build streaks. Data stays in your browser.</p>
+
+  <div class="add-row">
+    <input type="text" id="habitInput" placeholder="Add a habit (e.g. Drink water)" onkeydown="if(event.key==='Enter')addHabit()">
+    <button class="btn" onclick="addHabit()">Add habit</button>
+  </div>
+
+  <div class="week-nav">
+    <button class="btn-ghost" onclick="shiftWeek(-1)">← Prev week</button>
+    <span class="week-label" id="weekLabel"></span>
+    <button class="btn-ghost" onclick="shiftWeek(1)">Next week →</button>
+    <button class="btn-ghost" onclick="goToday()">This week</button>
+  </div>
+
+  <div class="table-wrap">
+    <table id="habitTable"></table>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'zerokit_habits';
+let habits = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let weekOffset = 0;
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(habits)); }
+
+function addHabit(){
+  const input = document.getElementById('habitInput');
+  const name = input.value.trim();
+  if(!name) return;
+  habits.push({ id: Date.now(), name, log: {} });
+  input.value='';
+  save();
+  render();
+}
+
+function removeHabit(id){
+  habits = habits.filter(h=>h.id!==id);
+  save();
+  render();
+}
+
+function toggleDay(habitId, dateKey){
+  const habit = habits.find(h=>h.id===habitId);
+  if(!habit) return;
+  habit.log[dateKey] = !habit.log[dateKey];
+  save();
+  render();
+}
+
+function shiftWeek(delta){
+  weekOffset += delta;
+  render();
+}
+
+function goToday(){
+  weekOffset = 0;
+  render();
+}
+
+function getWeekDates(){
+  const today = new Date();
+  const monday = new Date(today);
+  const dayOfWeek = (today.getDay()+6)%7; // Mon=0
+  monday.setDate(today.getDate() - dayOfWeek + weekOffset*7);
+  const dates = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function dateKey(d){
+  return d.toISOString().split('T')[0];
+}
+
+function computeStreak(habit){
+  let streak = 0;
+  let d = new Date();
+  while(true){
+    const key = dateKey(d);
+    if(habit.log[key]){
+      streak++;
+      d.setDate(d.getDate()-1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+function render(){
+  const dates = getWeekDates();
+  const table = document.getElementById('habitTable');
+  const monthFmt = d => d.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+  document.getElementById('weekLabel').textContent = `${monthFmt(dates[0])} – ${monthFmt(dates[6])}`;
+
+  if(habits.length===0){
+    table.innerHTML = '';
+    document.querySelector('.table-wrap').innerHTML = '<div class="empty-state">No habits yet. Add one above to start tracking.</div><table id="habitTable"></table>';
+    return;
+  } else if(!document.getElementById('habitTable')){
+    document.querySelector('.table-wrap').innerHTML = '<table id="habitTable"></table>';
+  }
+
+  const todayKey = dateKey(new Date());
+  let html = '<tr><th style="text-align:left;">Habit</th>';
+  dates.forEach(d=>{
+    html += `<th>${d.toLocaleDateString(undefined,{weekday:'short'})}<br>${d.getDate()}</th>`;
+  });
+  html += '<th>Streak</th><th></th></tr>';
+
+  habits.forEach(habit=>{
+    html += `<tr><td class="habit-name">${escapeHtml(habit.name)}</td>`;
+    dates.forEach(d=>{
+      const key = dateKey(d);
+      const isToday = key===todayKey;
+      const done = !!habit.log[key];
+      html += `<td><button class="day-cell ${done?'done':''} ${isToday?'today':''}" onclick="toggleDay(${habit.id},'${key}')">${done?'✓':''}</button></td>`;
+    });
+    html += `<td><span class="streak-badge">${computeStreak(habit)}🔥</span></td>`;
+    html += `<td><button class="remove-btn" onclick="removeHabit(${habit.id})">✕</button></td>`;
+    html += '</tr>';
+  });
+
+  document.getElementById('habitTable').innerHTML = html;
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+render();
+</script>
+</body>
+</html>
