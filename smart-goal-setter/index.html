@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMART Goal Setter — ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root{
+      --bg:#0f0f0f; --surface:#1a1a1a; --surface2:#222222; --border:#2a2a2a;
+      --accent:#c8f135; --text:#f2f2f2; --text-dim:#9a9a9a; --danger:#ff5c5c;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
+    .nav{position:sticky;top:0;z-index:50;background:rgba(15,15,15,0.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:14px 24px;}
+    .badge{background:var(--accent);color:#0f0f0f;font-weight:700;font-size:13px;padding:4px 10px;border-radius:6px;}
+    .nav-title{font-weight:600;font-size:15px;}
+    .nav-back{margin-left:auto;font-size:13px;color:var(--text-dim);}
+    .wrap{max-width:820px;margin:0 auto;padding:32px 20px 80px;}
+    h1{font-size:28px;font-weight:700;margin:0 0 6px;}
+    .sub{color:var(--text-dim);font-size:14px;margin:0 0 28px;}
+    button{cursor:pointer;font-family:inherit;}
+    .btn{background:var(--accent);color:#0f0f0f;border:none;border-radius:8px;padding:10px 18px;font-weight:600;font-size:14px;}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 14px;font-size:13px;}
+    .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+    input,textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:14px;width:100%;}
+    input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;}
+    textarea{resize:vertical;min-height:70px;}
+    .field{margin-bottom:20px;}
+    .field label{display:block;font-size:13px;font-weight:600;margin-bottom:4px;}
+    .field .letter{color:var(--accent);font-weight:800;margin-right:6px;}
+    .field .hint{font-size:12px;color:var(--text-dim);margin:0 0 8px;}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;}
+    .summary{background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:20px;font-size:14px;line-height:1.7;}
+    .summary strong{color:var(--accent);}
+    .saved-list{margin-top:32px;}
+    .saved-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+    .saved-item .goal-text{font-size:14px;font-weight:600;flex:1;}
+    .saved-item .goal-meta{font-size:12px;color:var(--text-dim);margin-top:4px;}
+    .saved-item button{background:none;border:none;color:var(--text-dim);font-size:14px;}
+    .saved-item button:hover{color:var(--danger);}
+    .actions{display:flex;gap:10px;margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="nav">
+  <span class="badge">37</span>
+  <span class="nav-title">SMART Goal Setter</span>
+  <span class="nav-back">ZeroKit</span>
+</div>
+<div class="wrap">
+  <h1>SMART Goal Setter</h1>
+  <p class="sub">Turn a vague ambition into a Specific, Measurable, Achievable, Relevant, Time-bound goal.</p>
+
+  <div class="card">
+    <div class="field">
+      <label><span class="letter">S</span>Specific</label>
+      <p class="hint">What exactly do you want to accomplish?</p>
+      <textarea id="specific" placeholder="e.g. Grow the Cozy Haven Finds Pinterest account"></textarea>
+    </div>
+    <div class="field">
+      <label><span class="letter">M</span>Measurable</label>
+      <p class="hint">How will you know you've succeeded? What number or metric?</p>
+      <textarea id="measurable" placeholder="e.g. Reach 5,000 monthly viewers"></textarea>
+    </div>
+    <div class="field">
+      <label><span class="letter">A</span>Achievable</label>
+      <p class="hint">Is this realistic given your time, resources, and skills?</p>
+      <textarea id="achievable" placeholder="e.g. Posting 3x/day is sustainable with current workflow"></textarea>
+    </div>
+    <div class="field">
+      <label><span class="letter">R</span>Relevant</label>
+      <p class="hint">Why does this goal matter right now?</p>
+      <textarea id="relevant" placeholder="e.g. Drives affiliate revenue, main income focus this quarter"></textarea>
+    </div>
+    <div class="field">
+      <label><span class="letter">T</span>Time-bound</label>
+      <p class="hint">What's the deadline?</p>
+      <input type="date" id="deadline">
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="saveGoal()">Save goal</button>
+      <button class="btn-ghost" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+
+  <div class="summary" id="summaryBox" style="display:none;"></div>
+
+  <div class="saved-list">
+    <h3 style="font-size:16px;margin-bottom:12px;">Saved goals</h3>
+    <div id="savedGoals"></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'zerokit_smart_goals';
+let goals = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(goals)); }
+
+function saveGoal(){
+  const specific = document.getElementById('specific').value.trim();
+  const measurable = document.getElementById('measurable').value.trim();
+  const achievable = document.getElementById('achievable').value.trim();
+  const relevant = document.getElementById('relevant').value.trim();
+  const deadline = document.getElementById('deadline').value;
+
+  if(!specific){ alert('Please fill in at least the Specific field.'); return; }
+
+  goals.unshift({ id: Date.now(), specific, measurable, achievable, relevant, deadline, done:false });
+  save();
+  renderSummary(specific, measurable, deadline);
+  renderSaved();
+  clearForm();
+}
+
+function renderSummary(specific, measurable, deadline){
+  const box = document.getElementById('summaryBox');
+  const deadlineText = deadline ? new Date(deadline+'T00:00:00').toLocaleDateString(undefined,{month:'long', day:'numeric', year:'numeric'}) : 'no deadline set';
+  box.style.display = 'block';
+  box.innerHTML = `<strong>Goal saved:</strong> ${escapeHtml(specific)}${measurable ? ', measured by ' + escapeHtml(measurable) : ''}, by <strong>${deadlineText}</strong>.`;
+}
+
+function clearForm(){
+  ['specific','measurable','achievable','relevant','deadline'].forEach(id=>document.getElementById(id).value='');
+}
+
+function toggleDone(id){
+  const g = goals.find(g=>g.id===id);
+  if(g) g.done = !g.done;
+  save();
+  renderSaved();
+}
+
+function removeGoal(id){
+  goals = goals.filter(g=>g.id!==id);
+  save();
+  renderSaved();
+}
+
+function renderSaved(){
+  const container = document.getElementById('savedGoals');
+  if(goals.length===0){
+    container.innerHTML = '<p style="color:var(--text-dim);font-size:13px;">No goals saved yet.</p>';
+    return;
+  }
+  container.innerHTML = goals.map(g=>{
+    const deadlineText = g.deadline ? new Date(g.deadline+'T00:00:00').toLocaleDateString(undefined,{month:'short', day:'numeric', year:'numeric'}) : 'No deadline';
+    return `
+      <div class="saved-item">
+        <div style="flex:1;">
+          <div class="goal-text" style="${g.done?'text-decoration:line-through;color:var(--text-dim);':''}">
+            <input type="checkbox" ${g.done?'checked':''} onchange="toggleDone(${g.id})" style="width:auto;margin-right:8px;">
+            ${escapeHtml(g.specific)}
+          </div>
+          <div class="goal-meta">${g.measurable ? escapeHtml(g.measurable) + ' · ' : ''}Due ${deadlineText}</div>
+        </div>
+        <button onclick="removeGoal(${g.id})">✕</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+renderSaved();
+</script>
+</body>
+</html>
