@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWOT Analysis Builder — ZeroKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root{
+      --bg:#0f0f0f; --surface:#1a1a1a; --surface2:#222222; --border:#2a2a2a;
+      --accent:#c8f135; --text:#f2f2f2; --text-dim:#9a9a9a; --danger:#ff5c5c;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
+    .nav{position:sticky;top:0;z-index:50;background:rgba(15,15,15,0.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:14px 24px;}
+    .badge{background:var(--accent);color:#0f0f0f;font-weight:700;font-size:13px;padding:4px 10px;border-radius:6px;}
+    .nav-title{font-weight:600;font-size:15px;}
+    .nav-back{margin-left:auto;font-size:13px;color:var(--text-dim);}
+    .wrap{max-width:960px;margin:0 auto;padding:32px 20px 80px;}
+    h1{font-size:28px;font-weight:700;margin:0 0 6px;}
+    .sub{color:var(--text-dim);font-size:14px;margin:0 0 28px;}
+    button{cursor:pointer;font-family:inherit;}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 14px;font-size:13px;}
+    .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+    input{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:14px;width:100%;margin-bottom:16px;}
+    input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+    .top-row{display:flex;justify-content:flex-end;margin-bottom:20px;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .quad{border-radius:12px;padding:18px;border:1px solid var(--border);min-height:220px;}
+    .quad h3{margin:0 0 2px;font-size:16px;}
+    .quad .desc{font-size:12px;color:var(--text-dim);margin:0 0 12px;}
+    .s{background:rgba(200,241,53,0.06);border-color:rgba(200,241,53,0.3);}
+    .s h3{color:var(--accent);}
+    .w{background:rgba(255,92,92,0.06);border-color:rgba(255,92,92,0.3);}
+    .w h3{color:#ff8787;}
+    .o{background:rgba(90,200,250,0.06);border-color:rgba(90,200,250,0.3);}
+    .o h3{color:#5ac8fa;}
+    .t{background:rgba(255,193,74,0.06);border-color:rgba(255,193,74,0.3);}
+    .t h3{color:#ffc14a;}
+    .item-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+    .item-row span{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;}
+    .item-row button{background:none;border:none;color:var(--text-dim);font-size:13px;}
+    .item-row button:hover{color:var(--danger);}
+    .add-item{display:flex;gap:6px;}
+    .add-item input{margin-bottom:0;font-size:13px;padding:8px 10px;}
+    .add-item button{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:0 12px;font-size:16px;}
+    .empty-hint{font-size:12px;color:var(--text-dim);font-style:italic;margin-bottom:8px;}
+    @media(max-width:640px){.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="nav">
+  <span class="badge">41</span>
+  <span class="nav-title">SWOT Analysis Builder</span>
+  <span class="nav-back">ZeroKit</span>
+</div>
+<div class="wrap">
+  <h1>SWOT Analysis Builder</h1>
+  <p class="sub">Map Strengths, Weaknesses, Opportunities, and Threats for a project, product, or business decision.</p>
+
+  <input type="text" id="titleInput" placeholder="What are you analyzing? (e.g. Launching a second Pinterest account)">
+
+  <div class="top-row">
+    <button class="btn-ghost" onclick="clearAll()">Clear all</button>
+  </div>
+
+  <div class="grid">
+    <div class="quad s">
+      <h3>Strengths</h3>
+      <p class="desc">Internal advantages you already have</p>
+      <div id="list-s"></div>
+      <div class="add-item"><input type="text" id="input-s" placeholder="Add strength..." onkeydown="if(event.key==='Enter')addItem('s')"><button onclick="addItem('s')">+</button></div>
+    </div>
+    <div class="quad w">
+      <h3>Weaknesses</h3>
+      <p class="desc">Internal gaps or limitations</p>
+      <div id="list-w"></div>
+      <div class="add-item"><input type="text" id="input-w" placeholder="Add weakness..." onkeydown="if(event.key==='Enter')addItem('w')"><button onclick="addItem('w')">+</button></div>
+    </div>
+    <div class="quad o">
+      <h3>Opportunities</h3>
+      <p class="desc">External factors you could exploit</p>
+      <div id="list-o"></div>
+      <div class="add-item"><input type="text" id="input-o" placeholder="Add opportunity..." onkeydown="if(event.key==='Enter')addItem('o')"><button onclick="addItem('o')">+</button></div>
+    </div>
+    <div class="quad t">
+      <h3>Threats</h3>
+      <p class="desc">External risks that could hurt you</p>
+      <div id="list-t"></div>
+      <div class="add-item"><input type="text" id="input-t" placeholder="Add threat..." onkeydown="if(event.key==='Enter')addItem('t')"><button onclick="addItem('t')">+</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'zerokit_swot';
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || { title:'', s:[], w:[], o:[], t:[] };
+
+document.getElementById('titleInput').value = data.title || '';
+document.getElementById('titleInput').addEventListener('input', e=>{
+  data.title = e.target.value;
+  save();
+});
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+function addItem(quad){
+  const input = document.getElementById('input-'+quad);
+  const text = input.value.trim();
+  if(!text) return;
+  data[quad].push({ id: Date.now(), text });
+  input.value = '';
+  save();
+  render();
+}
+
+function removeItem(quad, id){
+  data[quad] = data[quad].filter(i=>i.id!==id);
+  save();
+  render();
+}
+
+function clearAll(){
+  if(confirm('Clear the entire SWOT analysis?')){
+    data = { title: data.title, s:[], w:[], o:[], t:[] };
+    save();
+    render();
+  }
+}
+
+function render(){
+  ['s','w','o','t'].forEach(quad=>{
+    const container = document.getElementById('list-'+quad);
+    const items = data[quad];
+    if(items.length===0){
+      container.innerHTML = '<p class="empty-hint">Nothing added yet.</p>';
+      return;
+    }
+    container.innerHTML = items.map(i=>`
+      <div class="item-row">
+        <span>${escapeHtml(i.text)}</span>
+        <button onclick="removeItem('${quad}', ${i.id})">✕</button>
+      </div>
+    `).join('');
+  });
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+render();
+</script>
+</body>
+</html>
