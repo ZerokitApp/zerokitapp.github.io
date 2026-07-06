@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZeroKit — 50 Free Tools, No Sign-Up</title>
+<meta name="description" content="50 free, client-side tools for freelancers, small businesses, and creators. No sign-up, no tracking, runs entirely in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== ZeroKit Hub — shared design system ===== */
+:root {
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --surface-2: #222222;
+  --accent: #c8f135;
+  --text: #eeeeee;
+  --text-dim: #9a9a9a;
+  --border: #2c2c2c;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+img { max-width: 100%; display: block; }
+
+/* ---- Nav ---- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  background: rgba(15, 15, 15, 0.9);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--accent);
+  color: #0f0f0f;
+  font-weight: 800;
+  font-size: 0.75rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.nav-links a {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+/* ---- Layout ---- */
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 56px 24px 90px;
+}
+
+.hero {
+  text-align: center;
+  padding: 64px 24px 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+
+.hero .accent-word { color: var(--accent); }
+
+.hero p {
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  margin: 0 auto;
+  max-width: 560px;
+}
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.tag {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+/* ---- Category grid ---- */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 36px;
+}
+
+.category-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text);
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+
+.category-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  background: var(--surface-2);
+}
+
+.category-card.active {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+.category-card .cat-num {
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.category-card h3 {
+  margin: 8px 0 6px;
+  font-size: 1.05rem;
+}
+
+.category-card p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.category-card .cat-count {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+/* ---- Tool panel ---- */
+.tool-panel {
+  margin-top: 28px;
+  display: none;
+}
+
+.tool-panel.open { display: block; }
+
+.tool-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tool-panel-header h2 {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.close-panel {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.close-panel:hover { color: var(--text); border-color: var(--accent); }
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+
+.tool-btn:hover {
+  border-color: var(--accent);
+  background: var(--surface-2);
+  transform: translateX(2px);
+}
+
+.tool-btn .num {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tool-btn .arrow {
+  margin-left: auto;
+  color: var(--text-dim);
+}
+
+/* ---- Sections / prose pages ---- */
+.page-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+
+.page-subtitle {
+  color: var(--text-dim);
+  margin: 0 0 40px;
+  max-width: 640px;
+}
+
+.prose h2 {
+  font-size: 1.3rem;
+  margin: 40px 0 12px;
+}
+
+.prose p {
+  color: #c9c9c9;
+  margin: 0 0 14px;
+}
+
+.prose ul { color: #c9c9c9; padding-left: 20px; }
+.prose li { margin-bottom: 6px; }
+
+/* ---- Donation block ---- */
+.donate-block {
+  margin-top: 56px;
+  padding: 36px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.donate-copy h2 { margin: 0 0 10px; font-size: 1.25rem; }
+.donate-copy p { color: var(--text-dim); margin: 0 0 18px; max-width: 420px; }
+
+.paypal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent);
+  color: #0f0f0f;
+  font-weight: 700;
+  padding: 13px 22px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.paypal-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(200, 241, 53, 0.18);
+}
+
+.qr-wrap {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.qr-wrap img {
+  width: 140px;
+  height: 140px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 8px;
+}
+
+.qr-wrap span {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+/* ---- Contact card ---- */
+.contact-card {
+  margin-top: 20px;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.contact-card .label {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.contact-card a.email-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  transition: border-color 0.15s ease;
+}
+
+.contact-card a.email-btn:hover { border-color: var(--accent); }
+
+/* ---- About Tools listing ---- */
+.at-category {
+  margin-top: 44px;
+}
+
+.at-category h2 {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.at-category .cat-desc {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin: 0 0 18px;
+}
+
+.at-tool {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.at-tool:last-child { border-bottom: none; }
+
+.at-tool .num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.at-tool-body h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.at-tool-body p {
+  margin: 0 0 8px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.at-tool-body a.open-link {
+  font-size: 0.82rem;
+  color: var(--accent);
+}
+
+/* ---- Footer ---- */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 24px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+
+.footer a { color: var(--text-dim); }
+.footer a:hover { color: var(--accent); }
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  .hero h1 { font-size: 1.8rem; }
+  .nav { padding: 12px 16px; }
+  .nav-links a { padding: 7px 10px; font-size: 0.85rem; }
+  .container { padding: 36px 16px 70px; }
+  .donate-block { flex-direction: column; align-items: stretch; text-align: center; }
+  .qr-wrap { margin: 0 auto; }
+}
+
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand"><span class="nav-badge">Z</span>ZeroKit</div>
+  <div class="nav-links">
+    <a href="index.html" class="active">Tools</a>
+    <a href="about-tools.html">About the Tools</a>
+    <a href="about-us.html">About Us</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <h1>50 free tools.<br>No sign-up, <span class="accent-word">no catch.</span></h1>
+  <p>Every tool below runs entirely in your browser — nothing is uploaded, nothing is tracked. Pick a category to see what's inside.</p>
+  <div class="hero-tags">
+    <span class="tag">100% free</span>
+    <span class="tag">No account needed</span>
+    <span class="tag">Runs in your browser</span>
+    <span class="tag">Open source</span>
+  </div>
+</section>
+
+<div class="container" style="padding-top: 0;">
+  <div class="category-grid" id="categoryGrid"></div>
+  <div class="tool-panel" id="toolPanel">
+    <div class="tool-panel-header">
+      <h2 id="panelTitle"></h2>
+      <button class="close-panel" id="closePanel">Close ✕</button>
+    </div>
+    <div class="tool-grid" id="toolGrid"></div>
+  </div>
+</div>
+
+<footer class="footer">
+  ZeroKit is free and open source. Questions or a bug to report? <a href="mailto:zerokit.app@gmail.com">zerokit.app@gmail.com</a> · <a href="about-us.html">About this project</a>
+</footer>
+
+<script>
+// ZeroKit shared tool data — used by index.html (hub) and about-tools.html
+const ZEROKIT_CATEGORIES = [
+  {
+    id: "freelance",
+    label: "Freelance & Client Management",
+    blurb: "Everything for running client work — quoting, contracts, tracking, and keeping projects on scope.",
+    tools: [
+      { n: 1, name: "Freelancer Rate Calculator", url: "https://zerokitapp.github.io/freelancer-rate-calculator", desc: "Works out a fair hourly or project rate from your expenses, target income, and billable hours. Useful for anyone new to freelancing who's guessing at what to charge." },
+      { n: 2, name: "Project Quote Generator", url: "https://zerokitapp.github.io/project-quote-generator", desc: "Turns project scope and hours into a clean, sendable quote. Saves freelancers from rebuilding a quote document from scratch every time." },
+      { n: 3, name: "Contract Generator", url: "https://zerokitapp.github.io/contract-generator/", desc: "Builds a basic freelance service contract with the key terms filled in. Handy for solo freelancers who don't have a lawyer on call for every small gig." },
+      { n: 4, name: "Time Tracker", url: "https://zerokitapp.github.io/time-tracker", desc: "Logs hours worked per project so you can bill accurately. Built for anyone charging hourly who needs a simple record without a subscription tool." },
+      { n: 5, name: "Late Payment Fee Calculator", url: "https://zerokitapp.github.io/late-payment-fee-calculator", desc: "Calculates the interest or flat fee owed on an overdue invoice. Useful when a client pays late and you need a defensible number to add." },
+      { n: 6, name: "Expense Tracker", url: "https://zerokitapp.github.io/expense-tracker", desc: "Logs business expenses by category so freelancers and small business owners can see where money is going without spreadsheet setup." },
+      { n: 7, name: "Invoice Generator", url: "https://zerokitapp.github.io/invoice-generator", desc: "Creates a professional invoice with line items, totals, and your business details. Core tool for anyone billing clients directly." },
+      { n: 8, name: "Client Proposal Generator", url: "https://zerokitapp.github.io/client-proposal-generator", desc: "Structures a project proposal — scope, timeline, pricing — into a document you can send to win the work. Useful before a contract is even on the table." },
+      { n: 9, name: "Meeting Cost Calculator", url: "https://zerokitapp.github.io/meeting-cost-calculator", desc: "Estimates what a meeting costs in salary terms based on attendees and duration. Useful for teams deciding if a call is worth calling." },
+      { n: 10, name: "Scope Creep Tracker", url: "https://zerokitapp.github.io/scope-creep-tracker", desc: "Logs extra requests outside the original project scope so you have evidence when it's time to bill for them or push back." },
+      { n: 11, name: "Client Onboarding Checklist", url: "https://zerokitapp.github.io/client-onboarding-checklist", desc: "A step-by-step checklist for bringing a new client on board without forgetting a step. Good for freelancers who want a repeatable process." },
+      { n: 12, name: "NDA Generator", url: "https://zerokitapp.github.io/nda-generator", desc: "Produces a basic non-disclosure agreement for sharing confidential info with a client or collaborator before a bigger contract exists." },
+      { n: 13, name: "Testimonial Email Generator", url: "https://zerokitapp.github.io/testimonial-email-generator", desc: "Drafts the email you send a happy client asking for a testimonial or review. Removes the awkwardness of asking from scratch." },
+      { n: 14, name: "Freelance Tax Estimator", url: "https://zerokitapp.github.io/freelance-tax-estimator", desc: "Gives a rough estimate of tax owed on freelance income so you can set money aside through the year instead of a surprise bill." },
+      { n: 15, name: "Project Profitability Tracker", url: "https://zerokitapp.github.io/project-profitability-tracker", desc: "Compares what a project earned against the hours and costs it took, so you know which clients or project types are actually worth it." },
+      { n: 16, name: "Retainer Agreement", url: "https://zerokitapp.github.io/retainer-agreement", desc: "Builds a retainer contract for ongoing client work billed monthly. Useful for freelancers moving clients from one-off projects to recurring income." },
+      { n: 17, name: "Meeting Agenda Builder", url: "https://zerokitapp.github.io/meeting-agenda-builder", desc: "Puts together a structured agenda before a client or team meeting so time isn't wasted figuring out what to discuss." },
+      { n: 18, name: "SOP Generator", url: "https://zerokitapp.github.io/sop-generator", desc: "Documents a standard operating procedure step by step. Useful when you want to hand off a repeatable task to a VA or teammate." },
+      { n: 19, name: "Client Portal Checklist", url: "https://zerokitapp.github.io/client-portal-checklist", desc: "A checklist for what to include when setting up a client-facing portal or shared folder, so nothing important gets left out." },
+    ],
+  },
+  {
+    id: "business",
+    label: "Business & Finance",
+    blurb: "Number-crunching tools for pricing, budgeting, and understanding the financial health of a business.",
+    tools: [
+      { n: 20, name: "Business Name Brainstorm", url: "https://zerokitapp.github.io/biznis-name-brainstorm", desc: "Generates name ideas based on keywords and style, for anyone stuck naming a new business or side project." },
+      { n: 21, name: "Break-Even Calculator", url: "https://zerokitapp.github.io/break-even-calculator", desc: "Shows how many units or sales you need to cover costs before turning a profit. Core planning tool before launching a product." },
+      { n: 22, name: "Profit Margin Calculator", url: "https://zerokitapp.github.io/profit-margin-calculator", desc: "Calculates gross or net margin from cost and price. Useful for pricing decisions and checking if a product is actually profitable." },
+      { n: 23, name: "Cash Flow Forecast", url: "https://zerokitapp.github.io/cash-flow-forecast", desc: "Projects incoming and outgoing cash over coming months, helping small business owners spot a shortfall before it happens." },
+      { n: 24, name: "Business Budget Planner", url: "https://zerokitapp.github.io/Biznis-budget-planner", desc: "Lays out planned income and expenses for a business by category. Good for anyone setting a budget for the first time." },
+      { n: 25, name: "Startup Cost Estimator", url: "https://zerokitapp.github.io/startup-cost-estimator", desc: "Adds up the one-time and recurring costs of getting a new business off the ground, so founders know what capital they'll need." },
+      { n: 26, name: "ROI Calculator", url: "https://zerokitapp.github.io/ROI-calculator", desc: "Measures the return on an investment or marketing spend as a percentage. Useful for deciding if a campaign or purchase paid off." },
+      { n: 27, name: "VAT / TAX Calculator", url: "https://zerokitapp.github.io/VAT%7CTAX-calculator", desc: "Adds or removes VAT/sales tax from a price. A quick everyday tool for invoicing or checking receipts across different tax rates." },
+      { n: 28, name: "Currency Converter", url: "https://zerokitapp.github.io/currency-converter", desc: "Converts between currencies for quoting international clients or comparing prices across markets." },
+      { n: 29, name: "Salary-to-Hourly Converter", url: "https://zerokitapp.github.io/Salary-to-hourly-converter", desc: "Converts an annual salary into an hourly rate and back. Useful when comparing a full-time offer to freelance rates." },
+      { n: 30, name: "Business Valuation Estimator", url: "https://zerokitapp.github.io/business-valuation-estimator", desc: "Gives a rough estimate of what a small business might be worth based on revenue or profit multiples — useful groundwork before a sale conversation." },
+      { n: 31, name: "Loan Repayment Calculator", url: "https://zerokitapp.github.io/Loan-repayment-calculator", desc: "Breaks down monthly payments, interest, and payoff time for a loan. Useful for comparing financing options before borrowing." },
+    ],
+  },
+  {
+    id: "productivity",
+    label: "Productivity & Planning",
+    blurb: "Personal and project organization — from daily focus techniques to full project timelines.",
+    tools: [
+      { n: 32, name: "Pomodoro Timer", url: "https://zerokitapp.github.io/pomodoro-timer", desc: "A focus timer running work/break intervals. Useful for anyone who works better in short, structured bursts." },
+      { n: 33, name: "Eisenhower Matrix", url: "https://zerokitapp.github.io/eisenhower-matrix", desc: "Sorts tasks by urgency and importance into four quadrants, helping you decide what to actually do versus delegate or drop." },
+      { n: 34, name: "Habit Tracker", url: "https://zerokitapp.github.io/habit-tracker", desc: "Logs daily habits and streaks. Useful for building consistency on things like exercise, reading, or a language practice routine." },
+      { n: 35, name: "Daily Time-Blocking Planner", url: "https://zerokitapp.github.io/daily-time-blocking-planner", desc: "Lays out your day in blocks of time assigned to specific tasks, for people who plan better visually than with a plain list." },
+      { n: 36, name: "Weekly Planner", url: "https://zerokitapp.github.io/weekly-planner", desc: "A week-at-a-glance planning view for balancing tasks and commitments across all seven days at once." },
+      { n: 37, name: "SMART Goal Setter", url: "https://zerokitapp.github.io/smart-goal-setter", desc: "Walks through turning a vague goal into a Specific, Measurable, Achievable, Relevant, Time-bound one — useful at the start of a quarter or project." },
+      { n: 38, name: "Priority To-Do List", url: "https://zerokitapp.github.io/priority-todo-list", desc: "A to-do list that ranks tasks by priority instead of just listing them in the order you thought of them." },
+      { n: 39, name: "Project Timeline Builder", url: "https://zerokitapp.github.io/project-timeline-builder", desc: "Builds a visual Gantt-style timeline for a project's phases and deadlines. Useful for planning multi-step work with a client or team." },
+      { n: 40, name: "Weighted Decision Matrix", url: "https://zerokitapp.github.io/weighted-decision-matrix", desc: "Scores options against weighted criteria to help make a harder decision more objectively, like picking between vendors or job offers." },
+      { n: 41, name: "SWOT Analysis Builder", url: "https://zerokitapp.github.io/swot-analisys-builder", desc: "Structures Strengths, Weaknesses, Opportunities, and Threats for a business or project into one clear view." },
+      { n: 42, name: "Kanban Board", url: "https://zerokitapp.github.io/kanban-board", desc: "A drag-and-drop board with To Do / In Progress / Done columns for tracking tasks visually without a heavier project tool." },
+      { n: 43, name: "Deadline Countdown Tracker", url: "https://zerokitapp.github.io/deadline-countdown-tracker", desc: "Tracks countdowns to multiple deadlines at once, useful for freelancers or students juggling several due dates." },
+    ],
+  },
+  {
+    id: "marketing",
+    label: "Marketing & Content",
+    blurb: "Small tools for planning and shaping social and marketing content.",
+    tools: [
+      { n: 44, name: "UTM & Affiliate Link Builder", url: "https://zerokitapp.github.io/utm-and-affiliate-link-builder", desc: "Builds tagged tracking links for campaigns or affiliate posts, so you can see which link or platform is driving clicks." },
+      { n: 45, name: "Social Copy Character Counter", url: "https://zerokitapp.github.io/social-copy-character-counter", desc: "Counts characters against platform limits while you write a post, so captions don't get cut off after posting." },
+      { n: 46, name: "Best Time to Post Calculator", url: "https://zerokitapp.github.io/best-time-to-post-calculator", desc: "Suggests posting times in your own local time based on your posting frequency and target audience's country. Useful for creators posting across time zones." },
+      { n: 47, name: "Hashtag Generator", url: "https://zerokitapp.github.io/hashtag-generator", desc: "Generates relevant hashtags from a topic or keyword to speed up writing social captions." },
+    ],
+  },
+  {
+    id: "dev",
+    label: "Developer & Tech",
+    blurb: "Small everyday utilities for people who write code or work with data and design.",
+    tools: [
+      { n: 48, name: "JSON Formatter & Validator", url: "https://zerokitapp.github.io/json-formater-and-validator", desc: "Formats and checks JSON for errors instantly in the browser. A quick everyday utility for developers debugging data." },
+      { n: 49, name: "Regex Tester", url: "https://zerokitapp.github.io/regex-tester", desc: "Tests a regular expression against sample text and highlights matches live, saving trial-and-error in the console." },
+      { n: 50, name: "Color Contrast Checker", url: "https://zerokitapp.github.io/50-color-contrast-checker", desc: "Checks whether a text/background color pair meets accessibility contrast standards. Useful for anyone designing a UI or website." },
+    ],
+  },
+];
+
+</script>
+<script>
+  const grid = document.getElementById('categoryGrid');
+  const panel = document.getElementById('toolPanel');
+  const panelTitle = document.getElementById('panelTitle');
+  const toolGrid = document.getElementById('toolGrid');
+  const closeBtn = document.getElementById('closePanel');
+
+  ZEROKIT_CATEGORIES.forEach((cat, idx) => {
+    const card = document.createElement('button');
+    card.className = 'category-card';
+    card.dataset.id = cat.id;
+    card.innerHTML = `
+      <div class="cat-num">CATEGORY ${String(idx + 1).padStart(2, '0')}</div>
+      <h3>${cat.label}</h3>
+      <p>${cat.blurb}</p>
+      <span class="cat-count">${cat.tools.length} tools</span>
+    `;
+    card.addEventListener('click', () => openCategory(cat, card));
+    grid.appendChild(card);
+  });
+
+  function openCategory(cat, card) {
+    document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    panelTitle.textContent = cat.label;
+    toolGrid.innerHTML = '';
+    cat.tools.forEach(tool => {
+      const btn = document.createElement('a');
+      btn.className = 'tool-btn';
+      btn.href = tool.url;
+      btn.target = '_blank';
+      btn.rel = 'noopener';
+      btn.innerHTML = `
+        <span class="num">${String(tool.n).padStart(2, '0')}</span>
+        <span>${tool.name}</span>
+        <span class="arrow">→</span>
+      `;
+      toolGrid.appendChild(btn);
+    });
+    panel.classList.add('open');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  closeBtn.addEventListener('click', () => {
+    panel.classList.remove('open');
+    document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
+  });
+</script>
+
+</body>
+</html>
