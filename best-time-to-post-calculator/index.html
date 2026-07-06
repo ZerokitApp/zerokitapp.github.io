@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Best Time to Post Calculator — ZeroKit</title>
+<title>Best Posting Time Calculator — ZeroKit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -17,142 +17,139 @@
     .badge{background:var(--accent);color:#0f0f0f;font-weight:700;font-size:13px;padding:4px 10px;border-radius:6px;}
     .nav-title{font-weight:600;font-size:15px;}
     .nav-back{margin-left:auto;font-size:13px;color:var(--text-dim);}
-    .wrap{max-width:900px;margin:0 auto;padding:32px 20px 80px;}
+    .wrap{max-width:820px;margin:0 auto;padding:32px 20px 80px;}
     h1{font-size:28px;font-weight:700;margin:0 0 6px;}
     .sub{color:var(--text-dim);font-size:14px;margin:0 0 28px;}
     button{cursor:pointer;font-family:inherit;}
+    .btn{background:var(--accent);color:#0f0f0f;border:none;border-radius:8px;padding:12px 20px;font-weight:600;font-size:14px;width:100%;}
     select,input{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:14px;width:100%;}
-    input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;}
+    select:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px;}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;}
-    .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-    .field{margin-bottom:16px;}
+    .field{margin-bottom:18px;}
     .field label{display:block;font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
-    .results-table{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-    table{border-collapse:collapse;width:100%;}
-    th,td{padding:12px 16px;text-align:left;font-size:13px;border-bottom:1px solid var(--border);}
-    th{color:var(--text-dim);font-weight:600;font-size:11px;text-transform:uppercase;}
-    tr:last-child td{border-bottom:none;}
-    td.local-time{font-weight:700;color:var(--accent);}
-    td.your-time{color:var(--text-dim);}
-    .best-tag{background:rgba(200,241,53,0.15);color:var(--accent);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;}
+    .field .hint{font-size:11px;color:var(--text-dim);margin:6px 0 0;}
+    .results{display:none;}
+    .results.show{display:block;}
+    .result-heading{font-size:15px;font-weight:700;margin-bottom:14px;}
+    .result-heading span{color:var(--accent);}
+    .time-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:20px;}
+    .time-card{background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:18px 10px;text-align:center;}
+    .time-card .time{font-size:28px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;}
+    .time-card .rank{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;}
+    .note{font-size:12px;color:var(--text-dim);line-height:1.6;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
 </style>
 </head>
 <body>
 <div class="nav">
   <span class="badge">46</span>
-  <span class="nav-title">Best Time to Post Calculator</span>
+  <span class="nav-title">Best Posting Time Calculator</span>
   <span class="nav-back">ZeroKit</span>
 </div>
 <div class="wrap">
-  <h1>Best Time to Post Calculator</h1>
-  <p class="sub">Convert your local posting schedule into a target audience's timezone — useful when you're creating content from a different region than your audience.</p>
+  <h1>Best Posting Time Calculator</h1>
+  <p class="sub">Get the best times to post — in your own country's time — to hit peak engagement windows for your target audience.</p>
 
   <div class="card">
-    <div class="row2">
-      <div class="field">
-        <label>Your timezone (where you post from)</label>
-        <select id="yourTz"></select>
-      </div>
-      <div class="field">
-        <label>Audience timezone (target market)</label>
-        <select id="audienceTz"></select>
-      </div>
+    <div class="field">
+      <label>How many times do you want to post per day?</label>
+      <input type="number" id="postCount" min="1" max="8" value="3">
     </div>
     <div class="field">
-      <label>Posting times (your local time, comma-separated, 24h format)</label>
-      <input type="text" id="postTimes" value="14:00, 19:00, 02:00" placeholder="e.g. 09:00, 14:00, 20:00">
+      <label>Your country</label>
+      <select id="yourCountry"></select>
     </div>
+    <div class="field">
+      <label>Target audience country</label>
+      <select id="audienceCountry"></select>
+      <p class="hint">This is the country you're trying to reach with your content.</p>
+    </div>
+    <button class="btn" onclick="calculate()">Calculate best posting times</button>
   </div>
 
-  <div class="results-table">
-    <table>
-      <thead>
-        <tr><th>Your local time</th><th>Audience local time</th><th>Notes</th></tr>
-      </thead>
-      <tbody id="resultsBody"></tbody>
-    </table>
+  <div class="results" id="resultsBox">
+    <p class="result-heading">Best times to post <span id="postCountLabel"></span> — in your local (military) time:</p>
+    <div class="time-grid" id="timeGrid"></div>
+    <p class="note">Based on typical peak social media engagement windows for the audience's local day (morning commute, lunch break, evening wind-down), converted to your country's standard time zone. Daylight saving shifts and platform-specific algorithm behavior aren't factored in, so treat this as a strong starting point rather than an exact science.</p>
   </div>
 </div>
 
 <script>
-const TIMEZONES = [
-  {label:'UTC−12:00', offset:-12}, {label:'UTC−11:00', offset:-11}, {label:'UTC−10:00 (Hawaii)', offset:-10},
-  {label:'UTC−9:00 (Alaska)', offset:-9}, {label:'UTC−8:00 (US Pacific)', offset:-8}, {label:'UTC−7:00 (US Mountain)', offset:-7},
-  {label:'UTC−6:00 (US Central)', offset:-6}, {label:'UTC−5:00 (US Eastern)', offset:-5}, {label:'UTC−4:00 (Atlantic)', offset:-4},
-  {label:'UTC−3:00 (Brazil)', offset:-3}, {label:'UTC−2:00', offset:-2}, {label:'UTC−1:00', offset:-1},
-  {label:'UTC+0:00 (London)', offset:0}, {label:'UTC+1:00 (Central Europe)', offset:1}, {label:'UTC+2:00 (Belgrade/Cairo)', offset:2},
-  {label:'UTC+3:00 (Moscow)', offset:3}, {label:'UTC+4:00 (Dubai)', offset:4}, {label:'UTC+5:00', offset:5},
-  {label:'UTC+5:30 (India)', offset:5.5}, {label:'UTC+6:00', offset:6}, {label:'UTC+7:00 (Bangkok)', offset:7},
-  {label:'UTC+8:00 (Singapore/China)', offset:8}, {label:'UTC+9:00 (Japan/Korea)', offset:9},
-  {label:'UTC+10:00 (Sydney)', offset:10}, {label:'UTC+12:00 (Auckland)', offset:12}
+// Representative standard-time UTC offsets (DST not factored in — noted to user)
+const COUNTRIES = [
+  {name:'United States (Eastern)', offset:-5}, {name:'United States (Central)', offset:-6},
+  {name:'United States (Mountain)', offset:-7}, {name:'United States (Pacific)', offset:-8},
+  {name:'Canada (Eastern)', offset:-5}, {name:'Canada (Pacific)', offset:-8},
+  {name:'Mexico', offset:-6}, {name:'Brazil', offset:-3}, {name:'Argentina', offset:-3},
+  {name:'United Kingdom', offset:0}, {name:'Ireland', offset:0}, {name:'Portugal', offset:0},
+  {name:'Spain', offset:1}, {name:'France', offset:1}, {name:'Germany', offset:1},
+  {name:'Italy', offset:1}, {name:'Netherlands', offset:1}, {name:'Belgium', offset:1},
+  {name:'Switzerland', offset:1}, {name:'Poland', offset:1}, {name:'Sweden', offset:1},
+  {name:'Norway', offset:1}, {name:'Denmark', offset:1}, {name:'Austria', offset:1},
+  {name:'Serbia', offset:1}, {name:'Croatia', offset:1}, {name:'Hungary', offset:1},
+  {name:'Greece', offset:2}, {name:'Romania', offset:2}, {name:'Bulgaria', offset:2},
+  {name:'Finland', offset:2}, {name:'Egypt', offset:2}, {name:'South Africa', offset:2},
+  {name:'Turkey', offset:3}, {name:'Russia (Moscow)', offset:3}, {name:'Saudi Arabia', offset:3},
+  {name:'United Arab Emirates', offset:4}, {name:'Pakistan', offset:5}, {name:'India', offset:5.5},
+  {name:'Bangladesh', offset:6}, {name:'Thailand', offset:7}, {name:'Vietnam', offset:7},
+  {name:'Indonesia (Jakarta)', offset:7}, {name:'China', offset:8}, {name:'Singapore', offset:8},
+  {name:'Philippines', offset:8}, {name:'Malaysia', offset:8}, {name:'Australia (Perth)', offset:8},
+  {name:'Japan', offset:9}, {name:'South Korea', offset:9}, {name:'Australia (Sydney)', offset:10},
+  {name:'New Zealand', offset:12}
 ];
 
+const PEAK_SLOTS = ['20:00','08:00','13:00','15:00','21:00','11:00','17:00','09:00'];
+
 function populateSelects(){
-  const yourSel = document.getElementById('yourTz');
-  const audSel = document.getElementById('audienceTz');
-  TIMEZONES.forEach(tz=>{
-    yourSel.innerHTML += `<option value="${tz.offset}">${tz.label}</option>`;
-    audSel.innerHTML += `<option value="${tz.offset}">${tz.label}</option>`;
+  const yourSel = document.getElementById('yourCountry');
+  const audSel = document.getElementById('audienceCountry');
+  COUNTRIES.forEach((c, idx)=>{
+    yourSel.innerHTML += `<option value="${idx}">${c.name}</option>`;
+    audSel.innerHTML += `<option value="${idx}">${c.name}</option>`;
   });
-  yourSel.value = 2; // Belgrade default
-  audSel.value = -5; // US Eastern default
+  const serbiaIdx = COUNTRIES.findIndex(c=>c.name==='Serbia');
+  const usEastIdx = COUNTRIES.findIndex(c=>c.name==='United States (Eastern)');
+  yourSel.value = serbiaIdx >= 0 ? serbiaIdx : 0;
+  audSel.value = usEastIdx >= 0 ? usEastIdx : 0;
 }
 
 function parseTime(str){
   const [h,m] = str.split(':').map(Number);
-  return { h: h||0, m: m||0 };
+  return h*60+m;
 }
 
-function convertTime(h, m, fromOffset, toOffset){
-  const diff = toOffset - fromOffset;
-  let totalMinutes = h*60 + m + diff*60;
+function toMilitary(totalMinutes){
   totalMinutes = ((totalMinutes % 1440) + 1440) % 1440;
-  const newH = Math.floor(totalMinutes/60);
-  const newM = Math.round(totalMinutes%60);
-  return { h:newH, m:newM };
+  const h = Math.floor(totalMinutes/60);
+  const m = totalMinutes%60;
+  return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
 }
 
-function formatTime(h,m){
-  const period = h>=12 ? 'PM' : 'AM';
-  let h12 = h%12;
-  if(h12===0) h12=12;
-  return `${h12}:${m.toString().padStart(2,'0')} ${period}`;
-}
+function calculate(){
+  const count = Math.max(1, Math.min(8, parseInt(document.getElementById('postCount').value) || 1));
+  const yourOffset = COUNTRIES[document.getElementById('yourCountry').value].offset;
+  const audOffset = COUNTRIES[document.getElementById('audienceCountry').value].offset;
 
-function getDayNote(h){
-  if(h>=6 && h<12) return 'Morning for audience';
-  if(h>=12 && h<17) return 'Afternoon for audience';
-  if(h>=17 && h<21) return 'Evening — peak engagement window';
-  return 'Late night / early morning for audience';
-}
+  const diffMinutes = (yourOffset - audOffset) * 60;
 
-function render(){
-  const fromOffset = parseFloat(document.getElementById('yourTz').value);
-  const toOffset = parseFloat(document.getElementById('audienceTz').value);
-  const times = document.getElementById('postTimes').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const chosenSlots = PEAK_SLOTS.slice(0, count).map(parseTime);
+  const convertedMinutes = chosenSlots.map(m => m + diffMinutes);
+  const convertedSorted = convertedMinutes.map(toMilitary).sort();
 
-  const tbody = document.getElementById('resultsBody');
-  tbody.innerHTML = times.map(t=>{
-    const parsed = parseTime(t);
-    if(isNaN(parsed.h)) return '';
-    const converted = convertTime(parsed.h, parsed.m, fromOffset, toOffset);
-    const note = getDayNote(converted.h);
-    const isPeak = converted.h>=17 && converted.h<21;
-    return `
-      <tr>
-        <td>${formatTime(parsed.h, parsed.m)}</td>
-        <td class="local-time">${formatTime(converted.h, converted.m)}</td>
-        <td class="your-time">${note} ${isPeak ? '<span class="best-tag">Peak</span>' : ''}</td>
-      </tr>
-    `;
-  }).join('');
+  document.getElementById('postCountLabel').textContent = `${count}x/day`;
+
+  const grid = document.getElementById('timeGrid');
+  grid.innerHTML = convertedSorted.map((t,i)=>`
+    <div class="time-card">
+      <div class="time">${t}</div>
+      <div class="rank">Slot ${i+1}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('resultsBox').classList.add('show');
 }
 
 populateSelects();
-document.getElementById('yourTz').addEventListener('change', render);
-document.getElementById('audienceTz').addEventListener('change', render);
-document.getElementById('postTimes').addEventListener('input', render);
-render();
 </script>
 </body>
 </html>
+
