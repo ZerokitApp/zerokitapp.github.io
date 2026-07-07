@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — ZeroKit</title>
+<meta name="description" content="ZeroKit's privacy policy — what data is and isn't collected, and how the tools work.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== ZeroKit Hub — shared design system ===== */
+:root {
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --surface-2: #222222;
+  --accent: #c8f135;
+  --text: #eeeeee;
+  --text-dim: #9a9a9a;
+  --border: #2c2c2c;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+img { max-width: 100%; display: block; }
+
+/* ---- Nav ---- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  background: rgba(15, 15, 15, 0.9);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--accent);
+  color: #0f0f0f;
+  font-weight: 800;
+  font-size: 0.75rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.nav-links a {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+/* ---- Layout ---- */
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 56px 24px 90px;
+}
+
+.hero {
+  text-align: center;
+  padding: 64px 24px 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+
+.hero .accent-word { color: var(--accent); }
+
+.hero p {
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  margin: 0 auto;
+  max-width: 560px;
+}
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.tag {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+/* ---- Category grid ---- */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 36px;
+}
+
+.category-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text);
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+
+.category-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  background: var(--surface-2);
+}
+
+.category-card.active {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+.category-card .cat-num {
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.category-card h3 {
+  margin: 8px 0 6px;
+  font-size: 1.05rem;
+}
+
+.category-card p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.category-card .cat-count {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+/* ---- Tool panel ---- */
+.tool-panel {
+  margin-top: 28px;
+  display: none;
+}
+
+.tool-panel.open { display: block; }
+
+.tool-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tool-panel-header h2 {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.close-panel {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.close-panel:hover { color: var(--text); border-color: var(--accent); }
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+
+.tool-btn:hover {
+  border-color: var(--accent);
+  background: var(--surface-2);
+  transform: translateX(2px);
+}
+
+.tool-btn .num {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tool-btn .arrow {
+  margin-left: auto;
+  color: var(--text-dim);
+}
+
+/* ---- Sections / prose pages ---- */
+.page-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+
+.page-subtitle {
+  color: var(--text-dim);
+  margin: 0 0 40px;
+  max-width: 640px;
+}
+
+.prose h2 {
+  font-size: 1.3rem;
+  margin: 40px 0 12px;
+}
+
+.prose p {
+  color: #c9c9c9;
+  margin: 0 0 14px;
+}
+
+.prose ul { color: #c9c9c9; padding-left: 20px; }
+.prose li { margin-bottom: 6px; }
+
+/* ---- Donation block ---- */
+.donate-block {
+  margin-top: 56px;
+  padding: 36px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.donate-copy h2 { margin: 0 0 10px; font-size: 1.25rem; }
+.donate-copy p { color: var(--text-dim); margin: 0 0 18px; max-width: 420px; }
+
+.paypal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent);
+  color: #0f0f0f;
+  font-weight: 700;
+  padding: 13px 22px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.paypal-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(200, 241, 53, 0.18);
+}
+
+.qr-wrap {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.qr-wrap img {
+  width: 140px;
+  height: 140px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 8px;
+}
+
+.qr-wrap span {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+/* ---- Contact card ---- */
+.contact-card {
+  margin-top: 20px;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.contact-card .label {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.contact-card a.email-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  transition: border-color 0.15s ease;
+}
+
+.contact-card a.email-btn:hover { border-color: var(--accent); }
+
+/* ---- About Tools listing ---- */
+.at-category {
+  margin-top: 44px;
+}
+
+.at-category h2 {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.at-category .cat-desc {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin: 0 0 18px;
+}
+
+.at-tool {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.at-tool:last-child { border-bottom: none; }
+
+.at-tool .num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.at-tool-body h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.at-tool-body p {
+  margin: 0 0 8px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.at-tool-body a.open-link {
+  font-size: 0.82rem;
+  color: var(--accent);
+}
+
+/* ---- Footer ---- */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 24px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+
+.footer a { color: var(--text-dim); }
+.footer a:hover { color: var(--accent); }
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  .hero h1 { font-size: 1.8rem; }
+  .nav { padding: 12px 16px; }
+  .nav-links a { padding: 7px 10px; font-size: 0.85rem; }
+  .container { padding: 36px 16px 70px; }
+  .donate-block { flex-direction: column; align-items: stretch; text-align: center; }
+  .qr-wrap { margin: 0 auto; }
+}
+
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand"><span class="nav-badge">Z</span>ZeroKit</div>
+  <div class="nav-links">
+    <a href="index.html">Tools</a>
+    <a href="about-tools.html">About the Tools</a>
+    <a href="about-us.html">About Us</a>
+    <a href="privacy-policy.html" class="active">Privacy Policy</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 class="page-title">Privacy Policy</h1>
+  <p class="page-subtitle">Last updated: July 2026</p>
+
+  <div class="prose">
+    <h2>The short version</h2>
+    <p>ZeroKit's tools run entirely in your browser. Nothing you type, upload, or generate in any tool is sent to a server, stored on our end, or seen by anyone but you. There are no accounts, no logins, and no databases collecting your activity.</p>
+
+    <h2>What ZeroKit does not do</h2>
+    <ul>
+      <li>We do not collect, store, or transmit any content you enter into the tools (text, numbers, files, or otherwise).</li>
+      <li>We do not require accounts, sign-ups, or logins for any tool.</li>
+      <li>We do not sell or share any data, because we don't collect any to begin with.</li>
+      <li>We do not use tracking pixels or advertising networks.</li>
+    </ul>
+
+    <h2>Local storage</h2>
+    <p>Some tools save your progress using your browser's local storage (localStorage), so your data persists if you close and reopen the tab. This data is stored only on your own device — it never leaves your browser, and we have no access to it. You can clear it at any time through your browser's settings.</p>
+
+    <h2>Google Fonts</h2>
+    <p>This site loads the Inter font from Google Fonts (fonts.googleapis.com). Loading a font this way means your browser makes a request directly to Google's servers, which can see the request's IP address as part of normal web infrastructure. This is standard for most websites using web fonts, and Google's own privacy policy governs how that data is handled on their end. If you'd prefer not to send this request, you can use a browser extension that blocks third-party font loading, though the site will fall back to your device's default font.</p>
+
+    <h2>GitHub Pages hosting</h2>
+    <p>ZeroKit is hosted on GitHub Pages. As with any web host, GitHub's servers process standard technical information (like IP address and browser type) as part of serving the pages, governed by GitHub's own privacy policy. ZeroKit itself does not add any additional tracking on top of this.</p>
+
+    <h2>Analytics</h2>
+    <p>ZeroKit uses Google Search Console to understand how the site performs in search results (e.g. which pages are indexed). This does not track individual visitors using the tools themselves — it relates only to search performance data provided by Google.</p>
+
+    <h2>Donations</h2>
+    <p>The donation link on the About Us page goes to PayPal.me, an external site operated by PayPal. Any information you provide there is handled under PayPal's own privacy policy, not ZeroKit's — we never see or receive your payment details.</p>
+
+    <h2>Children's privacy</h2>
+    <p>ZeroKit does not knowingly collect any data from anyone, including children, since no data is collected from any user in the first place.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>If this policy is ever updated, the change will be reflected on this page with a new "last updated" date at the top.</p>
+
+    <h2>Contact</h2>
+    <p>Questions about this policy or how ZeroKit works? Reach out any time.</p>
+    <div class="contact-card">
+      <span class="label">Contact</span>
+      <a class="email-btn" href="mailto:zerokit.app@gmail.com">✉ zerokit.app@gmail.com</a>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  ZeroKit is free and open source. Questions or a bug to report? <a href="mailto:zerokit.app@gmail.com">zerokit.app@gmail.com</a> · <a href="index.html">Back to tools</a>
+</footer>
+
+</body>
+</html>
