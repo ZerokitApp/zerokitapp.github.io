@@ -2,267 +2,327 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://zerokitapp.github.io/</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://zerokitapp.github.io/blog.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://zerokitapp.github.io/about-tools.html</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/about-us.html</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://zerokitapp.github.io/privacy-policy.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://zerokitapp.github.io/blog-how-to-price-freelance-work.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://zerokitapp.github.io/blog-why-small-businesses-fail.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://zerokitapp.github.io/blog-late-paying-clients.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://zerokitapp.github.io/blog-freelancing-2026-data.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://zerokitapp.github.io/blog-net30-vs-net7.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://zerokitapp.github.io/blog-contract-clauses-scope-creep.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://zerokitapp.github.io/blog-freelance-tax-savings.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://zerokitapp.github.io/blog-solo-founder-burnout.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://zerokitapp.github.io/blog-break-even-math.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://zerokitapp.github.io/blog-retainer-vs-project.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
     <loc>https://zerokitapp.github.io/freelancer-rate-calculator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/project-quote-generator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/contract-generator/</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/time-tracker</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/late-payment-fee-calculator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/expense-tracker</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/invoice-generator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/client-proposal-generator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/meeting-cost-calculator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/scope-creep-tracker</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/client-onboarding-checklist</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/nda-generator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/testimonial-email-generator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/freelance-tax-estimator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/project-profitability-tracker</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/retainer-agreement</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/meeting-agenda-builder</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/sop-generator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/client-portal-checklist</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/biznis-name-brainstorm</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/break-even-calculator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/profit-margin-calculator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/cash-flow-forecast</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/Biznis-budget-planner</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/startup-cost-estimator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/ROI-calculator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/VAT%7CTAX-calculator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/currency-converter</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/Salary-to-hourly-converter</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/business-valuation-estimator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/Loan-repayment-calculator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/pomodoro-timer</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/eisenhower-matrix</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/habit-tracker</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/daily-time-blocking-planner</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/weekly-planner</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/smart-goal-setter</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/priority-todo-list</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/project-timeline-builder</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/weighted-decision-matrix</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/swot-analisys-builder</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/kanban-board</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/deadline-countdown-tracker</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/utm-and-affiliate-link-builder</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/social-copy-character-counter</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/best-time-to-post-calculator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/hashtag-generator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/json-formater-and-validator</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/regex-tester</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zerokitapp.github.io/50-color-contrast-checker</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <priority>0.7</priority>
   </url>
 </urlset>
